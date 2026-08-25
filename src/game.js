@@ -21,7 +21,7 @@
       'label.speed': '再生速度', 'unit.speed': '{0} step/s',
       'card.score': 'スコア', 'card.edit': '編集', 'card.agents': 'エージェント',
       'score.makespan': 'makespan (最大到達時刻)', 'score.moves': 'total distance (待機除く移動回数)', 'score.collisions': '衝突', 'score.done': 'ゴール到達',
-      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去', 'btn.ref': '参考解を重ねて表示',
+      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去',
       'agents.unit': '{0} agents', 'agent.remain': '残り{0}',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
@@ -75,7 +75,6 @@
       't6.tab': '<kbd>Tab</kbd> / <kbd>1</kbd>〜<kbd>9</kbd>', 't6.tabD': 'エージェントの切り替え。ゴールや経路をクリックしても選択できます。',
       't6.undo': '<kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd>', 't6.undoD': 'Undo / Redo。',
       't6.enter': '<kbd>Enter</kbd> / <kbd>Esc</kbd>', 't6.enterD': '採点 (アニメーション再生) / 再生停止。',
-      't6.p': '「参考解を重ねて表示」で LNS2 の解を点線で見られます。行き詰まったときのヒントにどうぞ。',
       'fig.t': 't → t+1', 'fig.same': '同じマス', 'fig.swap': '入れ替わり', 'fig.follow': '後ろから追従',
     },
     en: {
@@ -90,7 +89,7 @@
       'label.speed': 'Playback speed', 'unit.speed': '{0} step/s',
       'card.score': 'Score', 'card.edit': 'Edit', 'card.agents': 'Agents',
       'score.makespan': 'makespan (last arrival)', 'score.moves': 'total distance (moves only)', 'score.collisions': 'collisions', 'score.done': 'at goal',
-      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all', 'btn.ref': 'Overlay reference solution',
+      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all',
       'agents.unit': '{0} agents', 'agent.remain': '{0} left',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
@@ -143,7 +142,6 @@
       't6.tab': '<kbd>Tab</kbd> / <kbd>1</kbd>–<kbd>9</kbd>', 't6.tabD': 'Switch agents. Clicking a goal or a path also selects that agent.',
       't6.undo': '<kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd>', 't6.undoD': 'Undo / Redo.',
       't6.enter': '<kbd>Enter</kbd> / <kbd>Esc</kbd>', 't6.enterD': 'Submit (plays the animation) / stop playback.',
-      't6.p': '"Overlay reference solution" shows the LNS2 paths as dotted lines — a hint when you are stuck.',
       'fig.t': 't → t+1', 'fig.same': 'same cell', 'fig.swap': 'swap', 'fig.follow': 'following',
     },
   };
@@ -192,7 +190,7 @@
     map: null, G: null, starts: [], goals: [], paths: [], dist: [],
     sel: -1, drag: null, hover: -1,
     undo: [], redo: [],
-    ref: null, refState: 'none', solver: null, refPaths: null, showRef: false, lb: null,
+    ref: null, refState: 'none', solver: null, refPaths: null, lb: null,
     mode: 'edit', anim: null, speed: 3,
     collisions: null, metrics: null, best: null,
     cell: 32, ox: 0, oy: 0,
@@ -222,7 +220,7 @@
     S.paths = S.starts.map(s => [s]);
     S.sel = N > 0 ? 0 : -1; S.drag = null;
     S.undo = []; S.redo = [];
-    S.mode = 'edit'; S.anim = null; S.showRef = false; $('btn-ref').classList.remove('on');
+    S.mode = 'edit'; S.anim = null;
     S.ref = null; S.refPaths = null;
     S.best = readBest(mapId, N);
     S.lastResult = null;
@@ -307,7 +305,6 @@
       }
     };
     add(S.paths);
-    if (S.showRef && S.refPaths) add(S.refPaths);
     S.lanes = lanes;
   }
   function recompute() {
@@ -438,7 +435,6 @@
     const cs = S.cell;
     if (S.mode === 'edit') {
       drawGoals();
-      if (S.showRef && S.refPaths) for (let i = 0; i < S.N; ++i) drawPath(S.refPaths[i], i, 0.35, 2, true);
       for (let i = 0; i < S.N; ++i) if (i !== S.sel) drawPath(S.paths[i], i, 0.55, 3, false);
       if (S.sel >= 0) drawPath(S.paths[S.sel], S.sel, 0.95, 5, false);
       for (let i = 0; i < S.N; ++i) {
@@ -482,7 +478,6 @@
     else if (S.refState === 'fail') e.innerHTML = t('ref.fail');
     else e.textContent = '';
     if (S.lb) $('lb-info').innerHTML = t('lb', S.lb.makespan, S.lb.moves);
-    $('btn-ref').disabled = !S.refPaths;
   }
 
   function rankBadge(r) { return r ? `<span class="badge ${r}">${r.toUpperCase()}</span>` : ''; }
@@ -939,7 +934,7 @@
 <div class="tcard"><h3>${t('t5.h')}</h3><div class="figs">${F(score, t('t5.fig'))}</div><p>${t('t5.p')}</p></div>
 <div class="tcard"><h3>${t('t6.h')}</h3><table>
 ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', 't6.rclickD')}${row('t6.keys', 't6.keysD')}${row('t6.bs', 't6.bsD')}${row('t6.tab', 't6.tabD')}${row('t6.undo', 't6.undoD')}${row('t6.enter', 't6.enterD')}
-</table><p>${t('t6.p')}</p></div>`;
+</table></div>`;
   }
 
   // ============================================================ screens
@@ -1019,7 +1014,6 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-redo').addEventListener('click', doRedo);
   $('btn-clear-agent').addEventListener('click', () => { if (S.sel < 0 || S.mode !== 'edit') return; snapshot(); S.paths[S.sel] = [S.starts[S.sel]]; Sound.undo(); recompute(); renderAll(); });
   $('btn-clear-all').addEventListener('click', () => { if (S.mode !== 'edit') return; if (!confirm(t('confirm.clearAll'))) return; snapshot(); S.paths = S.starts.map(s => [s]); Sound.undo(); recompute(); renderAll(); });
-  $('btn-ref').addEventListener('click', () => { S.showRef = !S.showRef; $('btn-ref').classList.toggle('on', S.showRef); computeLanes(); draw(); });
   $('btn-ranking').addEventListener('click', showRanking);
   $('ranking-close').addEventListener('click', () => $('ranking').classList.remove('show'));
   $('btn-gif').addEventListener('click', exportGif);
