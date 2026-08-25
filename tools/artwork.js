@@ -1,26 +1,30 @@
 // tools/artwork.js — イメージイラスト (assets/hero.svg, 1200x630) を生成する
 //   node tools/artwork.js
+// 左: 実際の Random マップ (random:10) を LNS2 参考解の経路で途中まで解いている様子 / 右: タイトル
 const fs = require('fs'), path = require('path');
+const L = require('../src/lns2.js'), M = require('../src/maps.js'), R = require('../src/reference.js');
+
+const STAGE = 'random:10';
+const [mapId, N] = STAGE.split(':');
+const map = M.getMap(mapId), ref = R[STAGE];
+const decode = (start, str) => { const p = [start]; let c = start; for (const ch of str) { c += ch === 'R' ? 1 : ch === 'L' ? -1 : ch === 'D' ? map.w : ch === 'U' ? -map.w : 0; p.push(c); } return p; };
+const toXY = c => [c % map.w, Math.floor(c / map.w)];
+
+// 「解いている途中」に見せる: 一部のエージェントは経路を途中で切り, 1 台は手でドラッグ中
+const PARTIAL = { 2: 0.55, 5: 0.7, 7: 0.45, 8: 0.6 };
+const HAND = 7;
+const agents = ref.paths.map((str, i) => {
+  const full = decode(ref.starts[i], str);
+  const frac = PARTIAL[i];
+  const cut = frac ? Math.max(2, Math.round(full.length * frac)) : full.length;
+  return { path: full.slice(0, cut).map(toXY), goal: toXY(ref.goals[i]), hand: i === HAND };
+});
 
 const W = 1200, H = 630;
-const C = 44, BX = 36, BY = 95, COLS = 14, ROWS = 10;
-const cx = (i) => BX + (i + 0.5) * C, cy = (j) => BY + (j + 0.5) * C;
-const hue = (i) => (i * 137.508) % 360;
-const col = (i) => `hsl(${hue(i).toFixed(1)}, 70%, 50%)`;
-
-const obstacles = [];
-for (let x = 3; x <= 7; ++x) { obstacles.push([x, 3]); obstacles.push([x, 6]); }
-obstacles.push([10, 1], [11, 5], [1, 8], [12, 8]);
-
-// 経路 (セル列). 最後の要素が現在位置 (先端). goal は別途
-const agents = [
-  { path: [[0, 0], [1, 0], [2, 0], [2, 1], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [8, 3], [8, 4]], goal: [8, 4] },
-  { path: [[13, 9], [12, 9], [11, 9], [10, 9], [9, 9], [9, 8], [9, 7], [9, 6], [9, 5], [8, 5], [7, 5], [6, 5], [5, 5], [4, 5], [3, 5], [2, 5], [1, 5], [1, 4]], goal: [1, 4] },
-  { path: [[12, 2], [12, 3], [12, 4], [11, 4], [10, 4], [9, 4], [9, 5], [9, 6], [9, 7], [9, 8], [8, 8], [7, 8], [6, 8]], goal: [4, 8], hand: true },
-  { path: [[6, 1], [6, 2], [7, 2], [8, 2], [9, 2], [9, 3], [10, 3], [10, 4], [10, 5], [10, 6], [10, 7], [10, 8], [10, 9], [11, 9]], goal: [12, 9] },
-  { path: [[5, 4], [4, 4], [3, 4], [2, 4], [2, 3], [2, 2], [1, 2], [0, 2]], goal: [0, 2] },
-  { path: [[13, 3], [13, 4], [13, 5], [13, 5], [13, 6], [12, 6], [11, 6], [11, 7]], goal: [11, 7] },
-];
+const C = 30, BX = 40, BY = 75, COLS = map.w, ROWS = map.h;
+const cx = i => BX + (i + 0.5) * C, cy = j => BY + (j + 0.5) * C;
+const hue = i => (i * 137.508) % 360;
+const col = i => `hsl(${hue(i).toFixed(1)}, 70%, 50%)`;
 
 // レーン割当 (ゲームと同じ: 無向辺ごとに使用エージェントを並べる)
 const ekey = (a, b) => { const ka = a[1] * COLS + a[0], kb = b[1] * COLS + b[0]; return ka < kb ? ka * 1000 + kb : kb * 1000 + ka; };
@@ -50,13 +54,13 @@ svg += `<g stroke="#000" stroke-opacity="0.08" stroke-width="1">`;
 for (let i = 1; i < COLS; ++i) svg += `<line x1="${BX + i * C}" y1="${BY}" x2="${BX + i * C}" y2="${BY + BH}"/>`;
 for (let j = 1; j < ROWS; ++j) svg += `<line x1="${BX}" y1="${BY + j * C}" x2="${BX + BW}" y2="${BY + j * C}"/>`;
 svg += `</g>`;
-for (const [x, y] of obstacles) svg += `<rect x="${BX + x * C + 1}" y="${BY + y * C + 1}" width="${C - 2}" height="${C - 2}" rx="3" fill="#3b3a37"/>`;
+for (let y = 0; y < ROWS; ++y) for (let x = 0; x < COLS; ++x) if (!map.free[y * COLS + x]) svg += `<rect x="${BX + x * C + 1}" y="${BY + y * C + 1}" width="${C - 2}" height="${C - 2}" rx="3" fill="#3b3a37"/>`;
 
 // ゴール
 agents.forEach((ag, i) => {
   const [gx, gy] = ag.goal; const r = C * 0.36;
-  svg += `<rect x="${cx(gx) - r}" y="${cy(gy) - r}" width="${2 * r}" height="${2 * r}" rx="4" fill="${col(i)}" fill-opacity="0.15" stroke="${col(i)}" stroke-width="2.5"/>`;
-  svg += `<text x="${cx(gx)}" y="${cy(gy) + 1}" font-size="${C * 0.36}" font-weight="700" fill="${col(i)}" text-anchor="middle" dominant-baseline="middle">${i + 1}</text>`;
+  svg += `<rect x="${cx(gx) - r}" y="${cy(gy) - r}" width="${2 * r}" height="${2 * r}" rx="3" fill="${col(i)}" fill-opacity="0.15" stroke="${col(i)}" stroke-width="2"/>`;
+  svg += `<text x="${cx(gx)}" y="${cy(gy) + 1}" font-size="${C * 0.38}" font-weight="700" fill="${col(i)}" text-anchor="middle" dominant-baseline="middle">${i + 1}</text>`;
 });
 // 経路
 agents.forEach((ag, i) => {
@@ -70,61 +74,39 @@ agents.forEach((ag, i) => {
     const x1 = cx(a[0]), y1 = cy(a[1]), x2 = cx(b[0]), y2 = cy(b[1]);
     const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy), ux = dx / len, uy = dy / len;
     const ox = -uy * off, oy = ux * off;
-    svg += `<line x1="${x1 + ox}" y1="${y1 + oy}" x2="${x2 + ox}" y2="${y2 + oy}" stroke="${col(i)}" stroke-width="5" stroke-linecap="round" stroke-opacity="0.85"/>`;
-    const mx = (x1 + x2) / 2 + ox, my = (y1 + y2) / 2 + oy, ah = C * 0.16;
+    svg += `<line x1="${x1 + ox}" y1="${y1 + oy}" x2="${x2 + ox}" y2="${y2 + oy}" stroke="${col(i)}" stroke-width="3.5" stroke-linecap="round" stroke-opacity="0.85"/>`;
+    const mx = (x1 + x2) / 2 + ox, my = (y1 + y2) / 2 + oy, ah = C * 0.17;
     svg += `<polygon points="${mx + ux * ah * 0.6},${my + uy * ah * 0.6} ${mx - ux * ah * 0.5 - uy * ah * 0.55},${my - uy * ah * 0.5 + ux * ah * 0.55} ${mx - ux * ah * 0.5 + uy * ah * 0.55},${my - uy * ah * 0.5 - ux * ah * 0.55}" fill="${col(i)}"/>`;
     lastOff = [ox, oy];
   }
-  // 残り (先端からゴールまで) を点線で
-  const hd = ag.path[ag.path.length - 1];
-  if (hd[0] !== ag.goal[0] || hd[1] !== ag.goal[1]) svg += `<line x1="${cx(hd[0])}" y1="${cy(hd[1])}" x2="${cx(ag.goal[0])}" y2="${cy(ag.goal[1])}" stroke="${col(i)}" stroke-width="2" stroke-dasharray="4 5" stroke-opacity="0.5"/>`;
 });
 // スタート点
-agents.forEach((ag, i) => { const [sx, sy] = ag.path[0]; svg += `<circle cx="${cx(sx)}" cy="${cy(sy)}" r="${C * 0.14}" fill="${col(i)}" fill-opacity="0.6"/>`; });
+agents.forEach((ag, i) => { if (ag.path.length > 1) { const [sx, sy] = ag.path[0]; svg += `<circle cx="${cx(sx)}" cy="${cy(sy)}" r="${C * 0.14}" fill="${col(i)}" fill-opacity="0.6"/>`; } });
 // エージェント (先端)
 agents.forEach((ag, i) => {
   const [hx, hy] = ag.path[ag.path.length - 1]; const r = C * 0.37;
-  svg += `<g filter="url(#soft)"><circle cx="${cx(hx)}" cy="${cy(hy)}" r="${r}" fill="${col(i)}" stroke="#fff" stroke-width="2.5"/></g>`;
-  svg += `<text x="${cx(hx)}" y="${cy(hy) + 1}" font-size="${r * 1.05}" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">${i + 1}</text>`;
+  svg += `<g filter="url(#soft)"><circle cx="${cx(hx)}" cy="${cy(hy)}" r="${r}" fill="${col(i)}" stroke="#fff" stroke-width="2"/></g>`;
+  svg += `<text x="${cx(hx)}" y="${cy(hy) + 1}" font-size="${r * 1.1}" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle">${i + 1}</text>`;
 });
 // 手 (ドラッグ中)
 {
   const ag = agents.find(a => a.hand); const [hx, hy] = ag.path[ag.path.length - 1];
-  const x = cx(hx) + 6, y = cy(hy) + 8;
-  svg += `<g transform="translate(${x} ${y}) scale(1.15)" filter="url(#soft)">
+  const x = cx(hx) + 4, y = cy(hy) + 5;
+  svg += `<g transform="translate(${x} ${y}) scale(0.95)" filter="url(#soft)">
     <path d="M6 20 L6 4 Q6 0 9.5 0 Q13 0 13 4 L13 14 L15 13 Q18 12 19 14 L21 13 Q24 12 25 14.5 L27 14 Q30 13.5 30.5 16 L30.5 26 Q30 36 22 38 L14 38 Q9 38 6 33 L0 24 Q-1.5 21 1.5 19.5 Q4 18.5 6 20 Z" fill="#fff" stroke="#2b2a28" stroke-width="2.2" stroke-linejoin="round"/>
   </g>`;
 }
+// 盤面のキャプション
+svg += `<text x="${BX}" y="${BY + BH + 26}" font-size="14" fill="#666">Random — 10 agents</text>`;
+
 // タイトル
-const TX = 700;
-svg += `<text x="${TX}" y="205" font-size="64" font-weight="800" fill="#2b2a28" letter-spacing="0.5">Human MAPF</text>`;
-svg += `<text x="${TX}" y="250" font-size="25" font-weight="600" fill="#3b3a37">人力マルチエージェント経路計画</text>`;
-svg += `<text x="${TX}" y="282" font-size="18" fill="#666">Multi-Agent Path Finding, solved by hand</text>`;
-svg += `<text x="${TX}" y="340" font-size="18" fill="#2b2a28">全員をぶつけずにゴールへ。</text>`;
-svg += `<text x="${TX}" y="368" font-size="18" fill="#2b2a28">makespan と total distance で MAPF ソルバーに挑め。</text>`;
-// ランクチップ
-const chips = [['DIAMOND', '#1e9be0'], ['PLATINUM', '#78909c'], ['GOLD', '#d4a017'], ['SILVER', '#9e9e9e'], ['BRONZE', '#a5602c']];
-let x = TX; const yChip = 412;
-for (const [name, c] of chips) {
-  const w = name.length * 9.2 + 20;
-  svg += `<rect x="${x}" y="${yChip}" width="${w}" height="28" rx="14" fill="${c}"/><text x="${x + w / 2}" y="${yChip + 15}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle" dominant-baseline="middle" letter-spacing="0.4">${name}</text>`;
-  x += w + 7;
-}
-// 衝突ルールのミニ図 (頂点衝突 ✗ / 追従 ○)
-const mini = (x0, y0, items, cap, capColor) => {
-  const s = 30; let o = `<g transform="translate(${x0} ${y0})"><rect x="0" y="0" width="${3 * s}" height="${s}" fill="#f4f1ea" stroke="#bbb"/><line x1="${s}" y1="0" x2="${s}" y2="${s}" stroke="#ccc"/><line x1="${2 * s}" y1="0" x2="${2 * s}" y2="${s}" stroke="#ccc"/>`;
-  for (const it of items) {
-    if (it.t === 'a') o += `<circle cx="${(it.x + 0.5) * s}" cy="${s / 2}" r="${s * 0.32}" fill="${it.c}" fill-opacity="${it.g ? 0.35 : 1}" stroke="#fff" stroke-width="1.5"/>`;
-    if (it.t === 'ar') { const x1 = (it.x1 + 0.5) * s, x2 = (it.x2 + 0.5) * s; const d = Math.sign(x2 - x1); o += `<line x1="${x1 + d * s * 0.3}" y1="${s / 2}" x2="${x2 - d * s * 0.42}" y2="${s / 2}" stroke="${it.c}" stroke-width="2.5"/><polygon points="${x2 - d * s * 0.3},${s / 2} ${x2 - d * s * 0.48},${s / 2 - 5} ${x2 - d * s * 0.48},${s / 2 + 5}" fill="${it.c}"/>`; }
-    if (it.t === 'x') { const cxx = (it.x + 0.5) * s, r = s * 0.26; o += `<path d="M${cxx - r},${s / 2 - r} L${cxx + r},${s / 2 + r} M${cxx + r},${s / 2 - r} L${cxx - r},${s / 2 + r}" stroke="#e02020" stroke-width="3.5" stroke-linecap="round"/>`; }
-  }
-  o += `<text x="${3 * s + 10}" y="${s / 2 + 1}" font-size="14" font-weight="600" fill="${capColor}" dominant-baseline="middle">${cap}</text></g>`;
-  return o;
-};
-const A = '#e0492f', B = '#2f6fe0';
-svg += mini(TX, 470, [{ t: 'a', x: 0, c: A }, { t: 'a', x: 2, c: B }, { t: 'ar', x1: 0, x2: 1, c: A }, { t: 'ar', x1: 2, x2: 1, c: B }, { t: 'x', x: 1 }], '同じマスに同時に入ると衝突', '#d32f2f');
-svg += mini(TX, 514, [{ t: 'a', x: 0, c: B }, { t: 'a', x: 1, c: A }, { t: 'ar', x1: 1, x2: 2, c: A }, { t: 'ar', x1: 0, x2: 1, c: B }], '列になって進むのは OK', '#2f7d32');
-svg += `<text x="${TX}" y="590" font-size="13" fill="#777">hirokinagai-39.github.io/human-mapf — ブラウザで無料 / 日本語・英語対応</text>`;
+const TX = 600;
+svg += `<text x="${TX}" y="240" font-size="72" font-weight="800" fill="#2b2a28" letter-spacing="0.5">Human MAPF</text>`;
+svg += `<text x="${TX}" y="290" font-size="27" font-weight="600" fill="#3b3a37">人力マルチエージェント経路計画</text>`;
+svg += `<text x="${TX}" y="324" font-size="19" fill="#666">Multi-Agent Path Finding, solved by hand</text>`;
+svg += `<text x="${TX}" y="392" font-size="20" fill="#2b2a28">全員をぶつけずにゴールへ。</text>`;
+svg += `<text x="${TX}" y="424" font-size="20" fill="#2b2a28">makespan と total distance で MAPF ソルバーに挑め。</text>`;
+svg += `<text x="${TX}" y="560" font-size="15" fill="#777">hirokinagai-39.github.io/human-mapf — ブラウザで無料 / 日本語・英語対応</text>`;
 svg += `</svg>\n`;
 
 const out = path.join(__dirname, '..', 'assets', 'hero.svg');
