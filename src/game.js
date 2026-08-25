@@ -1,5 +1,5 @@
 /*
- * game.js — 人力マルチエージェント経路計画パズル / Human MAPF puzzle
+ * game.js — PathWeave: 人力マルチエージェント経路計画パズル / Human MAPF puzzle
  */
 (function () {
   'use strict';
@@ -9,7 +9,7 @@
   // ============================================================ i18n
   const I18N = {
     ja: {
-      'tagline': '人力マルチエージェント経路計画 — 全員をぶつけずにゴールへ。makespan と総移動距離を競う。',
+      'tagline': '経路を織り込め — 全員をぶつけずにゴールへ導く人力マルチエージェント経路計画パズル。makespan と総移動距離を競う。',
       'home.tutorialLink': '▼ 遊び方・衝突ルールを見る',
       'home.stages': 'ステージ選択',
       'home.howto': '遊び方',
@@ -63,7 +63,7 @@
       'fig.t': 't → t+1', 'fig.same': '同じマス', 'fig.swap': '入れ替わり', 'fig.follow': '後ろから追従',
     },
     en: {
-      'tagline': 'Human multi-agent path finding — get everyone to their goal without collisions. Minimize makespan and total distance.',
+      'tagline': 'Weave the paths — a human multi-agent path finding puzzle. Get everyone to their goal without collisions, minimizing makespan and total distance.',
       'home.tutorialLink': '▼ How to play / collision rules',
       'home.stages': 'Select a stage',
       'home.howto': 'How to play',
@@ -117,7 +117,7 @@
     },
   };
   let LANG = 'ja';
-  try { LANG = localStorage.getItem('mapf_puzzle_lang') || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'); } catch (e) { }
+  try { LANG = localStorage.getItem('pathweave_lang') || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'); } catch (e) { }
   if (LANG !== 'ja' && LANG !== 'en') LANG = 'ja';
   function t(k) {
     let s = I18N[LANG][k]; if (s == null) s = I18N.ja[k]; if (s == null) return k;
@@ -175,7 +175,7 @@
   function cellCenter(c) { const [x, y] = cellXY(c); return [S.ox + (x + 0.5) * S.cell, S.oy + (y + 0.5) * S.cell]; }
   function head(i) { return S.paths[i][S.paths[i].length - 1]; }
   function isAdj(a, b) { const d = Math.abs(a - b); return (d === 1 && Math.floor(a / S.map.w) === Math.floor(b / S.map.w)) || d === S.map.w; }
-  function bestKey(mapId, N) { return `mapf_puzzle_best:${mapId}:${N}`; }
+  function bestKey(mapId, N) { return `pathweave_best:${mapId}:${N}`; }
   function readBest(mapId, N) { try { return JSON.parse(localStorage.getItem(bestKey(mapId, N)) || 'null'); } catch (e) { return null; } }
   function mapName(id) { return t('map.' + id); }
 
@@ -804,7 +804,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   }
   function toggleLang() {
     LANG = LANG === 'ja' ? 'en' : 'ja';
-    try { localStorage.setItem('mapf_puzzle_lang', LANG); } catch (e) { }
+    try { localStorage.setItem('pathweave_lang', LANG); } catch (e) { }
     applyLang();
   }
 

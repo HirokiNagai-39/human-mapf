@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MAPF Puzzle</title>
-<meta name="description" content="Human multi-agent path finding puzzle — 全員をぶつけずにゴールへ導く経路計画パズル。makespan と総移動距離を競う。">
-<meta property="og:title" content="MAPF Puzzle">
+<title>PathWeave — MAPF Puzzle</title>
+<meta name="description" content="PathWeave: 全員をぶつけずにゴールへ導く経路計画パズル (人力 MAPF)。makespan と総移動距離を競う。 / A human multi-agent path finding puzzle.">
+<meta property="og:title" content="PathWeave — MAPF Puzzle">
 <meta property="og:description" content="人力マルチエージェント経路計画パズル / Human multi-agent path finding puzzle. Plays in any browser, no install.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#2b2a28">
@@ -76,7 +76,8 @@ input[type=range] { width: 120px; }
 #game { flex-direction: column; height: 100%; }
 .home-inner { max-width: 1000px; width: 100%; margin: 0 auto; padding: 24px 20px 60px; }
 .hero { text-align: center; padding: 20px 0 10px; }
-.hero h1 { font-size: 40px; margin: 0 0 6px; letter-spacing: 0.04em; color: #2b2a28; }
+.hero h1 { font-size: 44px; margin: 0; letter-spacing: 0.06em; color: #2b2a28; }
+.hero .subtitle { margin: 0 0 6px; color: #777; font-size: 13px; letter-spacing: 0.2em; }
 .hero .tagline { color: #555; margin: 0 0 14px; }
 .hero .row { justify-content: center; }
 .btn-link { font-size: 13px; padding: 5px 10px; border-radius: 6px; border: 1px solid #999; background: #fafafa; color: #222; text-decoration: none; }
@@ -141,7 +142,8 @@ body { touch-action: manipulation; }
       <button id="home-lang" class="lang">EN</button>
     </div>
     <div class="hero">
-      <h1>MAPF Puzzle</h1>
+      <h1>PathWeave</h1>
+      <p class="subtitle">— MAPF Puzzle —</p>
       <p class="tagline" data-i18n="tagline"></p>
       <div class="row">
         <button id="home-sound"></button>
@@ -159,7 +161,7 @@ body { touch-action: manipulation; }
 <div id="game" class="screen">
   <header>
     <button id="btn-home" data-i18n="btn.home"></button>
-    <h1 id="stage-title">MAPF Puzzle</h1>
+    <h1 id="stage-title">PathWeave</h1>
     <span style="flex:1"></span>
     <button id="btn-lang" class="lang">EN</button>
     <button id="btn-sound"></button>
@@ -888,7 +890,7 @@ body { touch-action: manipulation; }
 </script>
 <script>
 /*
- * game.js — 人力マルチエージェント経路計画パズル / Human MAPF puzzle
+ * game.js — PathWeave: 人力マルチエージェント経路計画パズル / Human MAPF puzzle
  */
 (function () {
   'use strict';
@@ -898,7 +900,7 @@ body { touch-action: manipulation; }
   // ============================================================ i18n
   const I18N = {
     ja: {
-      'tagline': '人力マルチエージェント経路計画 — 全員をぶつけずにゴールへ。makespan と総移動距離を競う。',
+      'tagline': '経路を織り込め — 全員をぶつけずにゴールへ導く人力マルチエージェント経路計画パズル。makespan と総移動距離を競う。',
       'home.tutorialLink': '▼ 遊び方・衝突ルールを見る',
       'home.stages': 'ステージ選択',
       'home.howto': '遊び方',
@@ -952,7 +954,7 @@ body { touch-action: manipulation; }
       'fig.t': 't → t+1', 'fig.same': '同じマス', 'fig.swap': '入れ替わり', 'fig.follow': '後ろから追従',
     },
     en: {
-      'tagline': 'Human multi-agent path finding — get everyone to their goal without collisions. Minimize makespan and total distance.',
+      'tagline': 'Weave the paths — a human multi-agent path finding puzzle. Get everyone to their goal without collisions, minimizing makespan and total distance.',
       'home.tutorialLink': '▼ How to play / collision rules',
       'home.stages': 'Select a stage',
       'home.howto': 'How to play',
@@ -1006,7 +1008,7 @@ body { touch-action: manipulation; }
     },
   };
   let LANG = 'ja';
-  try { LANG = localStorage.getItem('mapf_puzzle_lang') || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'); } catch (e) { }
+  try { LANG = localStorage.getItem('pathweave_lang') || ((navigator.language || 'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en'); } catch (e) { }
   if (LANG !== 'ja' && LANG !== 'en') LANG = 'ja';
   function t(k) {
     let s = I18N[LANG][k]; if (s == null) s = I18N.ja[k]; if (s == null) return k;
@@ -1064,7 +1066,7 @@ body { touch-action: manipulation; }
   function cellCenter(c) { const [x, y] = cellXY(c); return [S.ox + (x + 0.5) * S.cell, S.oy + (y + 0.5) * S.cell]; }
   function head(i) { return S.paths[i][S.paths[i].length - 1]; }
   function isAdj(a, b) { const d = Math.abs(a - b); return (d === 1 && Math.floor(a / S.map.w) === Math.floor(b / S.map.w)) || d === S.map.w; }
-  function bestKey(mapId, N) { return `mapf_puzzle_best:${mapId}:${N}`; }
+  function bestKey(mapId, N) { return `pathweave_best:${mapId}:${N}`; }
   function readBest(mapId, N) { try { return JSON.parse(localStorage.getItem(bestKey(mapId, N)) || 'null'); } catch (e) { return null; } }
   function mapName(id) { return t('map.' + id); }
 
@@ -1693,7 +1695,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   }
   function toggleLang() {
     LANG = LANG === 'ja' ? 'en' : 'ja';
-    try { localStorage.setItem('mapf_puzzle_lang', LANG); } catch (e) { }
+    try { localStorage.setItem('pathweave_lang', LANG); } catch (e) { }
     applyLang();
   }
 
