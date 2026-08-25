@@ -38,13 +38,13 @@ ul#agents li .nm { width: 24px; font-weight: 600; }
 ul#agents li .mono { font-size: 12px; color: #444; width: 52px; }
 ul#agents li .ok { color: #2f7d32; font-weight: 700; margin-left: auto; }
 .badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #fff; }
-.badge.gold { background: #d4a017; } .badge.silver { background: #8d9aa5; } .badge.bronze { background: #a5602c; }
+.badge.diamond { background: #1e9be0; } .badge.platinum { background: #78909c; } .badge.gold { background: #d4a017; } .badge.silver { background: #9e9e9e; } .badge.bronze { background: #a5602c; } .badge.clear { background: #757575; }
 #anim-t { font-size: 12px; color: #555; min-width: 90px; }
 input[type=range] { width: 120px; }
 .result { display: none; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); background: #fff; border-radius: 12px; padding: 20px 28px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); text-align: center; z-index: 20; font-size: 15px; min-width: 300px; }
 .result.show { display: block; }
 .result .rank { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: 0.1em; }
-.result.gold .rank { color: #d4a017; } .result.silver .rank { color: #7d8a95; } .result.bronze .rank { color: #a5602c; }
+.result.diamond .rank { color: #1e9be0; text-shadow: 0 0 12px rgba(30,155,224,0.5); } .result.platinum .rank { color: #607d8b; } .result.gold .rank { color: #d4a017; } .result.silver .rank { color: #8a8a8a; } .result.bronze .rank { color: #a5602c; } .result.clear .rank { color: #757575; }
 .result .sub { font-size: 12px; color: #666; margin-top: 4px; }
 .result button { margin-top: 12px; }
 #help { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 30; align-items: center; justify-content: center; }
@@ -79,11 +79,14 @@ input[type=range] { width: 120px; }
 .stage-card .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { position: relative; font-size: 13px; padding: 5px 10px; border-radius: 6px; border: 1px solid #999; background: #fafafa; cursor: pointer; min-width: 48px; text-align: center; }
 .chip:hover { background: #fff; border-color: #555; }
+.chip.diamond { background: #e1f5fe; border-color: #1e9be0; }
+.chip.platinum { background: #eceff1; border-color: #78909c; }
 .chip.gold { background: #fff3c4; border-color: #d4a017; }
-.chip.silver { background: #eceff1; border-color: #8d9aa5; }
+.chip.silver { background: #f5f5f5; border-color: #9e9e9e; }
 .chip.bronze { background: #f5e6d8; border-color: #a5602c; }
+.chip.clear { background: #f0f0f0; border-color: #bdbdbd; }
 .chip .rk { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; }
-.chip.gold .rk { color: #b8860b; } .chip.silver .rk { color: #6f7c87; } .chip.bronze .rk { color: #8a4f22; }
+.chip.diamond .rk { color: #1e9be0; } .chip.platinum .rk { color: #607d8b; } .chip.gold .rk { color: #b8860b; } .chip.silver .rk { color: #757575; } .chip.bronze .rk { color: #8a4f22; } .chip.clear .rk { color: #757575; }
 .chip .sc { display: block; font-size: 10px; color: #555; }
 
 /* ---------- tutorial ---------- */

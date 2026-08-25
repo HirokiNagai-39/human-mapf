@@ -34,8 +34,11 @@
       'judge.running': '採点中…',
       'judge.colFail': '不正解: t={0} で衝突 (× 印). 経路を修正してください.',
       'judge.ok': '正解! makespan {0} / 総移動距離 {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
-      'result.makespan': 'makespan', 'result.moves': '総移動距離', 'result.refLb': '(参考 {0}, 下界 {1})', 'result.newBest': '★ ベスト更新',
-      'result.gold': '両指標で参考解以上!', 'result.silver': 'あと一歩: もう一方の指標も参考解以下にしてみよう', 'result.bronze': '衝突なしで到達. 参考解を目指して改善しよう',
+      'result.makespan': 'makespan', 'result.moves': '総移動距離', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
+      'result.diamond': '両指標で参考解 (LNS2) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
+      'result.gold': '両指標で参考解の 120% 以内', 'result.silver': '両指標で参考解の 130% 以内', 'result.bronze': '両指標で参考解の 150% 以内',
+      'result.clear': '衝突なしで全員到達. 両指標を参考解の 150% 以内にすると BRONZE',
+      'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (参考解比, 両指標)',
       'confirm.clearAll': '全エージェントの経路を消去しますか?',
       'card.share': 'ランキング / 共有', 'btn.ranking': '🏆 ランキング', 'btn.gif': '🎞 GIF を保存', 'btn.tweet': '𝕏 にポスト',
       'lb.title': '🏆 ランキング — {0} / {1} 台', 'lb.makespan': 'makespan 部門', 'lb.moves': '総移動距離部門',
@@ -47,7 +50,7 @@
       'lb.submitFail': '登録できませんでした: {0}', 'lb.needName': '名前を入力してください',
       'champ.line': '1 位 — makespan: {0} ({1}) · 総移動距離: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
       'gif.notSolved': 'GIF にするには、全員ゴール・衝突なしの状態にしてください', 'gif.progress': 'GIF 作成中… {0}%', 'gif.done': 'GIF を保存しました: {0} ({1} MB)', 'gif.fail': 'GIF の作成に失敗: {0}',
-      'tweet.text': 'Human MAPF「{0} {1}台」クリア! makespan {2}{3} / 総移動距離 {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
+      'tweet.text': 'Human MAPF「{0} {1}台」{6}クリア! makespan {2}{3} / 総移動距離 {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
       'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
       'map.tutorial': 'チュートリアル', 'map.empty': 'Empty 16×16', 'map.random': 'Random 16×16', 'map.room': 'Room 4×4', 'map.maze': 'Maze 6×6', 'map.warehouse': 'Warehouse',
       'desc.tutorial': '障害物 2 つ。対角の 2 台が入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
@@ -62,7 +65,7 @@
       't4.h': '4. ゴールに着いたエージェントは動かない', 't4.p': '経路が終わったエージェントは、その後ずっとゴールに<b>留まり続けます</b>。そのマスを後から通ろうとすると頂点衝突です。先に着く人の場所を避けるか、順番を入れ替えましょう。',
       't4.ng': '✗ ゴールに居座る 1 に突っ込む', 't4.ok': '○ 迂回する (または 2 を先に通す)', 't4.lbl': '到着済みは動かない',
       't5.h': '5. スコア', 't5.fig': '移動 → 待機 → 移動 → 移動: 到着 t=4, 移動距離 3',
-      't5.p': '<b>makespan</b> = 一番遅いエージェントの到着時刻。<b>総移動距離</b> = 全員の「移動」の回数 (待機は数えない)。ステージを開くと LNS2 ソルバーが<b>参考解</b>を計算します。両方の指標で参考解以下なら <b>GOLD</b>、片方なら <b>SILVER</b>、衝突なしで全員到達なら <b>BRONZE</b>。<b>下界</b> (他の全員を無視した最短距離) にどこまで迫れるかも挑戦してみてください。',
+      't5.p': '<b>makespan</b> = 一番遅いエージェントの到着時刻。<b>総移動距離</b> = 全員の「移動」の回数 (待機は数えない)。各ステージには MAPF ソルバー LNS2 の<b>参考解</b>があり、makespan と総移動距離の<b>両方</b>が参考解の何 % かでランクが決まります: <b>DIAMOND</b> 100% 以下 / <b>PLATINUM</b> 110% 以下 / <b>GOLD</b> 120% 以下 / <b>SILVER</b> 130% 以下 / <b>BRONZE</b> 150% 以下。<b>下界</b> (他の全員を無視した最短距離) にどこまで迫れるかも挑戦してみてください。',
       't6.h': '6. 操作',
       't6.drag': '<b>ドラッグ</b>', 't6.dragD': 'エージェントの先端 (丸) をドラッグすると、通ったマスが経路になります。途中で離してもそこまでの経路は残ります。同じドラッグ中に 1 つ前のマスへ戻ると取り消し。',
       't6.click': '<b>クリック</b>', 't6.clickD': '先端をクリックすると、その場で 1 時刻<b>待機</b>を追加。',
@@ -101,8 +104,11 @@
       'judge.running': 'Judging…',
       'judge.colFail': 'Incorrect: collision at t={0} (marked ×). Fix the paths.',
       'judge.ok': 'Correct! makespan {0} / distance {1}', 'judge.refPart': ' (reference {0} / {1})', 'judge.lbPart': ' [lower bound {0} / {1}]', 'judge.newBest': ' — new best!',
-      'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(ref {0}, LB {1})', 'result.newBest': '★ New best',
-      'result.gold': 'Matched or beat the reference on both metrics!', 'result.silver': 'Almost: beat the reference on the other metric too', 'result.bronze': 'All agents arrived without collisions. Now aim for the reference',
+      'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '({2}% of ref {0}, LB {1})', 'result.newBest': '★ New best',
+      'result.diamond': 'Matched or beat the reference (LNS2) on both metrics — top rank!', 'result.platinum': 'Within 110% of the reference on both metrics. DIAMOND is close',
+      'result.gold': 'Within 120% of the reference on both metrics', 'result.silver': 'Within 130% of the reference on both metrics', 'result.bronze': 'Within 150% of the reference on both metrics',
+      'result.clear': 'All agents arrived without collisions. Get both metrics within 150% of the reference for BRONZE',
+      'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (of the reference, both metrics)',
       'confirm.clearAll': 'Clear the paths of all agents?',
       'card.share': 'Ranking / Share', 'btn.ranking': '🏆 Ranking', 'btn.gif': '🎞 Save GIF', 'btn.tweet': 'Post on 𝕏',
       'lb.title': '🏆 Ranking — {0} / {1} agents', 'lb.makespan': 'Makespan', 'lb.moves': 'Total distance',
@@ -114,7 +120,7 @@
       'lb.submitFail': 'Submission failed: {0}', 'lb.needName': 'Please enter your name',
       'champ.line': '#1 — makespan: {0} ({1}) · distance: {2} ({3}) · {4} players', 'champ.none': 'No entries yet',
       'gif.notSolved': 'To export a GIF, all agents must be at their goal with no collisions', 'gif.progress': 'Encoding GIF… {0}%', 'gif.done': 'GIF saved: {0} ({1} MB)', 'gif.fail': 'GIF export failed: {0}',
-      'tweet.text': 'I solved Human MAPF "{0}, {1} agents": makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
+      'tweet.text': 'I solved Human MAPF "{0}, {1} agents" {6}: makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
       'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
       'map.tutorial': 'Tutorial', 'map.empty': 'Empty 16×16', 'map.random': 'Random 16×16', 'map.room': 'Room 4×4', 'map.maze': 'Maze 6×6', 'map.warehouse': 'Warehouse',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
@@ -128,7 +134,7 @@
       't4.h': '4. Agents stay at their goal', 't4.p': 'Once an agent\'s path ends, it <b>stays at its goal forever</b>. Passing through that cell later is a vertex collision. Route around agents that arrive earlier, or change the order.',
       't4.ng': '✗ running into 1 sitting on its goal', 't4.ok': '○ detour (or let 2 pass first)', 't4.lbl': 'arrived = never moves',
       't5.h': '5. Score', 't5.fig': 'move → wait → move → move: arrives at t=4, distance 3',
-      't5.p': '<b>makespan</b> = arrival time of the slowest agent. <b>Total distance</b> = number of moves of all agents (waits do not count). When a stage opens, the LNS2 solver computes a <b>reference solution</b>. <b>GOLD</b> if you match or beat it on both metrics, <b>SILVER</b> on one, <b>BRONZE</b> for any collision-free solution. See how close you can get to the <b>lower bound</b> (shortest paths ignoring all other agents).',
+      't5.p': '<b>makespan</b> = arrival time of the slowest agent. <b>Total distance</b> = number of moves of all agents (waits do not count). Every stage has a <b>reference solution</b> by the MAPF solver LNS2, and your rank depends on how <b>both</b> metrics compare to it: <b>DIAMOND</b> ≤100% / <b>PLATINUM</b> ≤110% / <b>GOLD</b> ≤120% / <b>SILVER</b> ≤130% / <b>BRONZE</b> ≤150%. See how close you can get to the <b>lower bound</b> (shortest paths ignoring all other agents).',
       't6.h': '6. Controls',
       't6.drag': '<b>Drag</b>', 't6.dragD': 'Drag the tip (circle) of an agent; the cells you pass become its path. Releasing midway keeps the path so far. Moving back onto the previous cell during the same drag undoes that step.',
       't6.click': '<b>Click</b>', 't6.clickD': 'Click the tip to add one <b>wait</b> step.',
@@ -482,6 +488,25 @@
 
   function rankBadge(r) { return r ? `<span class="badge ${r}">${r.toUpperCase()}</span>` : ''; }
 
+  // ランク: makespan と総移動距離の両方が参考解の何 % か (大きい方) で判定
+  const RANKS = [['diamond', 1.0], ['platinum', 1.1], ['gold', 1.2], ['silver', 1.3], ['bronze', 1.5]];
+  const RANK_ORDER = { diamond: 0, platinum: 1, gold: 2, silver: 3, bronze: 4, clear: 5 };
+  function rankOf(m) {
+    if (!S.ref) return { rank: 'clear', ratio: null, pm: null, pd: null };
+    const rm = m.makespan / S.ref.makespan, rd = m.moves / S.ref.moves, worst = Math.max(rm, rd);
+    let rank = 'clear';
+    for (const [r, th] of RANKS) if (worst <= th + 1e-9) { rank = r; break; }
+    return { rank, ratio: worst, pm: Math.round(rm * 100), pd: Math.round(rd * 100) };
+  }
+  // a が b (保存済みベスト) より良い記録か: ランク → 参考解比 → makespan → 総移動距離
+  function betterRecord(a, b) {
+    if (!b) return true;
+    const ra = RANK_ORDER[a.rank] ?? 9, rb = RANK_ORDER[b.rank] ?? 9;
+    if (ra !== rb) return ra < rb;
+    if (a.ratio != null && b.ratio != null && Math.abs(a.ratio - b.ratio) > 1e-9) return a.ratio < b.ratio;
+    return a.makespan < b.makespan || (a.makespan === b.makespan && a.moves < b.moves);
+  }
+
   function updatePanel() {
     if (!S.metrics) return;
     const m = S.metrics;
@@ -675,25 +700,21 @@
       setTimeout(() => { if (S.mode === 'play') stopAnim(); }, 1500);
       return;
     }
-    const m = S.metrics; let rank = 'bronze';
-    if (S.ref) {
-      const okM = m.makespan <= S.ref.makespan, okD = m.moves <= S.ref.moves;
-      rank = okM && okD ? 'gold' : (okM || okD) ? 'silver' : 'bronze';
-    }
-    if (rank === 'gold') Sound.gold(); else Sound.fanfare();
+    const m = S.metrics; const rk = rankOf(m), rank = rk.rank;
+    if (rank === 'diamond' || rank === 'platinum') Sound.gold(); else Sound.fanfare();
     let msg = t('judge.ok', m.makespan, m.moves);
     if (S.ref) msg += t('judge.refPart', S.ref.makespan, S.ref.moves);
     if (S.lb) msg += t('judge.lbPart', S.lb.makespan, S.lb.moves);
     const prev = S.best;
-    const better = !prev || m.makespan < prev.makespan || (m.makespan === prev.makespan && m.moves < prev.moves);
+    const better = betterRecord({ rank, ratio: rk.ratio, makespan: m.makespan, moves: m.moves }, prev);
     if (better) {
-      S.best = { makespan: m.makespan, moves: m.moves, rank };
+      S.best = { makespan: m.makespan, moves: m.moves, rank, ratio: rk.ratio };
       try { localStorage.setItem(bestKey(S.mapId, S.N), JSON.stringify(S.best)); } catch (e) { }
       msg += t('judge.newBest');
     }
     setStatus(msg, 'good');
     S.lastResult = { makespan: m.makespan, moves: m.moves, rank, paths: S.paths.map(p => encodePath(L.trimPath(p))), rankMakespan: null, rankMoves: null };
-    showResult(rank, m, better);
+    showResult(rank, m, better, rk);
     setTimeout(() => { if (S.mode === 'play') stopAnim(); }, 800);
   }
 
@@ -705,17 +726,18 @@
     renderAll();
   }
 
-  function showResult(rank, m, better) {
+  function showResult(rank, m, better, rk) {
     const box = $('result'); box.className = 'result show ' + rank;
-    const refLb = (rv, lv) => S.ref ? ` <span class="sub">${t('result.refLb', rv, lv)}</span>` : '';
+    const refLb = (rv, lv, pct) => S.ref ? ` <span class="sub">${t('result.refLb', rv, lv, pct)}</span>` : '';
     const lbForm = LB.configured()
       ? `<div class="lb-form"><input id="lb-name" maxlength="16" placeholder="${t('lb.namePh')}" value="${escapeHtml(playerName())}"><button id="lb-submit" class="primary">${t('lb.submit')}</button></div><div id="lb-msg" class="lb-msg"></div>`
       : `<div class="lb-msg">${t('lb.notConfigured')}</div>`;
     box.innerHTML = `<div class="rank">${rank.toUpperCase()}</div>
-      <div>${t('result.makespan')} <b class="mono">${m.makespan}</b>${refLb(S.ref && S.ref.makespan, S.lb && S.lb.makespan)}</div>
-      <div>${t('result.moves')} <b class="mono">${m.moves}</b>${refLb(S.ref && S.ref.moves, S.lb && S.lb.moves)}</div>
+      <div>${t('result.makespan')} <b class="mono">${m.makespan}</b>${refLb(S.ref && S.ref.makespan, S.lb && S.lb.makespan, rk.pm)}</div>
+      <div>${t('result.moves')} <b class="mono">${m.moves}</b>${refLb(S.ref && S.ref.moves, S.lb && S.lb.moves, rk.pd)}</div>
       ${better ? `<div class="sub">${t('result.newBest')}</div>` : ''}
       <div class="sub">${t('result.' + rank)}</div>
+      <div class="note">${t('result.ranks')}</div>
       ${lbForm}
       <div class="row"><button id="res-gif">${t('btn.gif')}</button><button id="res-tweet">${t('btn.tweet')}</button><button id="res-ranking">${t('btn.ranking')}</button></div>
       <div class="note">${t('tweet.note')}</div>
@@ -815,7 +837,7 @@
   function tweet() {
     const r = S.lastResult; if (!r) return;
     const rk = x => x && x.rank ? t('tweet.rank', x.rank, x.total) : '';
-    const text = t('tweet.text', mapName(S.mapId), S.N, r.makespan, rk(r.rankMakespan), r.moves, rk(r.rankMoves));
+    const text = t('tweet.text', mapName(S.mapId), S.N, r.makespan, rk(r.rankMakespan), r.moves, rk(r.rankMoves), r.rank && r.rank !== 'clear' ? `${r.rank.toUpperCase()} ` : '');
     const url = location.href.split('#')[0].split('?')[0];
     window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
   }
@@ -1037,5 +1059,5 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('speed').value = S.speed;
   applyLang();
   showHome();
-  window.MAPF_GAME = { showGame, showHome, toggleLang, playReference, exportGif, submitScore, showRanking, tweet, state: S };
+  window.MAPF_GAME = { showGame, showHome, toggleLang, playReference, exportGif, submitScore, showRanking, tweet, rankOf, state: S };
 })();
