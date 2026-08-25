@@ -4,5 +4,5 @@
  *                   空文字ならオンラインランキングは無効 (このブラウザ内の記録のみ).
  */
 window.CONFIG = {
-  leaderboardUrl: '',
+  leaderboardUrl: 'https://script.google.com/macros/s/AKfycbxdGVaE_Jz7sEoocu58bne4aCrJQjbsudCpi21-o8X_hIPanblLasDlSJm-t-fNxUY/exec',
 };
