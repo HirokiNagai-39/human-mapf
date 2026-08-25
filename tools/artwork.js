@@ -1,27 +1,37 @@
 // tools/artwork.js — イメージイラスト (assets/hero.svg, 1200x630) を生成する
-//   node tools/artwork.js
-// 左: 実際の Random マップ (random:20) を LNS2 参考解の経路で途中まで解いている様子 / 右: タイトル
+//   node tools/artwork.js [assets/promo-instance.json | <map>:<N>]   (既定: assets/promo-instance.json)
+// 左: マップを LNS2 解の経路で途中まで解いている様子 / 右: タイトル
 const fs = require('fs'), path = require('path');
 const L = require('../src/lns2.js'), M = require('../src/maps.js'), R = require('../src/reference.js');
 
-const STAGE = 'random:20';
-const [mapId, N] = STAGE.split(':');
-const map = M.getMap(mapId), ref = R[STAGE];
-const decode = (start, str) => { const p = [start]; let c = start; for (const ch of str) { c += ch === 'R' ? 1 : ch === 'L' ? -1 : ch === 'D' ? map.w : ch === 'U' ? -map.w : 0; p.push(c); } return p; };
+const ARG = process.argv[2] || path.join(__dirname, '..', 'assets', 'promo-instance.json');
+let map, N, starts, goals, fullPaths, caption;
+if (ARG.endsWith('.json')) {
+  // 宣伝用インスタンス (scratch の探索スクリプトで生成): { w, h, mapText, starts, goals, paths }
+  const J = JSON.parse(fs.readFileSync(ARG, 'utf8'));
+  map = L.parseMap(`type octile\nheight ${J.h}\nwidth ${J.w}\nmap\n${J.mapText}`);
+  N = J.starts.length; starts = J.starts; goals = J.goals; fullPaths = J.paths;
+  caption = `Random ${J.w}×${J.h} — ${N} agents`;
+} else {
+  const [mapId, n] = ARG.split(':'); const ref = R[ARG];
+  map = M.getMap(mapId); N = +n; starts = ref.starts; goals = ref.goals;
+  fullPaths = ref.paths.map((str, i) => { const p = [starts[i]]; let c = starts[i]; for (const ch of str) { c += ch === 'R' ? 1 : ch === 'L' ? -1 : ch === 'D' ? map.w : ch === 'U' ? -map.w : 0; p.push(c); } return p; });
+  caption = `Random — ${N} agents`;
+}
 const toXY = c => [c % map.w, Math.floor(c / map.w)];
 
 // 「解いている途中」に見せる: 一部のエージェントは経路を途中で切り, 1 台は手でドラッグ中
-const PARTIAL = { 2: 0.55, 5: 0.7, 7: 0.45, 8: 0.6, 11: 0.5, 14: 0.65, 16: 0.4, 18: 0.55 };
-const HAND = 16;
-const agents = ref.paths.map((str, i) => {
-  const full = decode(ref.starts[i], str);
-  const frac = PARTIAL[i];
-  const cut = frac ? Math.max(2, Math.round(full.length * frac)) : full.length;
-  return { path: full.slice(0, cut).map(toXY), goal: toXY(ref.goals[i]), hand: i === HAND };
+const PARTIAL_FRACS = [0.55, 0.7, 0.45, 0.6, 0.5, 0.65, 0.4, 0.55];
+const partialIds = Array.from({ length: Math.max(1, Math.round(N * 0.4)) }, (_, k) => Math.round((k + 0.5) * N / Math.max(1, Math.round(N * 0.4))) % N);
+const HAND = partialIds[0];
+const agents = fullPaths.map((full, i) => {
+  const pi = partialIds.indexOf(i);
+  const cut = pi >= 0 ? Math.max(2, Math.round(full.length * PARTIAL_FRACS[pi % PARTIAL_FRACS.length])) : full.length;
+  return { path: full.slice(0, cut).map(toXY), goal: toXY(goals[i]), hand: i === HAND };
 });
 
 const W = 1200, H = 630;
-const C = 30, BX = 40, BY = 75, COLS = map.w, ROWS = map.h;
+const C = Math.min(48, Math.floor(480 / Math.max(map.w, map.h))), BX = 40, BY = Math.round((H - C * map.h) / 2) - 10, COLS = map.w, ROWS = map.h;
 const cx = i => BX + (i + 0.5) * C, cy = j => BY + (j + 0.5) * C;
 const hue = i => (i * 137.508) % 360;
 const col = i => `hsl(${hue(i).toFixed(1)}, 70%, 50%)`;
@@ -97,10 +107,10 @@ agents.forEach((ag, i) => {
   </g>`;
 }
 // 盤面のキャプション
-svg += `<text x="${BX}" y="${BY + BH + 26}" font-size="14" fill="#666">Random — ${N} agents</text>`;
+svg += `<text x="${BX}" y="${BY + BH + 26}" font-size="14" fill="#666">${caption}</text>`;
 
 // タイトル
-const TX = 600;
+const TX = BX + COLS * C + 80;
 svg += `<text x="${TX}" y="240" font-size="72" font-weight="800" fill="#2b2a28" letter-spacing="0.5">Human MAPF</text>`;
 svg += `<text x="${TX}" y="290" font-size="27" font-weight="600" fill="#3b3a37">人力マルチエージェント経路計画</text>`;
 svg += `<text x="${TX}" y="324" font-size="19" fill="#666">Multi-Agent Path Finding, solved by hand</text>`;

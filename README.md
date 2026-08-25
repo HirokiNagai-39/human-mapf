@@ -90,7 +90,7 @@ src/
   index.html, style.css
 server/leaderboard.gs  ランキングサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
 tools/precompute.js  全ステージの LNS2 を回して src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)
-tools/artwork.js     イメージイラスト assets/hero.svg を生成 (PNG 化はブラウザで開いて保存、または headless Chrome)
+tools/artwork.js     イメージイラスト assets/hero.svg を生成 (既定: assets/promo-instance.json の 10×10 / 8 agents。`node tools/artwork.js assets/promo-instance-6agents.json` で 6 agents 版)
 build.js      src/ を dist/mapf_puzzle.html にインライン化 (`node build.js`, 依存なし)
 ```
 
