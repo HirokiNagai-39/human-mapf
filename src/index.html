@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PathWeave — MAPF Puzzle</title>
-<meta name="description" content="PathWeave: 全員をぶつけずにゴールへ導く経路計画パズル (人力 MAPF)。makespan と総移動距離を競う。 / A human multi-agent path finding puzzle.">
-<meta property="og:title" content="PathWeave — MAPF Puzzle">
-<meta property="og:description" content="人力マルチエージェント経路計画パズル / Human multi-agent path finding puzzle. Plays in any browser, no install.">
+<title>Human MAPF — 人力マルチエージェント経路計画</title>
+<meta name="description" content="Human MAPF: 全員をぶつけずにゴールへ導くマルチエージェント経路計画パズル。makespan と総移動距離で LNS2 と競う。 / Solve multi-agent path finding by hand and compete with a solver.">
+<meta property="og:title" content="Human MAPF">
+<meta property="og:description" content="人力でマルチエージェント経路計画 (MAPF) を解くパズル / Solve MAPF by hand. Plays in any browser, no install.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#2b2a28">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232b2a28'/%3E%3Ccircle cx='11' cy='11' r='6' fill='%23e0492f'/%3E%3Crect x='16' y='16' width='11' height='11' rx='2' fill='none' stroke='%232f6fe0' stroke-width='3'/%3E%3C/svg%3E">
@@ -22,8 +22,8 @@
       <button id="home-lang" class="lang">EN</button>
     </div>
     <div class="hero">
-      <h1>PathWeave</h1>
-      <p class="subtitle">— MAPF Puzzle —</p>
+      <h1>Human MAPF</h1>
+      <p class="subtitle" data-i18n="subtitle"></p>
       <p class="tagline" data-i18n="tagline"></p>
       <div class="row">
         <button id="home-sound"></button>
@@ -41,7 +41,7 @@
 <div id="game" class="screen">
   <header>
     <button id="btn-home" data-i18n="btn.home"></button>
-    <h1 id="stage-title">PathWeave</h1>
+    <h1 id="stage-title">Human MAPF</h1>
     <span style="flex:1"></span>
     <button id="btn-lang" class="lang">EN</button>
     <button id="btn-sound"></button>
