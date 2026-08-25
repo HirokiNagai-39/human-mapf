@@ -85,6 +85,15 @@
         </div>
       </div>
       <div class="card">
+        <h2 data-i18n="card.share"></h2>
+        <div class="row">
+          <button id="btn-ranking" data-i18n="btn.ranking"></button>
+          <button id="btn-gif" disabled data-i18n="btn.gif"></button>
+          <button id="btn-tweet" disabled data-i18n="btn.tweet"></button>
+        </div>
+        <div id="champ-info" class="champ"></div>
+      </div>
+      <div class="card">
         <h2 data-i18n="card.agents"></h2>
         <ul id="agents"></ul>
       </div>
@@ -93,6 +102,12 @@
 </div>
 
 <div id="result" class="result"></div>
+<div id="ranking" class="overlay">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h2 id="ranking-title" style="margin:0"></h2><button id="ranking-close" data-i18n="btn.close"></button></div>
+    <div id="ranking-body"></div>
+  </div>
+</div>
 <div id="help">
   <div class="box">
     <div class="row" style="justify-content:space-between"><h2 style="margin:0" data-i18n="home.howto"></h2><button id="help-close" data-i18n="btn.close"></button></div>
@@ -104,6 +119,9 @@
 <script src="lns2.js"></script>
 <script src="maps.js"></script>
 <script src="reference.js"></script>
+<script src="config.js"></script>
+<script src="gif.js"></script>
+<script src="leaderboard.js"></script>
 <script src="game.js"></script>
 <!-- /BUILD:JS -->
 </body>

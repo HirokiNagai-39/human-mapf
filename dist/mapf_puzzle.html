@@ -130,6 +130,29 @@ body { touch-action: manipulation; }
   aside { max-height: 50vh; }
 }
 
+/* ---------- ranking / share ---------- */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 30; align-items: center; justify-content: center; }
+.overlay.show { display: flex; }
+.overlay .box { background: #fff; border-radius: 12px; padding: 18px 22px; max-width: 820px; width: calc(100% - 24px); max-height: 90vh; overflow-y: auto; font-size: 14px; }
+.lb-cols { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+.lb-col { flex: 1; min-width: 260px; }
+.lb-col h3 { margin: 0 0 6px; font-size: 14px; color: #444; }
+table.lb { border-collapse: collapse; width: 100%; font-size: 13px; }
+table.lb th, table.lb td { padding: 3px 6px; border-bottom: 1px solid #eee; text-align: right; white-space: nowrap; }
+table.lb th:nth-child(2), table.lb td:nth-child(2) { text-align: left; width: 100%; white-space: normal; word-break: break-all; }
+table.lb tr.me { background: #fff3c4; font-weight: 600; }
+table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
+.lb-form { display: flex; gap: 6px; justify-content: center; align-items: center; margin: 10px 0 4px; flex-wrap: wrap; }
+.lb-form input { font-size: 14px; padding: 5px 8px; border: 1px solid #999; border-radius: 6px; width: 160px; }
+.lb-msg { font-size: 13px; margin: 4px 0; min-height: 18px; }
+.lb-msg.err { color: #d32f2f; }
+.result .row { justify-content: center; margin-top: 10px; }
+.result .note { font-size: 11px; color: #777; margin-top: 6px; }
+.champ { font-size: 12px; color: #555; margin-top: 6px; line-height: 1.5; }
+.chip .crown { display: block; font-size: 10px; color: #b8860b; }
+.progress { display: inline-block; width: 120px; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; vertical-align: middle; }
+.progress > span { display: block; height: 100%; background: #2f7d32; }
+
 </style>
 </head>
 <body>
@@ -205,6 +228,15 @@ body { touch-action: manipulation; }
         </div>
       </div>
       <div class="card">
+        <h2 data-i18n="card.share"></h2>
+        <div class="row">
+          <button id="btn-ranking" data-i18n="btn.ranking"></button>
+          <button id="btn-gif" disabled data-i18n="btn.gif"></button>
+          <button id="btn-tweet" disabled data-i18n="btn.tweet"></button>
+        </div>
+        <div id="champ-info" class="champ"></div>
+      </div>
+      <div class="card">
         <h2 data-i18n="card.agents"></h2>
         <ul id="agents"></ul>
       </div>
@@ -213,6 +245,12 @@ body { touch-action: manipulation; }
 </div>
 
 <div id="result" class="result"></div>
+<div id="ranking" class="overlay">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h2 id="ranking-title" style="margin:0"></h2><button id="ranking-close" data-i18n="btn.close"></button></div>
+    <div id="ranking-body"></div>
+  </div>
+</div>
 <div id="help">
   <div class="box">
     <div class="row" style="justify-content:space-between"><h2 style="margin:0" data-i18n="home.howto"></h2><button id="help-close" data-i18n="btn.close"></button></div>
@@ -890,11 +928,234 @@ body { touch-action: manipulation; }
 </script>
 <script>
 /*
+ * config.js — 配布時に編集する設定
+ *   leaderboardUrl: Google Apps Script ウェブアプリの URL (server/README.md 参照).
+ *                   空文字ならオンラインランキングは無効 (このブラウザ内の記録のみ).
+ */
+window.CONFIG = {
+  leaderboardUrl: '',
+};
+
+</script>
+<script>
+/*
+ * gif.js — 依存なしの GIF89a エンコーダ (LZW, グローバルパレット 255 色 + 透明 1 色, 差分フレーム)
+ *   const q = new GIF.Quantizer(); q.sample(imageData) ...; const pal = q.build();
+ *   const enc = new GIF.Encoder(w, h, pal); enc.addFrame(indices, delayCs); const bytes = enc.finish();
+ *   indices は Uint8Array(w*h). 255 = 透明 (前フレームのまま).
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.GIF = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ---------------------------------------------------------------- byte buffer
+  function ByteBuf() { this.buf = new Uint8Array(1 << 16); this.n = 0; }
+  ByteBuf.prototype.ensure = function (k) {
+    if (this.n + k <= this.buf.length) return;
+    let cap = this.buf.length * 2; while (cap < this.n + k) cap *= 2;
+    const nb = new Uint8Array(cap); nb.set(this.buf.subarray(0, this.n)); this.buf = nb;
+  };
+  ByteBuf.prototype.byte = function (b) { this.ensure(1); this.buf[this.n++] = b & 0xff; };
+  ByteBuf.prototype.bytes = function (arr, off, len) { this.ensure(len); this.buf.set(arr.subarray(off, off + len), this.n); this.n += len; };
+  ByteBuf.prototype.short = function (v) { this.byte(v & 0xff); this.byte((v >> 8) & 0xff); };
+  ByteBuf.prototype.str = function (s) { for (let i = 0; i < s.length; ++i) this.byte(s.charCodeAt(i)); };
+  ByteBuf.prototype.result = function () { return this.buf.slice(0, this.n); };
+
+  // ---------------------------------------------------------------- LZW (GIF 版, 最大 12 bit)
+  const HSIZE = 5003, MAXBITS = 12, MAXMAXCODE = 1 << MAXBITS;
+  const MASKS = [0x0000, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF, 0x01FF, 0x03FF, 0x07FF, 0x0FFF, 0x1FFF, 0x3FFF, 0x7FFF, 0xFFFF];
+  const htab = new Int32Array(HSIZE), codetab = new Int32Array(HSIZE), accum = new Uint8Array(256);
+
+  function lzwEncode(pixels, minCodeSize, out) {
+    const initBits = minCodeSize + 1;
+    const clearCode = 1 << minCodeSize, eofCode = clearCode + 1;
+    let nBits = initBits, maxcode = (1 << nBits) - 1, freeEnt = clearCode + 2, clearFlg = false;
+    let curAccum = 0, curBits = 0, aCount = 0;
+    let hshift = 0; for (let f = HSIZE; f < 65536; f *= 2) ++hshift; hshift = 8 - hshift;
+
+    const flush = () => { if (aCount > 0) { out.byte(aCount); out.bytes(accum, 0, aCount); aCount = 0; } };
+    const charOut = c => { accum[aCount++] = c; if (aCount >= 254) flush(); };
+    const output = code => {
+      curAccum &= MASKS[curBits];
+      curAccum = curBits > 0 ? (curAccum | (code << curBits)) : code;
+      curBits += nBits;
+      while (curBits >= 8) { charOut(curAccum & 0xff); curAccum >>>= 8; curBits -= 8; }
+      if (freeEnt > maxcode || clearFlg) {
+        if (clearFlg) { nBits = initBits; maxcode = (1 << nBits) - 1; clearFlg = false; }
+        else { ++nBits; maxcode = nBits === MAXBITS ? MAXMAXCODE : (1 << nBits) - 1; }
+      }
+      if (code === eofCode) {
+        while (curBits > 0) { charOut(curAccum & 0xff); curAccum >>>= 8; curBits -= 8; }
+        flush();
+      }
+    };
+
+    out.byte(minCodeSize);
+    htab.fill(-1);
+    let ent = pixels[0];
+    output(clearCode);
+    const n = pixels.length;
+    outer: for (let p = 1; p < n; ++p) {
+      const c = pixels[p];
+      const fcode = (c << MAXBITS) + ent;
+      let i = (c << hshift) ^ ent;
+      if (htab[i] === fcode) { ent = codetab[i]; continue; }
+      if (htab[i] >= 0) {
+        let disp = HSIZE - i; if (i === 0) disp = 1;
+        do {
+          if ((i -= disp) < 0) i += HSIZE;
+          if (htab[i] === fcode) { ent = codetab[i]; continue outer; }
+        } while (htab[i] >= 0);
+      }
+      output(ent);
+      ent = c;
+      if (freeEnt < MAXMAXCODE) { codetab[i] = freeEnt++; htab[i] = fcode; }
+      else { htab.fill(-1); freeEnt = clearCode + 2; clearFlg = true; output(clearCode); }
+    }
+    output(ent);
+    output(eofCode);
+    out.byte(0); // block terminator
+  }
+
+  // ---------------------------------------------------------------- encoder
+  const TRANSPARENT = 255;
+  function Encoder(w, h, palette) {
+    this.w = w; this.h = h; this.out = new ByteBuf(); this.frames = 0;
+    const o = this.out;
+    o.str('GIF89a');
+    o.short(w); o.short(h);
+    o.byte(0xF7); o.byte(0); o.byte(0);            // global color table 256 entries, 8 bit
+    for (let i = 0; i < 256; ++i) {
+      const c = palette[i] || [0, 0, 0];
+      o.byte(c[0]); o.byte(c[1]); o.byte(c[2]);
+    }
+    o.byte(0x21); o.byte(0xFF); o.byte(11); o.str('NETSCAPE2.0'); o.byte(3); o.byte(1); o.short(0); o.byte(0); // loop forever
+  }
+  // indices: Uint8Array(w*h), 255 = 透明 (前フレームの画素を維持)
+  Encoder.prototype.addFrame = function (indices, delayCs) {
+    const o = this.out;
+    o.byte(0x21); o.byte(0xF9); o.byte(4);
+    o.byte((1 << 2) | 1);                            // disposal = 1 (残す), transparent flag
+    o.short(Math.max(2, Math.round(delayCs)));
+    o.byte(TRANSPARENT); o.byte(0);
+    o.byte(0x2C); o.short(0); o.short(0); o.short(this.w); o.short(this.h); o.byte(0);
+    lzwEncode(indices, 8, o);
+    this.frames++;
+  };
+  Encoder.prototype.finish = function () { this.out.byte(0x3B); return this.out.result(); };
+
+  // ---------------------------------------------------------------- quantizer
+  // 5bit/ch のバケットで出現頻度上位 255 色を採用. map() で最近傍にマッピング (キャッシュ付き)
+  function Quantizer() { this.count = new Map(); }
+  Quantizer.prototype.sample = function (data, step) {
+    step = step || 1;
+    const cnt = this.count;
+    for (let i = 0; i < data.length; i += 4 * step) {
+      const key = ((data[i] >> 3) << 10) | ((data[i + 1] >> 3) << 5) | (data[i + 2] >> 3);
+      const e = cnt.get(key);
+      if (e) { e[0]++; e[1] += data[i]; e[2] += data[i + 1]; e[3] += data[i + 2]; }
+      else cnt.set(key, [1, data[i], data[i + 1], data[i + 2]]);
+    }
+  };
+  Quantizer.prototype.build = function () {
+    const arr = [...this.count.values()].sort((a, b) => b[0] - a[0]).slice(0, 255);
+    this.palette = arr.map(e => [Math.round(e[1] / e[0]), Math.round(e[2] / e[0]), Math.round(e[3] / e[0])]);
+    while (this.palette.length < 255) this.palette.push([0, 0, 0]);
+    this.palette.push([0, 0, 0]); // 255: transparent slot
+    this.cache = new Map();
+    return this.palette;
+  };
+  Quantizer.prototype.index = function (r, g, b) {
+    const key = (r << 16) | (g << 8) | b;
+    let idx = this.cache.get(key);
+    if (idx !== undefined) return idx;
+    let best = 0, bd = Infinity; const P = this.palette;
+    for (let i = 0; i < 255; ++i) {
+      const dr = P[i][0] - r, dg = P[i][1] - g, db = P[i][2] - b;
+      const d = dr * dr + dg * dg + db * db;
+      if (d < bd) { bd = d; best = i; if (d === 0) break; }
+    }
+    this.cache.set(key, best);
+    return best;
+  };
+  // RGBA → インデックス. prev (前フレームのインデックス) を渡すと同一画素を透明にする. cur は書き込み先 (再利用可)
+  Quantizer.prototype.map = function (data, prev, cur) {
+    const n = data.length >> 2;
+    const full = cur || new Uint8Array(n);
+    const diff = prev ? new Uint8Array(n) : null;
+    for (let p = 0, i = 0; p < n; ++p, i += 4) {
+      const idx = this.index(data[i], data[i + 1], data[i + 2]);
+      if (diff) diff[p] = (idx === prev[p]) ? TRANSPARENT : idx;
+      full[p] = idx;
+    }
+    return { full, frame: diff || full };
+  };
+
+  return { Encoder, Quantizer, lzwEncode, TRANSPARENT };
+});
+
+</script>
+<script>
+/*
+ * leaderboard.js — オンラインランキングのクライアント (バックエンド: server/leaderboard.gs = Google Apps Script)
+ *   LB.configured()                 バックエンド URL が設定されているか (src/config.js)
+ *   LB.top(stage)     → { makespan: [entry...], moves: [entry...] }   各部門の上位 (同名はその部門の自己ベストのみ)
+ *   LB.all()          → { stage: { makespan: entry, moves: entry } }  各ステージ・各部門の 1 位
+ *   LB.submit(stage, name, paths) → { ok, score:{makespan,moves}, makespan:{rank,total,entries}, moves:{rank,total,entries} }
+ *   entry = { name, makespan, moves, ts }
+ * 部門の順序: makespan 部門 = makespan 昇順 → 総移動距離 昇順 → 登録時刻昇順 / 総移動距離部門はその逆
+ */
+(function (root) {
+  'use strict';
+  const TIMEOUT_MS = 12000;
+
+  function url() { return (root.CONFIG && root.CONFIG.leaderboardUrl || '').trim(); }
+  function sanitizeName(s) {
+    s = String(s || '').replace(/[ -<>]/g, '').replace(/\s+/g, ' ').trim();
+    return s.slice(0, 16);
+  }
+  const cmpMakespan = (a, b) => a.makespan - b.makespan || a.moves - b.moves || (a.ts || 0) - (b.ts || 0);
+  const cmpMoves = (a, b) => a.moves - b.moves || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
+
+  async function request(method, params, body) {
+    const base = url(); if (!base) throw new Error('not configured');
+    const q = Object.entries(params || {}).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = ctrl && setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    try {
+      const res = await fetch(base + (q ? (base.includes('?') ? '&' : '?') + q : ''), {
+        method, body: body ? JSON.stringify(body) : undefined, redirect: 'follow', signal: ctrl && ctrl.signal,
+        // text/plain にして CORS プリフライトを避ける (GAS ウェブアプリは OPTIONS に応答しない)
+        headers: body ? { 'Content-Type': 'text/plain;charset=utf-8' } : undefined,
+      });
+      const j = await res.json();
+      if (!j || j.ok === false) throw new Error((j && j.error) || 'server error');
+      return j;
+    } finally { if (timer) clearTimeout(timer); }
+  }
+
+  root.LB = {
+    configured: () => !!url(),
+    sanitizeName, cmpMakespan, cmpMoves,
+    async top(stage) {
+      const j = await request('GET', { stage });
+      return { makespan: (j.makespan || []).sort(cmpMakespan), moves: (j.moves || []).sort(cmpMoves) };
+    },
+    async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
+    async submit(stage, name, paths) { return request('POST', {}, { stage, name: sanitizeName(name), paths, v: 1 }); },
+  };
+})(typeof self !== 'undefined' ? self : this);
+
+</script>
+<script>
+/*
  * game.js — Human MAPF: 人力マルチエージェント経路計画パズル
  */
 (function () {
   'use strict';
-  const L = window.LNS2, M = window.MAPS;
+  const L = window.LNS2, M = window.MAPS, LB = window.LB, GIF = window.GIF;
   const $ = id => document.getElementById(id);
 
   // ============================================================ i18n
@@ -928,6 +1189,18 @@ body { touch-action: manipulation; }
       'result.makespan': 'makespan', 'result.moves': '総移動距離', 'result.refLb': '(参考 {0}, 下界 {1})', 'result.newBest': '★ ベスト更新',
       'result.gold': '両指標で参考解以上!', 'result.silver': 'あと一歩: もう一方の指標も参考解以下にしてみよう', 'result.bronze': '衝突なしで到達. 参考解を目指して改善しよう',
       'confirm.clearAll': '全エージェントの経路を消去しますか?',
+      'card.share': 'ランキング / 共有', 'btn.ranking': '🏆 ランキング', 'btn.gif': '🎞 GIF を保存', 'btn.tweet': '𝕏 にポスト',
+      'lb.title': '🏆 ランキング — {0} / {1} 台', 'lb.makespan': 'makespan 部門', 'lb.moves': '総移動距離部門',
+      'lb.rank': '順位', 'lb.name': '名前', 'lb.loading': '読み込み中…', 'lb.error': 'ランキングを取得できませんでした ({0})',
+      'lb.empty': 'まだ登録がありません。最初の 1 人になろう!', 'lb.players': '{0} 人が登録',
+      'lb.notConfigured': 'オンラインランキングは未設定です (server/README.md を参照)',
+      'lb.namePh': 'あなたの名前 (16 文字まで)', 'lb.submit': 'ランキングに登録', 'lb.submitting': '登録中…',
+      'lb.result': 'makespan 部門 <b>{0} 位</b> / {1} 人 · 総移動距離部門 <b>{2} 位</b> / {3} 人', 'lb.notImproved': '(自己ベスト更新なし: 既存の記録で順位を表示)',
+      'lb.submitFail': '登録できませんでした: {0}', 'lb.needName': '名前を入力してください',
+      'champ.line': '1 位 — makespan: {0} ({1}) · 総移動距離: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
+      'gif.notSolved': 'GIF にするには、全員ゴール・衝突なしの状態にしてください', 'gif.progress': 'GIF 作成中… {0}%', 'gif.done': 'GIF を保存しました: {0} ({1} MB)', 'gif.fail': 'GIF の作成に失敗: {0}',
+      'tweet.text': 'Human MAPF「{0} {1}台」クリア! makespan {2}{3} / 総移動距離 {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
+      'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
       'map.tutorial': 'チュートリアル', 'map.empty': 'Empty 16×16', 'map.random': 'Random 16×16', 'map.room': 'Room 4×4', 'map.maze': 'Maze 6×6', 'map.warehouse': 'Warehouse',
       'desc.tutorial': '障害物 2 つ。対角の 2 台が入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
       // tutorial
@@ -983,6 +1256,18 @@ body { touch-action: manipulation; }
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(ref {0}, LB {1})', 'result.newBest': '★ New best',
       'result.gold': 'Matched or beat the reference on both metrics!', 'result.silver': 'Almost: beat the reference on the other metric too', 'result.bronze': 'All agents arrived without collisions. Now aim for the reference',
       'confirm.clearAll': 'Clear the paths of all agents?',
+      'card.share': 'Ranking / Share', 'btn.ranking': '🏆 Ranking', 'btn.gif': '🎞 Save GIF', 'btn.tweet': 'Post on 𝕏',
+      'lb.title': '🏆 Ranking — {0} / {1} agents', 'lb.makespan': 'Makespan', 'lb.moves': 'Total distance',
+      'lb.rank': '#', 'lb.name': 'Name', 'lb.loading': 'Loading…', 'lb.error': 'Could not load the ranking ({0})',
+      'lb.empty': 'No entries yet. Be the first!', 'lb.players': '{0} players',
+      'lb.notConfigured': 'Online ranking is not configured (see server/README.md)',
+      'lb.namePh': 'Your name (up to 16 chars)', 'lb.submit': 'Submit to ranking', 'lb.submitting': 'Submitting…',
+      'lb.result': 'Makespan: <b>#{0}</b> of {1} · Total distance: <b>#{2}</b> of {3}', 'lb.notImproved': '(not a personal best: rank of your existing record)',
+      'lb.submitFail': 'Submission failed: {0}', 'lb.needName': 'Please enter your name',
+      'champ.line': '#1 — makespan: {0} ({1}) · distance: {2} ({3}) · {4} players', 'champ.none': 'No entries yet',
+      'gif.notSolved': 'To export a GIF, all agents must be at their goal with no collisions', 'gif.progress': 'Encoding GIF… {0}%', 'gif.done': 'GIF saved: {0} ({1} MB)', 'gif.fail': 'GIF export failed: {0}',
+      'tweet.text': 'I solved Human MAPF "{0}, {1} agents": makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
+      'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
       'map.tutorial': 'Tutorial', 'map.empty': 'Empty 16×16', 'map.random': 'Random 16×16', 'map.room': 'Room 4×4', 'map.maze': 'Maze 6×6', 'map.warehouse': 'Warehouse',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
       't1.h': '1. Goal',
@@ -1059,9 +1344,10 @@ body { touch-action: manipulation; }
     collisions: null, metrics: null, best: null,
     cell: 32, ox: 0, oy: 0,
     lanes: null, // Map(edgeKey -> [agent ids])
+    lastResult: null, gifBusy: false, champs: null, champsAt: 0,
   };
 
-  const canvas = $('board'), ctx = canvas.getContext('2d');
+  const canvas = $('board'); let ctx = canvas.getContext('2d');
 
   function agentColor(i, alpha) { const h = (i * 137.508) % 360; return `hsla(${h}, 70%, 50%, ${alpha == null ? 1 : alpha})`; }
   function cellXY(c) { return [c % S.map.w, Math.floor(c / S.map.w)]; }
@@ -1086,7 +1372,9 @@ body { touch-action: manipulation; }
     S.mode = 'edit'; S.anim = null; S.showRef = false; $('btn-ref').classList.remove('on');
     S.ref = null; S.refPaths = null;
     S.best = readBest(mapId, N);
+    S.lastResult = null;
     startReference();
+    updateChampInfo();
     layout(); recompute(); renderAll();
     setStatus(t('status.stage', mapName(mapId), N));
   }
@@ -1367,6 +1655,9 @@ body { touch-action: manipulation; }
       ul.appendChild(li);
     }
     $('btn-undo').disabled = !S.undo.length; $('btn-redo').disabled = !S.redo.length;
+    const solved = done === S.N && nc === 0 && S.N > 0;
+    $('btn-gif').disabled = !solved || S.gifBusy || S.mode !== 'edit';
+    $('btn-tweet').disabled = !S.lastResult;
     updateRefPanel();
   }
 
@@ -1453,7 +1744,7 @@ body { touch-action: manipulation; }
   window.addEventListener('keydown', ev => {
     if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
     if (!$('game').classList.contains('show')) return;
-    if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else $('help').classList.remove('show'); return; }
+    if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); } return; }
     if (S.mode !== 'edit') return;
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); if (ev.shiftKey) doRedo(); else doUndo(); return; }
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); doRedo(); return; }
@@ -1553,6 +1844,7 @@ body { touch-action: manipulation; }
       msg += t('judge.newBest');
     }
     setStatus(msg, 'good');
+    S.lastResult = { makespan: m.makespan, moves: m.moves, rank, paths: S.paths.map(p => encodePath(L.trimPath(p))), rankMakespan: null, rankMoves: null };
     showResult(rank, m, better);
     setTimeout(() => { if (S.mode === 'play') stopAnim(); }, 800);
   }
@@ -1568,13 +1860,174 @@ body { touch-action: manipulation; }
   function showResult(rank, m, better) {
     const box = $('result'); box.className = 'result show ' + rank;
     const refLb = (rv, lv) => S.ref ? ` <span class="sub">${t('result.refLb', rv, lv)}</span>` : '';
+    const lbForm = LB.configured()
+      ? `<div class="lb-form"><input id="lb-name" maxlength="16" placeholder="${t('lb.namePh')}" value="${escapeHtml(playerName())}"><button id="lb-submit" class="primary">${t('lb.submit')}</button></div><div id="lb-msg" class="lb-msg"></div>`
+      : `<div class="lb-msg">${t('lb.notConfigured')}</div>`;
     box.innerHTML = `<div class="rank">${rank.toUpperCase()}</div>
       <div>${t('result.makespan')} <b class="mono">${m.makespan}</b>${refLb(S.ref && S.ref.makespan, S.lb && S.lb.makespan)}</div>
       <div>${t('result.moves')} <b class="mono">${m.moves}</b>${refLb(S.ref && S.ref.moves, S.lb && S.lb.moves)}</div>
       ${better ? `<div class="sub">${t('result.newBest')}</div>` : ''}
       <div class="sub">${t('result.' + rank)}</div>
+      ${lbForm}
+      <div class="row"><button id="res-gif">${t('btn.gif')}</button><button id="res-tweet">${t('btn.tweet')}</button><button id="res-ranking">${t('btn.ranking')}</button></div>
+      <div class="note">${t('tweet.note')}</div>
       <button id="result-close">${t('btn.close')}</button>`;
     $('result-close').onclick = () => { box.className = 'result'; };
+    $('res-gif').onclick = () => exportGif();
+    $('res-tweet').onclick = () => tweet();
+    $('res-ranking').onclick = () => showRanking();
+    if ($('lb-submit')) {
+      $('lb-submit').onclick = () => submitScore();
+      $('lb-name').onkeydown = ev => { if (ev.key === 'Enter') submitScore(); ev.stopPropagation(); };
+      setTimeout(() => { if (!playerName()) $('lb-name').focus(); }, 50);
+    }
+  }
+
+  // ============================================================ ranking
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function playerName() { try { return localStorage.getItem('human_mapf_name') || ''; } catch (e) { return ''; } }
+  function stageKey() { return `${S.mapId}:${S.N}`; }
+  function encodePath(p) {
+    let out = '';
+    for (let k = 1; k < p.length; ++k) { const d = p[k] - p[k - 1]; out += d === 0 ? 'W' : d === 1 ? 'R' : d === -1 ? 'L' : d === S.map.w ? 'D' : 'U'; }
+    return out;
+  }
+
+  async function submitScore() {
+    const r = S.lastResult; if (!r || !LB.configured()) return;
+    const input = $('lb-name'), msg = $('lb-msg'), btn = $('lb-submit');
+    const name = LB.sanitizeName(input.value);
+    if (!name) { msg.className = 'lb-msg err'; msg.textContent = t('lb.needName'); input.focus(); return; }
+    try { localStorage.setItem('human_mapf_name', name); } catch (e) { }
+    btn.disabled = true; input.disabled = true; msg.className = 'lb-msg'; msg.textContent = t('lb.submitting');
+    try {
+      const res = await LB.submit(stageKey(), name, r.paths);
+      r.name = name;
+      r.rankMakespan = { rank: res.makespan.rank, total: res.makespan.total };
+      r.rankMoves = { rank: res.moves.rank, total: res.moves.total };
+      msg.innerHTML = t('lb.result', res.makespan.rank, res.makespan.total, res.moves.rank, res.moves.total)
+        + ((res.makespan.improved || res.moves.improved) ? '' : ` <span class="sub">${t('lb.notImproved')}</span>`);
+      S.champs = null; updateChampInfo(); updatePanel();
+      Sound.goal();
+    } catch (e) {
+      msg.className = 'lb-msg err'; msg.textContent = t('lb.submitFail', e.message || e);
+      btn.disabled = false; input.disabled = false;
+    }
+  }
+
+  function rankTable(entries, cmpKey) {
+    if (!entries.length) return `<div class="sub">${t('lb.empty')}</div>`;
+    const me = playerName();
+    return `<table class="lb"><tr><th>${t('lb.rank')}</th><th>${t('lb.name')}</th><th>makespan</th><th>${LANG === 'ja' ? '距離' : 'dist'}</th></tr>` +
+      entries.map((e, i) => `<tr class="${e.name === me ? 'me' : ''}"><td>${i + 1}</td><td>${escapeHtml(e.name)}</td><td class="mono">${e.makespan}</td><td class="mono">${e.moves}</td></tr>`).join('') + '</table>';
+  }
+
+  async function showRanking() {
+    const ov = $('ranking'), body = $('ranking-body');
+    $('ranking-title').textContent = t('lb.title', mapName(S.mapId), S.N);
+    ov.classList.add('show');
+    if (!LB.configured()) { body.innerHTML = `<div class="lb-msg">${t('lb.notConfigured')}</div>`; return; }
+    body.innerHTML = `<div class="lb-msg">${t('lb.loading')}</div>`;
+    try {
+      const b = await LB.top(stageKey());
+      body.innerHTML = `<div class="sub">${t('lb.players', Math.max(b.makespan.length, b.moves.length))}</div>
+        <div class="lb-cols"><div class="lb-col"><h3>${t('lb.makespan')}</h3>${rankTable(b.makespan)}</div><div class="lb-col"><h3>${t('lb.moves')}</h3>${rankTable(b.moves)}</div></div>`;
+    } catch (e) { body.innerHTML = `<div class="lb-msg err">${t('lb.error', escapeHtml(e.message || e))}</div>`; }
+  }
+
+  // 各ステージの 1 位 (ホームのチップとゲーム画面に表示). 60 秒キャッシュ
+  async function fetchChamps() {
+    if (!LB.configured()) return null;
+    if (S.champs && Date.now() - S.champsAt < 60000) return S.champs;
+    try { S.champs = await LB.all(); S.champsAt = Date.now(); } catch (e) { S.champs = null; }
+    return S.champs;
+  }
+  async function updateChampInfo() {
+    const el = $('champ-info');
+    if (!LB.configured()) { el.textContent = ''; return; }
+    const key = stageKey();
+    const c = await fetchChamps();
+    if (key !== stageKey()) return;
+    const b = c && c[key];
+    el.innerHTML = b && b.makespan ? t('champ.line', escapeHtml(b.makespan.name), b.makespan.makespan, escapeHtml(b.moves.name), b.moves.moves, b.players) : t('champ.none');
+  }
+  async function decorateHomeChamps() {
+    const c = await fetchChamps(); if (!c) return;
+    document.querySelectorAll('#stage-cards .chip[data-stage]').forEach(ch => {
+      const b = c[ch.getAttribute('data-stage')];
+      if (b && b.makespan && !ch.querySelector('.crown')) {
+        const sp = document.createElement('span'); sp.className = 'crown';
+        sp.textContent = `👑 ${b.makespan.name}`; sp.title = t('champ.line', b.makespan.name, b.makespan.makespan, b.moves.name, b.moves.moves, b.players);
+        ch.appendChild(sp);
+      }
+    });
+  }
+
+  // ============================================================ share: tweet / GIF
+  function tweet() {
+    const r = S.lastResult; if (!r) return;
+    const rk = x => x && x.rank ? t('tweet.rank', x.rank, x.total) : '';
+    const text = t('tweet.text', mapName(S.mapId), S.N, r.makespan, rk(r.rankMakespan), r.moves, rk(r.rankMoves));
+    const url = location.href.split('#')[0].split('?')[0];
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
+  }
+
+  function download(blob, name) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  }
+
+  // 現在の (全員ゴール・衝突なしの) 経路を GIF アニメーションにして保存
+  async function exportGif() {
+    if (S.gifBusy) return null;
+    const solved = S.N > 0 && S.paths.every((p, i) => p[p.length - 1] === S.goals[i]) && S.collisions && S.collisions.count === 0;
+    if (!solved) { Sound.error(); setStatus(t('gif.notSolved'), 'bad'); return null; }
+    S.gifBusy = true; $('btn-gif').disabled = true;
+    const paths = S.paths.map(p => L.trimPath(p));
+    const mt = L.metrics(paths), makespan = mt.makespan, moves = mt.moves;
+    const w = S.map.w, h = S.map.h;
+    const cs = Math.max(10, Math.min(28, Math.floor(420 / Math.max(w, h)))), capH = 22;
+    const W = cs * w, H = cs * h + capH;
+    const off = document.createElement('canvas'); off.width = W; off.height = H;
+    const c2 = off.getContext('2d', { willReadFrequently: true });
+    const fps = 12, delay = Math.round(100 / fps), perStep = Math.max(2, Math.round(fps / S.speed));
+    const name = S.lastResult && S.lastResult.name ? ` · ${S.lastResult.name}` : '';
+    const caption = `Human MAPF · ${mapName(S.mapId)} · ${S.N} agents · makespan ${makespan} / moves ${moves}${name}`;
+    const render = tt => {
+      const saved = { ctx, cell: S.cell, mode: S.mode, anim: S.anim };
+      ctx = c2; S.cell = cs; S.mode = 'play'; S.anim = { t: tt, paths, isRef: false, failT: null, makespan };
+      try { draw(); } finally { ctx = saved.ctx; S.cell = saved.cell; S.mode = saved.mode; S.anim = saved.anim; }
+      c2.fillStyle = '#2b2a28'; c2.fillRect(0, cs * h, W, capH);
+      c2.fillStyle = '#fff'; c2.font = '11px sans-serif'; c2.textAlign = 'left'; c2.textBaseline = 'middle';
+      c2.fillText(`${caption} · t=${Math.floor(tt)}/${makespan}`, 6, cs * h + capH / 2);
+      return c2.getImageData(0, 0, W, H);
+    };
+    try {
+      const q = new GIF.Quantizer();
+      for (const tt of [0, makespan / 2, makespan]) q.sample(render(tt).data, 1);
+      const pal = q.build();
+      const enc = new GIF.Encoder(W, H, pal);
+      const frames = [[0, delay * fps]];                       // 最初の 1 秒は静止
+      for (let f = 1; f <= makespan * perStep; ++f) frames.push([f / perStep, delay]);
+      frames[frames.length - 1][1] = Math.round(delay * fps * 1.5); // 最後は 1.5 秒静止
+      let prev = null, bufA = new Uint8Array(W * H), bufB = new Uint8Array(W * H);
+      for (let k = 0; k < frames.length; ++k) {
+        const r = q.map(render(frames[k][0]).data, prev, bufA);
+        enc.addFrame(r.frame, frames[k][1]);
+        prev = r.full; bufA = bufA === r.full ? bufB : bufA; bufB = prev;
+        if (k % 6 === 0) { setStatus(t('gif.progress', Math.round(100 * k / frames.length))); await new Promise(res => setTimeout(res, 0)); }
+      }
+      const bytes = enc.finish();
+      const blob = new Blob([bytes], { type: 'image/gif' });
+      const fname = `human-mapf_${S.mapId}_${S.N}_${makespan}-${moves}.gif`;
+      download(blob, fname);
+      setStatus(t('gif.done', fname, (bytes.length / 1048576).toFixed(1)), 'good');
+      Sound.goal();
+      return blob;
+    } catch (e) {
+      setStatus(t('gif.fail', e.message || e), 'bad'); Sound.error(); return null;
+    } finally { S.gifBusy = false; updatePanel(); }
   }
 
   // ============================================================ tutorial illustrations (SVG)
@@ -1654,12 +2107,14 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
       for (const n of d.agents) {
         const b = readBest(d.id, n);
         const ch = document.createElement('button'); ch.className = 'chip' + (b ? ' ' + b.rank : '');
+        ch.setAttribute('data-stage', `${d.id}:${n}`);
         ch.innerHTML = t('agents.unit', n) + (b ? `<span class="rk">${b.rank.toUpperCase()}</span><span class="sc">${b.makespan} / ${b.moves}</span>` : '');
         ch.onclick = () => { Sound.ensure(); Sound.select(); showGame(d.id, n); };
         chips.appendChild(ch);
       }
       info.appendChild(chips); card.appendChild(info); wrap.appendChild(card);
     }
+    decorateHomeChamps();
   }
 
   function showHome() {
@@ -1667,7 +2122,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     S.solver = null;
     buildHome();
     $('game').classList.remove('show'); $('home').classList.add('show');
-    $('help').classList.remove('show'); $('result').className = 'result';
+    $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('result').className = 'result';
   }
 
   function showGame(mapId, N) {
@@ -1711,6 +2166,10 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-clear-all').addEventListener('click', () => { if (S.mode !== 'edit') return; if (!confirm(t('confirm.clearAll'))) return; snapshot(); S.paths = S.starts.map(s => [s]); Sound.undo(); recompute(); renderAll(); });
   $('btn-ref').addEventListener('click', () => { S.showRef = !S.showRef; $('btn-ref').classList.toggle('on', S.showRef); computeLanes(); draw(); });
   $('btn-play-ref').addEventListener('click', playReference);
+  $('btn-ranking').addEventListener('click', showRanking);
+  $('ranking-close').addEventListener('click', () => $('ranking').classList.remove('show'));
+  $('btn-gif').addEventListener('click', exportGif);
+  $('btn-tweet').addEventListener('click', tweet);
   function toggleSound() {
     Sound.enabled = !Sound.enabled;
     const label = t(Sound.enabled ? 'sound.on' : 'sound.off');
@@ -1730,7 +2189,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('speed').value = S.speed;
   applyLang();
   showHome();
-  window.MAPF_GAME = { showGame, showHome, toggleLang, playReference, state: S };
+  window.MAPF_GAME = { showGame, showHome, toggleLang, playReference, exportGif, submitScore, showRanking, tweet, state: S };
 })();
 
 </script>

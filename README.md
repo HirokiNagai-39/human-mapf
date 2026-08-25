@@ -5,6 +5,10 @@
 各ステージには LNS2 ソルバーの参考解が埋め込まれており、それを基準に GOLD / SILVER / BRONZE のランクが付きます。
 参考解は「重ねて表示」「再生」で確認できます。UI は日本語 / 英語を切り替えられます。
 
+正解すると名前を入力して **オンラインランキング** (ステージごとに makespan 部門・総移動距離部門) に登録でき、
+解答のアニメーションを **GIF で保存**、ステージ・スコア・順位を **𝕏 (Twitter) に投稿** できます
+(𝕏 の仕様上 GIF は自動添付できないので、保存した GIF を投稿画面にドラッグ&ドロップしてください)。
+
 ## 遊ぶ
 
 **オンライン (推奨)**: https://hirokinagai-39.github.io/human-mapf/ をブラウザで開くだけです。インストール不要、スマホ・タブレットでも遊べます。
@@ -52,6 +56,13 @@
 
 ベストスコアはブラウザの localStorage に (map, 台数) ごとに保存されます。
 
+## オンラインランキングの有効化
+
+ランキングのバックエンドは Google Apps Script + スプレッドシート (無料・サーバー不要) です。
+セットアップ手順は [server/README.md](server/README.md) を参照してください (Google アカウントがあれば 5 分)。
+未設定の間は、ゲーム内に「オンラインランキングは未設定です」と表示されます。
+送られた解はサーバー側で検証 (合法な移動・全員ゴール・衝突なし) してからスコアを計算するので、数値の改ざんはできません。
+
 ## 開発
 
 ```
@@ -59,8 +70,12 @@ src/
   lns2.js       LNS2 ソルバー (停止 + 上下左右の標準 MAPF, 頂点/辺衝突)。Node とブラウザ両対応
   maps.js       マップ生成 (障害物・start/goal は固定)
   reference.js  各ステージの LNS2 参考解 (自動生成。スコア・下界・経路)
-  game.js       ゲーム UI / 採点 / アニメーション / 効果音 (WebAudio 合成) / 日英 i18n
+  config.js     設定 (ランキングサーバーの URL)
+  gif.js        依存なしの GIF エンコーダ (LZW, 差分フレーム)
+  leaderboard.js ランキングのクライアント
+  game.js       ゲーム UI / 採点 / アニメーション / 効果音 (WebAudio 合成) / 日英 i18n / ランキング / GIF / 𝕏 投稿
   index.html, style.css
+server/leaderboard.gs  ランキングサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
 tools/precompute.js  全ステージの LNS2 を回して src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)
 build.js      src/ を dist/mapf_puzzle.html にインライン化 (`node build.js`, 依存なし)
 ```
