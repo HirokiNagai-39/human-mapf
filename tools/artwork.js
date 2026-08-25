@@ -1,18 +1,18 @@
 // tools/artwork.js — イメージイラスト (assets/hero.svg, 1200x630) を生成する
 //   node tools/artwork.js
-// 左: 実際の Random マップ (random:10) を LNS2 参考解の経路で途中まで解いている様子 / 右: タイトル
+// 左: 実際の Random マップ (random:20) を LNS2 参考解の経路で途中まで解いている様子 / 右: タイトル
 const fs = require('fs'), path = require('path');
 const L = require('../src/lns2.js'), M = require('../src/maps.js'), R = require('../src/reference.js');
 
-const STAGE = 'random:10';
+const STAGE = 'random:20';
 const [mapId, N] = STAGE.split(':');
 const map = M.getMap(mapId), ref = R[STAGE];
 const decode = (start, str) => { const p = [start]; let c = start; for (const ch of str) { c += ch === 'R' ? 1 : ch === 'L' ? -1 : ch === 'D' ? map.w : ch === 'U' ? -map.w : 0; p.push(c); } return p; };
 const toXY = c => [c % map.w, Math.floor(c / map.w)];
 
 // 「解いている途中」に見せる: 一部のエージェントは経路を途中で切り, 1 台は手でドラッグ中
-const PARTIAL = { 2: 0.55, 5: 0.7, 7: 0.45, 8: 0.6 };
-const HAND = 7;
+const PARTIAL = { 2: 0.55, 5: 0.7, 7: 0.45, 8: 0.6, 11: 0.5, 14: 0.65, 16: 0.4, 18: 0.55 };
+const HAND = 16;
 const agents = ref.paths.map((str, i) => {
   const full = decode(ref.starts[i], str);
   const frac = PARTIAL[i];
@@ -97,7 +97,7 @@ agents.forEach((ag, i) => {
   </g>`;
 }
 // 盤面のキャプション
-svg += `<text x="${BX}" y="${BY + BH + 26}" font-size="14" fill="#666">Random — 10 agents</text>`;
+svg += `<text x="${BX}" y="${BY + BH + 26}" font-size="14" fill="#666">Random — ${N} agents</text>`;
 
 // タイトル
 const TX = 600;
