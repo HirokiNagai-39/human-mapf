@@ -749,7 +749,7 @@ function validate_(body) {
   for (var d = 0; d < MAPS.MAP_DEFS.length; ++d) if (MAPS.MAP_DEFS[d].id === m[1]) def = MAPS.MAP_DEFS[d];
   var N = +m[2];
   if (!def || def.agents.indexOf(N) < 0) return { ok: false, error: 'unknown stage' };
-  var name = String(body.name || '').replace(/[ -<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
+  var name = String(body.name || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16);
   if (!name) return { ok: false, error: 'bad name' };
   if (!Array.isArray(body.paths) || body.paths.length !== N) return { ok: false, error: 'bad paths' };
   var map = MAPS.getMap(def.id), G = LNS2.buildGraph(map);

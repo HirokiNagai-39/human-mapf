@@ -3,7 +3,8 @@
  */
 (function () {
   'use strict';
-  const L = window.LNS2, M = window.MAPS, LB = window.LB, GIF = window.GIF;
+  const L = window.LNS2, M = window.MAPS, GIF = window.GIF;
+  const LB = window.LB || { configured: () => false, sanitizeName: s => String(s || '').trim().slice(0, 16) };
   const $ = id => document.getElementById(id);
 
   // ============================================================ i18n
@@ -20,8 +21,7 @@
       'label.speed': '再生速度', 'unit.speed': '{0} step/s',
       'card.score': 'スコア', 'card.edit': '編集', 'card.agents': 'エージェント',
       'score.makespan': 'makespan (最大到達時刻)', 'score.moves': 'total distance (待機除く移動回数)', 'score.collisions': '衝突', 'score.done': 'ゴール到達',
-      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去', 'btn.ref': '参考解を重ねて表示', 'btn.playRef': '▶ 参考解 (LNS2) を再生',
-      'status.playRef': '参考解 (LNS2) を再生中… makespan {0} / total distance {1}',
+      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去', 'btn.ref': '参考解を重ねて表示',
       'agents.unit': '{0} agents', 'agent.remain': '残り{0}',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
@@ -75,7 +75,7 @@
       't6.tab': '<kbd>Tab</kbd> / <kbd>1</kbd>〜<kbd>9</kbd>', 't6.tabD': 'エージェントの切り替え。ゴールや経路をクリックしても選択できます。',
       't6.undo': '<kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd>', 't6.undoD': 'Undo / Redo。',
       't6.enter': '<kbd>Enter</kbd> / <kbd>Esc</kbd>', 't6.enterD': '採点 (アニメーション再生) / 再生停止。',
-      't6.p': '「参考解を重ねて表示」で LNS2 の解を点線で見られ、「参考解を再生」でその動きをアニメーションで確認できます。行き詰まったときのヒントにどうぞ。',
+      't6.p': '「参考解を重ねて表示」で LNS2 の解を点線で見られます。行き詰まったときのヒントにどうぞ。',
       'fig.t': 't → t+1', 'fig.same': '同じマス', 'fig.swap': '入れ替わり', 'fig.follow': '後ろから追従',
     },
     en: {
@@ -90,8 +90,7 @@
       'label.speed': 'Playback speed', 'unit.speed': '{0} step/s',
       'card.score': 'Score', 'card.edit': 'Edit', 'card.agents': 'Agents',
       'score.makespan': 'makespan (last arrival)', 'score.moves': 'total distance (moves only)', 'score.collisions': 'collisions', 'score.done': 'at goal',
-      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all', 'btn.ref': 'Overlay reference solution', 'btn.playRef': '▶ Play reference (LNS2)',
-      'status.playRef': 'Playing reference (LNS2)… makespan {0} / distance {1}',
+      'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all', 'btn.ref': 'Overlay reference solution',
       'agents.unit': '{0} agents', 'agent.remain': '{0} left',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
@@ -144,7 +143,7 @@
       't6.tab': '<kbd>Tab</kbd> / <kbd>1</kbd>–<kbd>9</kbd>', 't6.tabD': 'Switch agents. Clicking a goal or a path also selects that agent.',
       't6.undo': '<kbd>Ctrl+Z</kbd> / <kbd>Ctrl+Y</kbd>', 't6.undoD': 'Undo / Redo.',
       't6.enter': '<kbd>Enter</kbd> / <kbd>Esc</kbd>', 't6.enterD': 'Submit (plays the animation) / stop playback.',
-      't6.p': '"Overlay reference solution" shows the LNS2 paths as dotted lines, and "Play reference" animates them — a hint when you are stuck.',
+      't6.p': '"Overlay reference solution" shows the LNS2 paths as dotted lines — a hint when you are stuck.',
       'fig.t': 't → t+1', 'fig.same': 'same cell', 'fig.swap': 'swap', 'fig.follow': 'following',
     },
   };
@@ -405,7 +404,8 @@
     ctx.fillText(label, x, y + 1);
     if (sub != null) {
       ctx.fillStyle = '#222'; ctx.font = `${Math.max(8, S.cell * 0.28)}px sans-serif`;
-      ctx.fillText(sub, x, y - r - S.cell * 0.18);
+      const ly = y - r - S.cell * 0.18;
+      ctx.fillText(sub, x, ly < S.cell * 0.2 ? y + r + S.cell * 0.22 : ly);
     }
   }
 
@@ -483,7 +483,6 @@
     else e.textContent = '';
     if (S.lb) $('lb-info').innerHTML = t('lb', S.lb.makespan, S.lb.moves);
     $('btn-ref').disabled = !S.refPaths;
-    $('btn-play-ref').disabled = !S.refPaths || S.mode !== 'edit';
   }
 
   function rankBadge(r) { return r ? `<span class="badge ${r}">${r.toUpperCase()}</span>` : ''; }
@@ -658,7 +657,7 @@
     const failT = fail ? Math.min(...S.collisions.list.map(c => c.t)) : null;
     S.mode = 'play';
     S.anim = { t: 0, last: performance.now(), failT, end: fail ? failT : S.metrics.makespan, arrived: new Set(), paths: S.paths, isRef: false, makespan: S.metrics.makespan };
-    $('btn-judge').disabled = true; $('btn-stop').disabled = false; $('btn-play-ref').disabled = true;
+    $('btn-judge').disabled = true; $('btn-stop').disabled = false;
     setStatus(fail ? t('judge.hasCol', S.collisions.count, failT) : t('judge.running'), fail ? 'bad' : '');
     requestAnimationFrame(animTick);
   }
@@ -679,21 +678,8 @@
     requestAnimationFrame(animTick);
   }
 
-  // 参考解 (LNS2) の再生. 採点には影響しない
-  function playReference() {
-    if (S.mode !== 'edit' || !S.refPaths) return;
-    Sound.ensure();
-    if (S.drag) endDrag(false);
-    S.mode = 'play';
-    S.anim = { t: 0, last: performance.now(), failT: null, end: S.ref.makespan, arrived: new Set(), paths: S.refPaths, isRef: true, makespan: S.ref.makespan };
-    $('btn-judge').disabled = true; $('btn-stop').disabled = false; $('btn-play-ref').disabled = true;
-    setStatus(t('status.playRef', S.ref.makespan, S.ref.moves));
-    requestAnimationFrame(animTick);
-  }
-
   function finishAnim() {
     const a = S.anim;
-    if (a.isRef) { setTimeout(() => { if (S.mode === 'play') stopAnim(); }, 600); return; }
     if (a.failT != null) {
       Sound.error(); draw();
       setStatus(t('judge.colFail', a.failT), 'bad');
@@ -719,15 +705,13 @@
   }
 
   function stopAnim() {
-    const wasRef = S.anim && S.anim.isRef;
     S.mode = 'edit'; S.anim = null;
     $('btn-judge').disabled = false; $('btn-stop').disabled = true; $('anim-t').textContent = '';
-    if (wasRef) setStatus(t('status.stage', mapName(S.mapId), S.N));
     renderAll();
   }
 
   function showResult(rank, m, better, rk) {
-    const box = $('result'); box.className = 'result show ' + rank;
+    const box = $('result');
     const refLb = (rv, lv, pct) => S.ref ? ` <span class="sub">${t('result.refLb', rv, lv, pct)}</span>` : '';
     const lbForm = LB.configured()
       ? `<div class="lb-form"><input id="lb-name" maxlength="16" placeholder="${t('lb.namePh')}" value="${escapeHtml(playerName())}"><button id="lb-submit" class="primary">${t('lb.submit')}</button></div><div id="lb-msg" class="lb-msg"></div>`
@@ -742,6 +726,7 @@
       <div class="row"><button id="res-gif">${t('btn.gif')}</button><button id="res-tweet">${t('btn.tweet')}</button><button id="res-ranking">${t('btn.ranking')}</button></div>
       <div class="note">${t('tweet.note')}</div>
       <button id="result-close">${t('btn.close')}</button>`;
+    box.className = 'result show ' + rank;
     $('result-close').onclick = () => { box.className = 'result'; };
     $('res-gif').onclick = () => exportGif();
     $('res-tweet').onclick = () => tweet();
@@ -1035,7 +1020,6 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-clear-agent').addEventListener('click', () => { if (S.sel < 0 || S.mode !== 'edit') return; snapshot(); S.paths[S.sel] = [S.starts[S.sel]]; Sound.undo(); recompute(); renderAll(); });
   $('btn-clear-all').addEventListener('click', () => { if (S.mode !== 'edit') return; if (!confirm(t('confirm.clearAll'))) return; snapshot(); S.paths = S.starts.map(s => [s]); Sound.undo(); recompute(); renderAll(); });
   $('btn-ref').addEventListener('click', () => { S.showRef = !S.showRef; $('btn-ref').classList.toggle('on', S.showRef); computeLanes(); draw(); });
-  $('btn-play-ref').addEventListener('click', playReference);
   $('btn-ranking').addEventListener('click', showRanking);
   $('ranking-close').addEventListener('click', () => $('ranking').classList.remove('show'));
   $('btn-gif').addEventListener('click', exportGif);
@@ -1059,5 +1043,5 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('speed').value = S.speed;
   applyLang();
   showHome();
-  window.MAPF_GAME = { showGame, showHome, toggleLang, playReference, exportGif, submitScore, showRanking, tweet, rankOf, state: S };
+  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S };
 })();
