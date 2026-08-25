@@ -1165,7 +1165,7 @@ window.CONFIG = {
   const I18N = {
     ja: {
       'subtitle': '人力マルチエージェント経路計画',
-      'tagline': '全員をぶつけずにゴールへ導く経路を、あなたの手で。makespan と総移動距離で MAPF ソルバー (LNS2) に挑もう。',
+      'tagline': '全員をぶつけずにゴールへ導く経路を、あなたの手で。makespan と total distance で MAPF ソルバー (LNS2) に挑もう。',
       'home.tutorialLink': '▼ 遊び方・衝突ルールを見る',
       'home.stages': 'ステージ選択',
       'home.howto': '遊び方',
@@ -1174,53 +1174,53 @@ window.CONFIG = {
       'btn.judge': '▶ 採点 (Enter)', 'btn.stop': '■ 停止 (Esc)',
       'label.speed': '再生速度', 'unit.speed': '{0} step/s',
       'card.score': 'スコア', 'card.edit': '編集', 'card.agents': 'エージェント',
-      'score.makespan': 'makespan (最大到達時刻)', 'score.moves': '総移動距離 (待機除く)', 'score.collisions': '衝突', 'score.done': 'ゴール到達',
+      'score.makespan': 'makespan (最大到達時刻)', 'score.moves': 'total distance (待機除く移動回数)', 'score.collisions': '衝突', 'score.done': 'ゴール到達',
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去', 'btn.ref': '参考解を重ねて表示', 'btn.playRef': '▶ 参考解 (LNS2) を再生',
-      'status.playRef': '参考解 (LNS2) を再生中… makespan {0} / 総移動距離 {1}',
-      'agents.unit': '{0} 台', 'agent.remain': '残り{0}',
-      'stage.title': '{0} — {1} 台', 'status.stage': 'ステージ: {0} / {1} 台', 'status.genFail': 'ステージ生成に失敗: {0}',
+      'status.playRef': '参考解 (LNS2) を再生中… makespan {0} / total distance {1}',
+      'agents.unit': '{0} agents', 'agent.remain': '残り{0}',
+      'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
-      'ref.ok': '参考解 (LNS2): makespan <b class="mono">{0}</b> / 総移動距離 <b class="mono">{1}</b>',
+      'ref.ok': '参考解 (LNS2): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
       'ref.fail': '参考解 (LNS2): 見つかりませんでした',
-      'lb': '下界: makespan <span class="mono">{0}</span> / 総移動距離 <span class="mono">{1}</span>',
-      'best': 'ベスト: makespan <b class="mono">{0}</b> / 総移動距離 <b class="mono">{1}</b> {2}', 'best.none': 'ベスト: —',
+      'lb': '下界: makespan <span class="mono">{0}</span> / total distance <span class="mono">{1}</span>',
+      'best': 'ベスト: makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b> {2}', 'best.none': 'ベスト: —',
       'judge.notDone': '不正解: ゴールに到達していないエージェントがあります ({0})',
       'judge.hasCol': '衝突があります ({0} 件, 最初は t={1}) — 再生します…',
       'judge.running': '採点中…',
       'judge.colFail': '不正解: t={0} で衝突 (× 印). 経路を修正してください.',
-      'judge.ok': '正解! makespan {0} / 総移動距離 {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
-      'result.makespan': 'makespan', 'result.moves': '総移動距離', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
+      'judge.ok': '正解! makespan {0} / total distance {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
+      'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
       'result.diamond': '両指標で参考解 (LNS2) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
       'result.gold': '両指標で参考解の 120% 以内', 'result.silver': '両指標で参考解の 130% 以内', 'result.bronze': '両指標で参考解の 150% 以内',
       'result.clear': '衝突なしで全員到達. 両指標を参考解の 150% 以内にすると BRONZE',
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (参考解比, 両指標)',
       'confirm.clearAll': '全エージェントの経路を消去しますか?',
       'card.share': 'ランキング / 共有', 'btn.ranking': '🏆 ランキング', 'btn.gif': '🎞 GIF を保存', 'btn.tweet': '𝕏 にポスト',
-      'lb.title': '🏆 ランキング — {0} / {1} 台', 'lb.makespan': 'makespan 部門', 'lb.moves': '総移動距離部門',
+      'lb.title': '🏆 ランキング — {0} / {1} agents', 'lb.makespan': 'makespan 部門', 'lb.moves': 'total distance 部門',
       'lb.rank': '順位', 'lb.name': '名前', 'lb.loading': '読み込み中…', 'lb.error': 'ランキングを取得できませんでした ({0})',
       'lb.empty': 'まだ登録がありません。最初の 1 人になろう!', 'lb.players': '{0} 人が登録',
       'lb.notConfigured': 'オンラインランキングは未設定です (server/README.md を参照)',
       'lb.namePh': 'あなたの名前 (16 文字まで)', 'lb.submit': 'ランキングに登録', 'lb.submitting': '登録中…',
-      'lb.result': 'makespan 部門 <b>{0} 位</b> / {1} 人 · 総移動距離部門 <b>{2} 位</b> / {3} 人', 'lb.notImproved': '(自己ベスト更新なし: 既存の記録で順位を表示)',
+      'lb.result': 'makespan 部門 <b>{0} 位</b> / {1} 人 · total distance 部門 <b>{2} 位</b> / {3} 人', 'lb.notImproved': '(自己ベスト更新なし: 既存の記録で順位を表示)',
       'lb.submitFail': '登録できませんでした: {0}', 'lb.needName': '名前を入力してください',
-      'champ.line': '1 位 — makespan: {0} ({1}) · 総移動距離: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
+      'champ.line': '1 位 — makespan: {0} ({1}) · total distance: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
       'gif.notSolved': 'GIF にするには、全員ゴール・衝突なしの状態にしてください', 'gif.progress': 'GIF 作成中… {0}%', 'gif.done': 'GIF を保存しました: {0} ({1} MB)', 'gif.fail': 'GIF の作成に失敗: {0}',
-      'tweet.text': 'Human MAPF「{0} {1}台」{6}クリア! makespan {2}{3} / 総移動距離 {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
+      'tweet.text': 'Human MAPF「{0} {1} agents」{6}クリア! makespan {2}{3} / total distance {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
       'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
-      'map.tutorial': 'チュートリアル', 'map.empty': 'Empty 16×16', 'map.random': 'Random 16×16', 'map.room': 'Room 4×4', 'map.maze': 'Maze 6×6', 'map.warehouse': 'Warehouse',
-      'desc.tutorial': '障害物 2 つ。対角の 2 台が入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
+      'map.tutorial': 'チュートリアル', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
+      'desc.tutorial': '障害物 2 つ。対角の 2 エージェントが入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
       // tutorial
       't1.h': '1. 目的',
-      't1.p': '丸 (エージェント) を、同じ番号・同じ色の四角 (ゴール) まで動かす<b>経路</b>を全員分作ります。時刻 t=0 から始まり、各時刻に全員が同時に 1 手ずつ動きます。全員が衝突なくゴールに着けば正解。<b>makespan</b> (全員がゴールに着く時刻) と <b>総移動距離</b> (待機を除く移動回数の合計) が小さいほど高評価です。',
+      't1.p': '丸 (エージェント) を、同じ番号・同じ色の四角 (ゴール) まで動かす<b>経路</b>を全員分作ります。時刻 t=0 から始まり、各時刻に全員が同時に 1 手ずつ動きます。全員が衝突なくゴールに着けば正解。<b>makespan</b> (全員がゴールに着く時刻) と <b>total distance</b> (総移動距離: 待機を除く移動回数の合計) が小さいほど高評価です。',
       't2.h': '2. 1 手の動き', 't2.move': '上下左右に 1 マス移動', 't2.wait': 'その場で待機 (経路上に ● が付く)', 't2.p': '斜め移動はできません。黒いマスは障害物です。',
       't3.h': '3. 衝突ルール (重要)', 't3.p1': '次の 2 つは<b>衝突</b>で、盤面に赤い <b>×</b> と時刻が表示され、採点は不正解になります。',
-      't3.v0': '頂点衝突: 同じ時刻に同じマスへ', 't3.v1': '✗ 2 台が同じマス', 't3.e0': '辺衝突: 隣り合う 2 台が入れ替わる', 't3.e1': '✗ すれ違い (同じ辺を逆向き)',
-      't3.p2': '一方、これは<b>衝突ではありません</b>:', 't3.f0': '前の車が出ると同時に、そのマスへ入る', 't3.f1': '○ 追従 OK (列になって進める)',
+      't3.v0': '頂点衝突: 同じ時刻に同じマスへ', 't3.v1': '✗ 2 エージェントが同じマス', 't3.e0': '辺衝突: 隣り合う 2 エージェントが入れ替わる', 't3.e1': '✗ すれ違い (同じ辺を逆向き)',
+      't3.p2': '一方、これは<b>衝突ではありません</b>:', 't3.f0': '前のエージェントが出ると同時に、そのマスへ入る', 't3.f1': '○ 追従 OK (列になって進める)',
       't3.p3': '幅 1 の通路で向かい合ったら、片方が<b>待機</b>や<b>脇道</b>で譲ります:', 't3.y0': 't=0: 2 は待機', 't3.y1': 't=1: 1 が脇へ', 't3.y2': 't=2: 2 が通る', 't3.y3': 't=3: 1 は待機して譲る',
       't4.h': '4. ゴールに着いたエージェントは動かない', 't4.p': '経路が終わったエージェントは、その後ずっとゴールに<b>留まり続けます</b>。そのマスを後から通ろうとすると頂点衝突です。先に着く人の場所を避けるか、順番を入れ替えましょう。',
       't4.ng': '✗ ゴールに居座る 1 に突っ込む', 't4.ok': '○ 迂回する (または 2 を先に通す)', 't4.lbl': '到着済みは動かない',
-      't5.h': '5. スコア', 't5.fig': '移動 → 待機 → 移動 → 移動: 到着 t=4, 移動距離 3',
-      't5.p': '<b>makespan</b> = 一番遅いエージェントの到着時刻。<b>総移動距離</b> = 全員の「移動」の回数 (待機は数えない)。各ステージには MAPF ソルバー LNS2 の<b>参考解</b>があり、makespan と総移動距離の<b>両方</b>が参考解の何 % かでランクが決まります: <b>DIAMOND</b> 100% 以下 / <b>PLATINUM</b> 110% 以下 / <b>GOLD</b> 120% 以下 / <b>SILVER</b> 130% 以下 / <b>BRONZE</b> 150% 以下。<b>下界</b> (他の全員を無視した最短距離) にどこまで迫れるかも挑戦してみてください。',
+      't5.h': '5. スコア', 't5.fig': '移動 → 待機 → 移動 → 移動: 到着 t=4, total distance 3',
+      't5.p': '<b>makespan</b> = 一番遅いエージェントの到着時刻。<b>total distance</b> = 全員の「移動」の回数 (待機は数えない)。各ステージには MAPF ソルバー LNS2 の<b>参考解</b>があり、makespan と total distance の<b>両方</b>が参考解の何 % かでランクが決まります: <b>DIAMOND</b> 100% 以下 / <b>PLATINUM</b> 110% 以下 / <b>GOLD</b> 120% 以下 / <b>SILVER</b> 130% 以下 / <b>BRONZE</b> 150% 以下。<b>下界</b> (他の全員を無視した最短距離) にどこまで迫れるかも挑戦してみてください。',
       't6.h': '6. 操作',
       't6.drag': '<b>ドラッグ</b>', 't6.dragD': 'エージェントの先端 (丸) をドラッグすると、通ったマスが経路になります。途中で離してもそこまでの経路は残ります。同じドラッグ中に 1 つ前のマスへ戻ると取り消し。',
       't6.click': '<b>クリック</b>', 't6.clickD': '先端をクリックすると、その場で 1 時刻<b>待機</b>を追加。',
@@ -1277,7 +1277,7 @@ window.CONFIG = {
       'gif.notSolved': 'To export a GIF, all agents must be at their goal with no collisions', 'gif.progress': 'Encoding GIF… {0}%', 'gif.done': 'GIF saved: {0} ({1} MB)', 'gif.fail': 'GIF export failed: {0}',
       'tweet.text': 'I solved Human MAPF "{0}, {1} agents" {6}: makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
       'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
-      'map.tutorial': 'Tutorial', 'map.empty': 'Empty 16×16', 'map.random': 'Random 16×16', 'map.room': 'Room 4×4', 'map.maze': 'Maze 6×6', 'map.warehouse': 'Warehouse',
+      'map.tutorial': 'Tutorial', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
@@ -1943,7 +1943,7 @@ window.CONFIG = {
   function rankTable(entries, cmpKey) {
     if (!entries.length) return `<div class="sub">${t('lb.empty')}</div>`;
     const me = playerName();
-    return `<table class="lb"><tr><th>${t('lb.rank')}</th><th>${t('lb.name')}</th><th>makespan</th><th>${LANG === 'ja' ? '距離' : 'dist'}</th></tr>` +
+    return `<table class="lb"><tr><th>${t('lb.rank')}</th><th>${t('lb.name')}</th><th>makespan</th><th>distance</th></tr>` +
       entries.map((e, i) => `<tr class="${e.name === me ? 'me' : ''}"><td>${i + 1}</td><td>${escapeHtml(e.name)}</td><td class="mono">${e.makespan}</td><td class="mono">${e.moves}</td></tr>`).join('') + '</table>';
   }
 
@@ -2127,7 +2127,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
       for (let y = 0; y < m.h; ++y) for (let x = 0; x < m.w; ++x) if (!m.free[y * m.w + x]) c.fillRect(x * px, y * px, px, px);
       card.appendChild(pv);
       const info = document.createElement('div'); info.className = 'info';
-      info.innerHTML = `<div class="name">${mapName(d.id)}</div><div class="desc">${m.w}×${m.h} — ${t('desc.' + d.id)}</div>`;
+      info.innerHTML = `<div class="name">${mapName(d.id)}</div><div class="desc">${t('desc.' + d.id)}</div>`;
       const chips = document.createElement('div'); chips.className = 'chips';
       for (const n of d.agents) {
         const b = readBest(d.id, n);
