@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<!--
+  Human MAPF — (c) 2026 Hiroki Nagai. Licensed under CC BY-ND 4.0 (https://creativecommons.org/licenses/by-nd/4.0/):
+  you may play and redistribute this file unmodified with attribution; distributing modified versions is NOT permitted.
+  Contains a JavaScript port of the LNS2 solver from https://github.com/HirokiNagai-39/mawpf (MIT License, (c) 2026 AIST).
+  See https://github.com/HirokiNagai-39/human-mapf/blob/main/LICENSE.md
+-->
+
 <html lang="ja">
 <head>
 <meta charset="utf-8">
@@ -161,6 +168,9 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
 .progress { display: inline-block; width: 120px; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; vertical-align: middle; }
 .progress > span { display: block; height: 100%; background: #2f7d32; }
 
+.home-footer { margin-top: 36px; padding-top: 12px; border-top: 1px solid #cfcac0; font-size: 12px; color: #777; text-align: center; }
+.home-footer a { color: #555; }
+
 </style>
 </head>
 <body>
@@ -185,6 +195,7 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
     <div id="stage-cards" class="stage-cards"></div>
     <h2 class="section-title" id="tutorial" data-i18n="home.howto"></h2>
     <div id="tutorial-home" class="tutorial"></div>
+    <footer class="home-footer">© 2026 Hiroki Nagai · <a href="https://creativecommons.org/licenses/by-nd/4.0/" target="_blank" rel="noopener">CC BY-ND 4.0</a> (no modified redistribution / 改変版の再配布禁止) · <a href="https://github.com/HirokiNagai-39/human-mapf" target="_blank" rel="noopener">GitHub</a></footer>
   </div>
 </div>
 

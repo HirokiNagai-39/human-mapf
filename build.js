@@ -2,6 +2,14 @@
 const fs = require('fs'), path = require('path');
 const src = p => fs.readFileSync(path.join(__dirname, 'src', p), 'utf8');
 let html = src('index.html');
+const LICENSE_HEADER = `<!--
+  Human MAPF — (c) 2026 Hiroki Nagai. Licensed under CC BY-ND 4.0 (https://creativecommons.org/licenses/by-nd/4.0/):
+  you may play and redistribute this file unmodified with attribution; distributing modified versions is NOT permitted.
+  Contains a JavaScript port of the LNS2 solver from https://github.com/HirokiNagai-39/mawpf (MIT License, (c) 2026 AIST).
+  See https://github.com/HirokiNagai-39/human-mapf/blob/main/LICENSE.md
+-->
+`;
+html = html.replace('<!DOCTYPE html>', '<!DOCTYPE html>\n' + LICENSE_HEADER);
 html = html.replace(/<!-- BUILD:CSS -->[\s\S]*?<!-- \/BUILD:CSS -->/, () => `<style>\n${src('style.css')}\n</style>`);
 html = html.replace(/<!-- BUILD:JS -->[\s\S]*?<!-- \/BUILD:JS -->/, () =>
   ['lns2.js', 'maps.js', 'reference.js', 'config.js', 'gif.js', 'leaderboard.js', 'game.js'].map(f => `<script>\n${src(f).replace(/<\/script>/g, '<\\/script>')}\n</script>`).join('\n'));

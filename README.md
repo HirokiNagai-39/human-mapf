@@ -70,6 +70,12 @@ UI は日本語 / 英語を切り替えられます。
 未設定の間は、ゲーム内に「オンラインランキングは未設定です」と表示されます。
 送られた解はサーバー側で検証 (合法な移動・全員ゴール・衝突なし) してからスコアを計算するので、数値の改ざんはできません。
 
+## ライセンス
+
+© 2026 Hiroki Nagai — [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/) (表示・**改変禁止**)。
+遊ぶ・URL を共有する・改変せずに複製することはできますが、**改造したものを配布・アップロードすることは禁止**です。
+`src/lns2.js` は [mawpf](https://github.com/HirokiNagai-39/mawpf) (MIT License, © AIST) の移植で、その部分には MIT の表示が適用されます。詳細は [LICENSE.md](LICENSE.md)。
+
 ## 開発
 
 ```
