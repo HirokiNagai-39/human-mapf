@@ -1,5 +1,7 @@
 # Human MAPF — 人力マルチエージェント経路計画パズル
 
+![Human MAPF](assets/hero.png)
+
 **Human MAPF** は、マルチエージェント経路計画 (MAPF) を人力で解くパズルゲームです。
 全エージェントを衝突なくゴールへ導き、**makespan** と **total distance** (総移動距離) をできるだけ小さくします。
 各ステージには LNS2 ソルバーの参考解が埋め込まれており、それを基準に GOLD / SILVER / BRONZE のランクが付きます。
@@ -82,6 +84,7 @@ src/
   index.html, style.css
 server/leaderboard.gs  ランキングサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
 tools/precompute.js  全ステージの LNS2 を回して src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)
+tools/artwork.js     イメージイラスト assets/hero.svg を生成 (PNG 化はブラウザで開いて保存、または headless Chrome)
 build.js      src/ を dist/mapf_puzzle.html にインライン化 (`node build.js`, 依存なし)
 ```
 
