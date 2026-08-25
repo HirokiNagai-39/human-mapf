@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAPF Puzzle</title>
+<meta name="description" content="Human multi-agent path finding puzzle — 全員をぶつけずにゴールへ導く経路計画パズル。makespan と総移動距離を競う。">
+<meta property="og:title" content="MAPF Puzzle">
+<meta property="og:description" content="人力マルチエージェント経路計画パズル / Human multi-agent path finding puzzle. Plays in any browser, no install.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#2b2a28">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232b2a28'/%3E%3Ccircle cx='11' cy='11' r='6' fill='%23e0492f'/%3E%3Crect x='16' y='16' width='11' height='11' rx='2' fill='none' stroke='%232f6fe0' stroke-width='3'/%3E%3C/svg%3E">
+<!-- BUILD:CSS --><link rel="stylesheet" href="style.css"><!-- /BUILD:CSS -->
+</head>
+<body>
+<noscript><p style="padding:20px">This game requires JavaScript. / このゲームには JavaScript が必要です。</p></noscript>
+
+<!-- ================= home ================= -->
+<div id="home" class="screen show">
+  <div class="home-inner">
+    <div class="topbar">
+      <button id="home-lang" class="lang">EN</button>
+    </div>
+    <div class="hero">
+      <h1>MAPF Puzzle</h1>
+      <p class="tagline" data-i18n="tagline"></p>
+      <div class="row">
+        <button id="home-sound"></button>
+        <a href="#tutorial" class="btn-link" data-i18n="home.tutorialLink"></a>
+      </div>
+    </div>
+    <h2 class="section-title" data-i18n="home.stages"></h2>
+    <div id="stage-cards" class="stage-cards"></div>
+    <h2 class="section-title" id="tutorial" data-i18n="home.howto"></h2>
+    <div id="tutorial-home" class="tutorial"></div>
+  </div>
+</div>
+
+<!-- ================= game ================= -->
+<div id="game" class="screen">
+  <header>
+    <button id="btn-home" data-i18n="btn.home"></button>
+    <h1 id="stage-title">MAPF Puzzle</h1>
+    <span style="flex:1"></span>
+    <button id="btn-lang" class="lang">EN</button>
+    <button id="btn-sound"></button>
+    <button id="btn-help" data-i18n="btn.help"></button>
+  </header>
+  <main>
+    <div id="board-wrap"><canvas id="board"></canvas></div>
+    <aside>
+      <div id="status" class="status"></div>
+      <div class="card">
+        <div class="row">
+          <button id="btn-judge" class="primary" data-i18n="btn.judge"></button>
+          <button id="btn-stop" disabled data-i18n="btn.stop"></button>
+          <span id="anim-t"></span>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <label><span data-i18n="label.speed"></span> <input id="speed" type="range" min="1" max="12" step="1"> <span id="speed-val"></span></label>
+        </div>
+      </div>
+      <div class="card">
+        <h2 data-i18n="card.score"></h2>
+        <div class="kv">
+          <span data-i18n="score.makespan"></span><span class="v mono" id="cur-makespan">0</span>
+          <span data-i18n="score.moves"></span><span class="v mono" id="cur-moves">0</span>
+          <span data-i18n="score.collisions"></span><span class="v mono" id="cur-collisions">0</span>
+          <span data-i18n="score.done"></span><span class="v mono" id="cur-done">0 / 0</span>
+        </div>
+        <div id="lb-info" style="margin-top:6px;color:#555"></div>
+        <div id="ref-info" style="margin-top:2px"></div>
+        <div id="best-info" style="margin-top:2px"></div>
+      </div>
+      <div class="card">
+        <h2 data-i18n="card.edit"></h2>
+        <div class="row">
+          <button id="btn-undo" data-i18n="btn.undo"></button>
+          <button id="btn-redo" data-i18n="btn.redo"></button>
+          <button id="btn-clear-agent" data-i18n="btn.clearAgent"></button>
+          <button id="btn-clear-all" data-i18n="btn.clearAll"></button>
+          <button id="btn-ref" disabled data-i18n="btn.ref"></button>
+          <button id="btn-play-ref" disabled data-i18n="btn.playRef"></button>
+        </div>
+      </div>
+      <div class="card">
+        <h2 data-i18n="card.agents"></h2>
+        <ul id="agents"></ul>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div id="result" class="result"></div>
+<div id="help">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0" data-i18n="home.howto"></h2><button id="help-close" data-i18n="btn.close"></button></div>
+    <div id="tutorial-game" class="tutorial"></div>
+  </div>
+</div>
+
+<!-- BUILD:JS -->
+<script src="lns2.js"></script>
+<script src="maps.js"></script>
+<script src="reference.js"></script>
+<script src="game.js"></script>
+<!-- /BUILD:JS -->
+</body>
+</html>
