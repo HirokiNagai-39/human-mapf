@@ -217,7 +217,11 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
 .crown.total, .crown.all { color: #b8860b; }
 
 /* ---- エージェント一覧: 座標と最短手数 ---- */
-.agents-hint { font-size: 11px; color: #888; margin: 0 0 4px; }
+.agents-hint { font-size: 11px; color: #888; margin: 0 0 4px; line-height: 1.5; }
+.agents-hint b { font-weight: 600; color: #666; }
+.agents-hint b.lg { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.agents-hint b.lg.opt { color: #2f7d32; }
+.agents-hint b.lg.over { color: #b26a00; }
 ul#agents li .ag { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
 ul#agents li .r1, ul#agents li .r2 { display: flex; align-items: center; gap: 6px; }
 ul#agents li .r2 .mono { width: auto; min-width: 34px; white-space: nowrap; }
@@ -317,6 +321,7 @@ ul#agents li .ok { margin-left: 4px; }
       <div class="card">
         <h2 data-i18n="card.agents"></h2>
         <div class="agents-hint" data-i18n="card.agentsHint"></div>
+        <div class="agents-hint" data-i18n="card.agentsLegend"></div>
         <ul id="agents"></ul>
       </div>
     </aside>
@@ -1296,6 +1301,7 @@ window.CONFIG = {
       'agent.tipOpt': '\n最短経路を達成', 'agent.tipOver': '\n最短より {0} 手多い', 'agent.tipUnreached': '\nまだゴールに着いていない',
       'agent.optimal': '最短', 'agent.dist': '移動 {0} 手 / 最短 {1} 手',
       'card.agentsHint': '座標は (x, y)。左上が (0, 0)',
+      'card.agentsLegend': '右端は<b>移動手数 / 最短手数</b>: <b class="lg opt">緑=最短で到達</b> · <b class="lg over">橙=遠回り</b> · <b class="lg">灰=未到達</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
       'ref.ok': '参考解 (LNS2): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
@@ -1418,6 +1424,7 @@ window.CONFIG = {
       'agent.tipOpt': '\nShortest path achieved', 'agent.tipOver': '\n{0} more than the shortest', 'agent.tipUnreached': '\nNot at the goal yet',
       'agent.optimal': 'min', 'agent.dist': '{0} moves / shortest {1}',
       'card.agentsHint': 'Coordinates are (x, y); (0, 0) is the top-left',
+      'card.agentsLegend': 'On the right: <b>moves / shortest</b> — <b class="lg opt">green = shortest</b> · <b class="lg over">orange = longer</b> · <b class="lg">grey = not there yet</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
       'ref.ok': 'Reference (LNS2): makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b>',
