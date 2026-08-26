@@ -584,6 +584,16 @@
     drawBoard();
     const cs = S.cell;
     if (S.mode === 'edit') {
+      // 選択中のエージェントがいるマスとゴールのマスを、そのエージェントの色で塗る
+      if (S.sel >= 0) {
+        const tint = (c, alpha) => {
+          const [x, y] = cellXY(c);
+          ctx.fillStyle = agentColor(S.sel, alpha);
+          ctx.fillRect(S.ox + x * cs, S.oy + y * cs, cs, cs);
+        };
+        tint(S.goals[S.sel], 0.16);
+        tint(head(S.sel), 0.3);
+      }
       drawGoals();
       for (let i = 0; i < S.N; ++i) if (i !== S.sel) drawPath(S.paths[i], i, 0.55, 3, false);
       if (S.sel >= 0) drawPath(S.paths[S.sel], S.sel, 0.95, 5, false);
@@ -598,10 +608,6 @@
         const [x, y] = cellCenter(head(i));
         const tt = S.paths[i].length - 1, done = head(i) === S.goals[i];
         drawAgent(x, y, i, cs * 0.36, String(i + 1), 't=' + tt + (done ? ' ✓' : ''));
-      }
-      if (S.hover >= 0 && S.drag) {
-        const [x, y] = cellXY(S.hover);
-        ctx.strokeStyle = 'rgba(0,0,0,0.5)'; ctx.lineWidth = 2; ctx.strokeRect(S.ox + x * cs + 1, S.oy + y * cs + 1, cs - 2, cs - 2);
       }
     } else {
       drawGoals();
