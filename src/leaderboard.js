@@ -1,7 +1,8 @@
 /*
  * leaderboard.js — オンラインランキングのクライアント (バックエンド: server/leaderboard.gs = Google Apps Script)
  *   LB.configured()                 バックエンド URL が設定されているか (src/config.js)
- *   LB.top(stage)     → { makespan: [entry...], moves: [entry...] }   各部門の上位 (同名はその部門の自己ベストのみ)
+ *   LB.top(stage)     → { makespan: [...], moves: [...], total: [...] }  各部門の上位 (同名はその部門の自己ベストのみ)
+ *                       部門は 3 つ: makespan / total distance / 総合 (makespan × distance の積が小さいほど上位)
  *   LB.all()          → { stage: { makespan: entry, moves: entry } }  各ステージ・各部門の 1 位
  *   LB.checkName(name)→ { name, available, taken, legacy, submissions } 登録前の名前チェック
  *   LB.register(name, password) → { name, token, legacy, claimed }    新規登録 (既存名は先着 claim)
@@ -26,6 +27,9 @@
   function nameKey(s) { return sanitizeName(s).normalize('NFKC').replace(/\s+/g, '').toLowerCase(); }
   const cmpMakespan = (a, b) => a.makespan - b.makespan || a.moves - b.moves || (a.ts || 0) - (b.ts || 0);
   const cmpMoves = (a, b) => a.moves - b.moves || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
+  // 総合部門: makespan × total distance の積が小さいほど上位
+  const totalScore = e => e.makespan * e.moves;
+  const cmpTotal = (a, b) => totalScore(a) - totalScore(b) || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
 
   async function request(method, params, body, timeoutMs) {
     const base = url(); if (!base) throw new Error('not configured');
@@ -50,10 +54,14 @@
 
   root.LB = {
     configured: () => !!url(),
-    sanitizeName, nameKey, cmpMakespan, cmpMoves,
+    sanitizeName, nameKey, cmpMakespan, cmpMoves, cmpTotal, totalScore,
     async top(stage) {
       const j = await request('GET', { stage });
-      return { makespan: (j.makespan || []).sort(cmpMakespan), moves: (j.moves || []).sort(cmpMoves) };
+      return {
+        makespan: (j.makespan || []).sort(cmpMakespan),
+        moves: (j.moves || []).sort(cmpMoves),
+        total: (j.total || []).sort(cmpTotal),
+      };
     },
     async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
     async checkName(name) { return request('GET', { checkname: sanitizeName(name) }); },

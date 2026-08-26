@@ -9,8 +9,9 @@
  *   users  … name, namekey, salt, hash, iter, tokenSalt, serial, created, lastLogin, fail, failUntil, legacy
  *
  * API (ウェブアプリ URL):
- *   GET  ?stage=<map>:<N>   → { ok, makespan: [entry...], moves: [entry...], players }
- *   GET  ?all=1             → { ok, best: { "<map>:<N>": { makespan: entry, moves: entry, players } } }
+ *   GET  ?stage=<map>:<N>   → { ok, makespan: [entry...], moves: [entry...], total: [entry...], players }
+ *                             部門は 3 つ: makespan / total distance / 総合 (makespan × distance の積が小さいほど上位)
+ *   GET  ?all=1             → { ok, best: { "<map>:<N>": { makespan: entry, moves: entry, total: entry, players } } }
  *   GET  ?checkname=<name>  → { ok, name, available, taken, legacy, submissions }  登録前の名前チェック
  *   GET  ?dump=1&token=<BACKUP_TOKEN>[&sheet=scores|users][&from=0&limit=500]
  *                           → { ok, sheet, total, from, count, next, rows: [...] }  (バックアップ用. tools/backup.js)
@@ -160,6 +161,9 @@ function readAll_() {
 }
 function cmpMakespan_(a, b) { return a.makespan - b.makespan || a.moves - b.moves || a.ts - b.ts; }
 function cmpMoves_(a, b) { return a.moves - b.moves || a.makespan - b.makespan || a.ts - b.ts; }
+// 総合部門: makespan × total distance の積が小さいほど上位
+function score_(e) { return e.makespan * e.moves; }
+function cmpTotal_(a, b) { return score_(a) - score_(b) || a.makespan - b.makespan || a.ts - b.ts; }
 function bestPerName_(rows, cmp) {
   var best = {};
   rows.forEach(function (r) { var b = best[r.name]; if (!b || cmp(r, b) < 0) best[r.name] = r; });
@@ -167,7 +171,7 @@ function bestPerName_(rows, cmp) {
 }
 function board_(rows, stage) {
   var rs = rows.filter(function (r) { return r.stage === stage; });
-  return { makespan: bestPerName_(rs, cmpMakespan_), moves: bestPerName_(rs, cmpMoves_) };
+  return { makespan: bestPerName_(rs, cmpMakespan_), moves: bestPerName_(rs, cmpMoves_), total: bestPerName_(rs, cmpTotal_) };
 }
 function strip_(e) { return e ? { name: e.name, makespan: e.makespan, moves: e.moves, ts: e.ts } : null; }
 
@@ -202,14 +206,14 @@ function doGet(e) {
     var rows = readAll_();
     if (p.stage) {
       var b = board_(rows, String(p.stage));
-      return json_({ ok: true, stage: p.stage, makespan: b.makespan.slice(0, TOP_N).map(strip_), moves: b.moves.slice(0, TOP_N).map(strip_), players: b.makespan.length });
+      return json_({ ok: true, stage: p.stage, makespan: b.makespan.slice(0, TOP_N).map(strip_), moves: b.moves.slice(0, TOP_N).map(strip_), total: b.total.slice(0, TOP_N).map(strip_), players: b.makespan.length });
     }
     if (p.all) {
       var best = {}, seen = {};
       rows.forEach(function (r) {
         if (seen[r.stage]) return; seen[r.stage] = true;
         var bb = board_(rows, r.stage);
-        best[r.stage] = { makespan: strip_(bb.makespan[0]), moves: strip_(bb.moves[0]), players: bb.makespan.length };
+        best[r.stage] = { makespan: strip_(bb.makespan[0]), moves: strip_(bb.moves[0]), total: strip_(bb.total[0]), players: bb.makespan.length };
       });
       return json_({ ok: true, best: best });
     }
@@ -306,7 +310,7 @@ function record_(body, name, legacy) {
     for (var i = 0; i < list.length; ++i) if (list[i].name === v.name) { mine = list[i]; idx = i; break; }
     return { rank: idx + 1, total: list.length, improved: !!(mine && mine.ts === ts), best: strip_(mine), entries: list.slice(0, TOP_N).map(strip_) };
   };
-  return { ok: true, name: v.name, legacy: !!legacy, score: { makespan: v.makespan, moves: v.moves }, makespan: rankIn(b.makespan), moves: rankIn(b.moves) };
+  return { ok: true, name: v.name, legacy: !!legacy, score: { makespan: v.makespan, moves: v.moves, total: v.makespan * v.moves }, makespan: rankIn(b.makespan), moves: rankIn(b.moves), total: rankIn(b.total) };
 }
 
 // 解の検証: ステージのマップ・start/goal を再生成し, 経路の合法性と衝突を確認. スコアはここで計算する
