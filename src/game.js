@@ -72,6 +72,7 @@
       'tweet.text': 'Human MAPF「{0} {1} agents」{6}クリア! makespan {2}{3} / total distance {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
       'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
       'map.tutorial': 'チュートリアル', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
+      'map.warehouse_hard': 'warehouse-hard', 'map.hourglass': 'hourglass', 'map.bremen': 'Bremen',
       // アカウント
       'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
       'auth.titleLogin': 'ログイン', 'auth.titleRegister': '新規登録',
@@ -119,6 +120,9 @@
       'notice.close': '閉じる',
       'notice.reopen': 'お知らせ',
       'desc.tutorial': '障害物 2 つ。対角の 2 エージェントが入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
+      'desc.warehouse_hard': '棚が 6 行 4 列, 通路幅 1。すれ違えない',
+      'desc.hourglass': '砂時計。中央は幅 1 の通路 1 マスだけ',
+      'desc.bremen': 'ブレーメン旧市街の地図から起こした街',
       // tutorial
       't1.h': '1. 目的',
       't1.p': '丸 (エージェント) を、同じ番号・同じ色の四角 (ゴール) まで動かす<b>経路</b>を全員分作ります。時刻 t=0 から始まり、各時刻に全員が同時に 1 手ずつ動きます。全員が衝突なくゴールに着けば正解。<b>makespan</b> (全員がゴールに着く時刻) と <b>total distance</b> (総移動距離: 待機を除く移動回数の合計) が小さいほど高評価です。',
@@ -205,6 +209,7 @@
       'tweet.text': 'I solved Human MAPF "{0}, {1} agents" {6}: makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
       'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
       'map.tutorial': 'Tutorial', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
+      'map.warehouse_hard': 'warehouse-hard', 'map.hourglass': 'hourglass', 'map.bremen': 'Bremen',
       // account
       'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
       'auth.titleLogin': 'Log in', 'auth.titleRegister': 'Sign up',
@@ -252,6 +257,9 @@
       'notice.close': 'Close',
       'notice.reopen': 'Notice',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
+      'desc.warehouse_hard': '6 rows × 4 columns of shelves, 1-wide aisles — no passing',
+      'desc.hourglass': 'An hourglass whose neck is a single cell',
+      'desc.bremen': 'Traced from a map of the old town of Bremen',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
       't2.h': '2. One step', 't2.move': 'Move 1 cell up/down/left/right', 't2.wait': 'Wait in place (shown as ● on the path)', 't2.p': 'No diagonal moves. Black cells are obstacles. Turning straight back (A→B→A) is allowed (dragging back onto the previous cell undoes the step, so use the arrow keys, or release and drag again, to enter a backward move).',
@@ -1403,7 +1411,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
       const m = M.getMap(d.id);
       const card = document.createElement('div'); card.className = 'stage-card';
       const pv = document.createElement('canvas');
-      const px = Math.max(3, Math.floor(96 / Math.max(m.w, m.h)));
+      const px = Math.max(2, Math.floor(96 / Math.max(m.w, m.h)));   // 大きいマップでも 96px 前後に収める
       pv.width = m.w * px; pv.height = m.h * px;
       const c = pv.getContext('2d');
       c.fillStyle = '#f4f1ea'; c.fillRect(0, 0, pv.width, pv.height);
