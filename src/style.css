@@ -204,6 +204,4 @@ ul#agents li .co { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; 
 ul#agents li .co i { font-style: normal; color: #aaa; margin: 0 1px; }
 ul#agents li .dl { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #777; white-space: nowrap; margin-left: auto; }
 ul#agents li .r1 .ok { margin-left: auto; }
-ul#agents li .dl.opt { color: #2f7d32; font-weight: 700; }
-ul#agents li .dl.over { color: #b26a00; }
 ul#agents li .ok { margin-left: 4px; }

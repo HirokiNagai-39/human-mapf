@@ -229,8 +229,6 @@ ul#agents li .co { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; 
 ul#agents li .co i { font-style: normal; color: #aaa; margin: 0 1px; }
 ul#agents li .dl { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #777; white-space: nowrap; margin-left: auto; }
 ul#agents li .r1 .ok { margin-left: auto; }
-ul#agents li .dl.opt { color: #2f7d32; font-weight: 700; }
-ul#agents li .dl.over { color: #b26a00; }
 ul#agents li .ok { margin-left: 4px; }
 
 </style>
@@ -1298,10 +1296,10 @@ window.CONFIG = {
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去',
       'agents.unit': '{0} agents', 'agent.remain': '残り{0}',
       'agent.tip': 'エージェント {0}\n現在地 ({1}, {2}) → ゴール ({3}, {4})\n移動 {5} 手 / 最短 {6} 手{7}',
-      'agent.tipOpt': '\n最短経路を達成', 'agent.tipOver': '\n最短より {0} 手多い', 'agent.tipUnreached': '\nまだゴールに着いていない',
+      'agent.tipOpt': '\n最短でゴールに到達', 'agent.tipOnTrack': '\n最短で移動中', 'agent.tipOver': '\n最短より {0} 手多い',
       'agent.optimal': '最短', 'agent.dist': '移動 {0} 手 / 最短 {1} 手',
       'card.agentsHint': '座標は (x, y)。<b>x は下方向 (行)、y は右方向 (列)</b>。左上が (0, 0)',
-      'card.agentsLegend': '右端は<b>移動手数 / 最短手数</b>: <b class="lg opt">緑=最短で到達</b> · <b class="lg over">橙=遠回り</b> · <b class="lg">灰=未到達</b>',
+      'card.agentsLegend': '右端は<b>移動手数 / 最短手数</b>。盤面で選択中のマスの色は <b class="lg opt">緑=最短で移動中</b> · <b class="lg over">橙=遠回り</b> · <b class="lg">灰=未着手</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
       'ref.ok': '参考解 (LNS2): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
@@ -1421,10 +1419,10 @@ window.CONFIG = {
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all',
       'agents.unit': '{0} agents', 'agent.remain': '{0} left',
       'agent.tip': 'Agent {0}\nAt ({1}, {2}) → goal ({3}, {4})\n{5} moves / shortest {6}{7}',
-      'agent.tipOpt': '\nShortest path achieved', 'agent.tipOver': '\n{0} more than the shortest', 'agent.tipUnreached': '\nNot at the goal yet',
+      'agent.tipOpt': '\nReached the goal by a shortest path', 'agent.tipOnTrack': '\nStill on a shortest path', 'agent.tipOver': '\n{0} more than the shortest',
       'agent.optimal': 'min', 'agent.dist': '{0} moves / shortest {1}',
       'card.agentsHint': 'Coordinates are (x, y): <b>x goes down (row), y goes right (column)</b>. (0, 0) is the top-left',
-      'card.agentsLegend': 'On the right: <b>moves / shortest</b> — <b class="lg opt">green = shortest</b> · <b class="lg over">orange = longer</b> · <b class="lg">grey = not there yet</b>',
+      'card.agentsLegend': 'On the right: <b>moves / shortest</b>. The highlighted cell is <b class="lg opt">green = still shortest</b> · <b class="lg over">orange = longer</b> · <b class="lg">grey = not started</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
       'ref.ok': 'Reference (LNS2): makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b>',
@@ -1583,6 +1581,19 @@ window.CONFIG = {
   };
 
   const canvas = $('board'); let ctx = canvas.getContext('2d');
+
+  // エージェントごとの distance 下界の達成状況。盤面の着色と一覧の表示で共有する
+  const STATUS_RGB = { opt: '47,125,50', over: '178,106,0', todo: '119,119,119' };   // 緑 / 橙 / 灰
+  function agentStatus(i) {
+    const h = head(i), isDone = h === S.goals[i];
+    const lb = S.dist[i][S.starts[i]];      // start から goal への最短手数 = 下界
+    const rest = S.dist[i][h];              // 現在地から goal までの最短手数
+    const mv = L.pathMoves(S.paths[i]);     // 待機を除いた移動回数
+    // ここまでの移動 + 残りの最短 が下界と等しければ、まだ最短を保っている
+    const onTrack = lb >= 0 && rest >= 0 && mv + rest === lb;
+    const kind = (!isDone && mv === 0) ? 'todo' : onTrack ? 'opt' : 'over';
+    return { isDone, lb, rest, mv, onTrack, kind, rgb: STATUS_RGB[kind] };
+  }
 
   function agentColor(i, alpha) { const h = (i * 137.508) % 360; return `hsla(${h}, 70%, 50%, ${alpha == null ? 1 : alpha})`; }
   function cellXY(c) { return [c % S.map.w, Math.floor(c / S.map.w)]; }
@@ -1860,13 +1871,14 @@ window.CONFIG = {
     if (S.mode === 'edit') {
       // 選択中のエージェントがいるマスとゴールのマスを、そのエージェントの色で塗る
       if (S.sel >= 0) {
+        const st = agentStatus(S.sel);      // 緑 = 最短で到達 / 橙 = 遠回り / 灰 = 未到達
         const tint = (c, alpha) => {
           const [x, y] = cellXY(c);
-          ctx.fillStyle = agentColor(S.sel, alpha);
+          ctx.fillStyle = `rgba(${st.rgb},${alpha})`;
           ctx.fillRect(S.ox + x * cs, S.oy + y * cs, cs, cs);
         };
-        tint(S.goals[S.sel], 0.16);
-        tint(head(S.sel), 0.3);
+        tint(S.goals[S.sel], 0.18);
+        tint(head(S.sel), 0.34);
       }
       drawGoals();
       for (let i = 0; i < S.N; ++i) if (i !== S.sel) drawPath(S.paths[i], i, 0.55, 3, false);
@@ -1949,17 +1961,16 @@ window.CONFIG = {
       const w = S.map.w;
       const hx = Math.floor(h / w), hy = h % w;                 // x は下方向 (行), y は右方向 (列)
       const g = S.goals[i], gx = Math.floor(g / w), gy = g % w;
-      const lb = S.dist[i][S.starts[i]];              // start → goal の最短手数 = このエージェントの distance 下界
-      const mv = L.pathMoves(S.paths[i]);             // 待機を除いた移動回数
-      const optimal = isDone && lb >= 0 && mv === lb;
+      const st = agentStatus(i);
+      const lb = st.lb, mv = st.mv;
       li.className = (i === S.sel ? 'sel ' : '') + (isDone ? 'done ' : '') + (S.collisions && S.collisions.conf[i] ? 'conf' : '');
       li.title = t('agent.tip', i + 1, hx, hy, gx, gy, mv, lb < 0 ? '∞' : lb,
-        !isDone ? t('agent.tipUnreached') : optimal ? t('agent.tipOpt') : t('agent.tipOver', mv - lb));
+        st.onTrack ? (st.isDone ? t('agent.tipOpt') : t('agent.tipOnTrack')) : t('agent.tipOver', mv + st.rest - lb));
       li.innerHTML = `<span class="dot" style="background:${agentColor(i)}"></span><span class="nm">${i + 1}</span>`
         + '<span class="ag">'
         +   `<span class="r1"><span class="co">(${hx},${hy})<i>→</i>(${gx},${gy})</span>${isDone ? '<span class="ok">✓</span>' : ''}</span>`
         +   `<span class="r2"><span class="mono">t=${tt}</span><span class="mono">${t('agent.remain', d < 0 ? '∞' : d)}</span>`
-        +     `<span class="dl${optimal ? ' opt' : isDone ? ' over' : ''}">${mv}/${lb < 0 ? '∞' : lb}${optimal ? ' ' + t('agent.optimal') : ''}</span></span>`
+        +     `<span class="dl">${mv}/${lb < 0 ? '∞' : lb}</span></span>`
         + '</span>';
       li.onclick = () => select(i);
       ul.appendChild(li);
