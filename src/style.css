@@ -139,7 +139,9 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
 .result .row { justify-content: center; margin-top: 10px; }
 .result .note { font-size: 11px; color: #777; margin-top: 6px; }
 .champ { font-size: 12px; color: #555; margin-top: 6px; line-height: 1.5; }
-.chip .crown { display: block; font-size: 10px; color: #b8860b; }
+.chip .crown { display: block; font-size: 10px; line-height: 1.35; max-width: 132px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip .crown.ms, .chip .crown.both { color: #b8860b; }   /* ⏱️ makespan 部門 */
+.chip .crown.mv { color: #2e7d5b; }                      /* 👣 total distance 部門 */
 .progress { display: inline-block; width: 120px; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; vertical-align: middle; }
 .progress > span { display: block; height: 100%; background: #2f7d32; }
 

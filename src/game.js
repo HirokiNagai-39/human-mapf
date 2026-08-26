@@ -41,14 +41,15 @@
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (参考解比, 両指標)',
       'confirm.clearAll': '全エージェントの経路を消去しますか?',
       'card.share': 'ランキング / 共有', 'btn.ranking': '🏆 ランキング', 'btn.gif': '🎞 GIF を保存', 'btn.tweet': '𝕏 にポスト',
-      'lb.title': '🏆 ランキング — {0} / {1} agents', 'lb.makespan': 'makespan 部門', 'lb.moves': 'total distance 部門',
+      'lb.title': '🏆 ランキング — {0} / {1} agents', 'lb.makespan': '⏱️ makespan 部門', 'lb.moves': '👣 total distance 部門',
       'lb.rank': '順位', 'lb.name': '名前', 'lb.loading': '読み込み中…', 'lb.error': 'ランキングを取得できませんでした ({0})',
       'lb.empty': 'まだ登録がありません。最初の 1 人になろう!', 'lb.players': '{0} 人が登録',
       'lb.notConfigured': 'オンラインランキングは未設定です (server/README.md を参照)',
       'lb.namePh': 'あなたの名前 (16 文字まで)', 'lb.submit': 'ランキングに登録', 'lb.submitting': '登録中…',
       'lb.result': 'makespan 部門 <b>{0} 位</b> / {1} 人 · total distance 部門 <b>{2} 位</b> / {3} 人', 'lb.notImproved': '(自己ベスト更新なし: 既存の記録で順位を表示)',
       'lb.submitFail': '登録できませんでした: {0}', 'lb.needName': '名前を入力してください',
-      'champ.line': '1 位 — makespan: {0} ({1}) · total distance: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
+      'champ.line': '1 位 — ⏱️ makespan: {0} ({1}) · 👣 total distance: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
+      'champ.chipMs': 'makespan 部門 1 位: {0} (makespan {1})', 'champ.chipMv': 'total distance 部門 1 位: {0} (total distance {1})', 'champ.chipBoth': '両部門 1 位: {0} (makespan {1} / total distance {2})',
       'gif.notSolved': 'GIF にするには、全員ゴール・衝突なしの状態にしてください', 'gif.progress': 'GIF 作成中… {0}%', 'gif.done': 'GIF を保存しました: {0} ({1} MB)', 'gif.fail': 'GIF の作成に失敗: {0}',
       'tweet.text': 'Human MAPF「{0} {1} agents」{6}クリア! makespan {2}{3} / total distance {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
       'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
@@ -109,14 +110,15 @@
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (of the reference, both metrics)',
       'confirm.clearAll': 'Clear the paths of all agents?',
       'card.share': 'Ranking / Share', 'btn.ranking': '🏆 Ranking', 'btn.gif': '🎞 Save GIF', 'btn.tweet': 'Post on 𝕏',
-      'lb.title': '🏆 Ranking — {0} / {1} agents', 'lb.makespan': 'Makespan', 'lb.moves': 'Total distance',
+      'lb.title': '🏆 Ranking — {0} / {1} agents', 'lb.makespan': '⏱️ Makespan', 'lb.moves': '👣 Total distance',
       'lb.rank': '#', 'lb.name': 'Name', 'lb.loading': 'Loading…', 'lb.error': 'Could not load the ranking ({0})',
       'lb.empty': 'No entries yet. Be the first!', 'lb.players': '{0} players',
       'lb.notConfigured': 'Online ranking is not configured (see server/README.md)',
       'lb.namePh': 'Your name (up to 16 chars)', 'lb.submit': 'Submit to ranking', 'lb.submitting': 'Submitting…',
       'lb.result': 'Makespan: <b>#{0}</b> of {1} · Total distance: <b>#{2}</b> of {3}', 'lb.notImproved': '(not a personal best: rank of your existing record)',
       'lb.submitFail': 'Submission failed: {0}', 'lb.needName': 'Please enter your name',
-      'champ.line': '#1 — makespan: {0} ({1}) · distance: {2} ({3}) · {4} players', 'champ.none': 'No entries yet',
+      'champ.line': '#1 — ⏱️ makespan: {0} ({1}) · 👣 distance: {2} ({3}) · {4} players', 'champ.none': 'No entries yet',
+      'champ.chipMs': 'Makespan #1: {0} (makespan {1})', 'champ.chipMv': 'Total distance #1: {0} (distance {1})', 'champ.chipBoth': '#1 in both: {0} (makespan {1} / distance {2})',
       'gif.notSolved': 'To export a GIF, all agents must be at their goal with no collisions', 'gif.progress': 'Encoding GIF… {0}%', 'gif.done': 'GIF saved: {0} ({1} MB)', 'gif.fail': 'GIF export failed: {0}',
       'tweet.text': 'I solved Human MAPF "{0}, {1} agents" {6}: makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
       'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
@@ -801,15 +803,27 @@
     const b = c && c[key];
     el.innerHTML = b && b.makespan ? t('champ.line', escapeHtml(b.makespan.name), b.makespan.makespan, escapeHtml(b.moves.name), b.moves.moves, b.players) : t('champ.none');
   }
+  // ステージ選択のチップに両部門の 1 位を表示 (⏱️ = makespan 部門 / 👣 = total distance 部門)
+  const ICON_MS = '⏱️', ICON_MV = '👣';
+  function crownLine(icon, name, tip, cls) {
+    const sp = document.createElement('span');
+    sp.className = 'crown ' + cls;
+    sp.textContent = `${icon} ${name}`;
+    sp.title = tip;
+    return sp;
+  }
   async function decorateHomeChamps() {
     const c = await fetchChamps(); if (!c) return;
     document.querySelectorAll('#stage-cards .chip[data-stage]').forEach(ch => {
       const b = c[ch.getAttribute('data-stage')];
-      if (b && b.makespan && !ch.querySelector('.crown')) {
-        const sp = document.createElement('span'); sp.className = 'crown';
-        sp.textContent = `👑 ${b.makespan.name}`; sp.title = t('champ.line', b.makespan.name, b.makespan.makespan, b.moves.name, b.moves.moves, b.players);
-        ch.appendChild(sp);
+      if (!b || !b.makespan || !b.moves || ch.querySelector('.crown')) return;
+      if (b.makespan.name === b.moves.name) {  // 両部門とも同じ人なら 1 行にまとめる
+        ch.appendChild(crownLine(ICON_MS + ICON_MV, b.makespan.name,
+          t('champ.chipBoth', b.makespan.name, b.makespan.makespan, b.moves.moves), 'both'));
+        return;
       }
+      ch.appendChild(crownLine(ICON_MS, b.makespan.name, t('champ.chipMs', b.makespan.name, b.makespan.makespan), 'ms'));
+      ch.appendChild(crownLine(ICON_MV, b.moves.name, t('champ.chipMv', b.moves.name, b.moves.moves), 'mv'));
     });
   }
 
