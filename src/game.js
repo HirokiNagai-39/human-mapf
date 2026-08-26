@@ -23,6 +23,10 @@
       'score.makespan': 'makespan (最大到達時刻)', 'score.moves': 'total distance (待機除く移動回数)', 'score.collisions': '衝突', 'score.done': 'ゴール到達',
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去',
       'agents.unit': '{0} agents', 'agent.remain': '残り{0}',
+      'agent.tip': 'エージェント {0}\n現在地 ({1}, {2}) → ゴール ({3}, {4})\n移動 {5} 手 / 最短 {6} 手{7}',
+      'agent.tipOpt': '\n最短経路を達成', 'agent.tipOver': '\n最短より {0} 手多い', 'agent.tipUnreached': '\nまだゴールに着いていない',
+      'agent.optimal': '最短', 'agent.dist': '移動 {0} 手 / 最短 {1} 手',
+      'card.agentsHint': '座標は (x, y)。左上が (0, 0)',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
       'ref.ok': '参考解 (LNS2): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
@@ -141,6 +145,10 @@
       'score.makespan': 'makespan (last arrival)', 'score.moves': 'total distance (moves only)', 'score.collisions': 'collisions', 'score.done': 'at goal',
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all',
       'agents.unit': '{0} agents', 'agent.remain': '{0} left',
+      'agent.tip': 'Agent {0}\nAt ({1}, {2}) → goal ({3}, {4})\n{5} moves / shortest {6}{7}',
+      'agent.tipOpt': '\nShortest path achieved', 'agent.tipOver': '\n{0} more than the shortest', 'agent.tipUnreached': '\nNot at the goal yet',
+      'agent.optimal': 'min', 'agent.dist': '{0} moves / shortest {1}',
+      'card.agentsHint': 'Coordinates are (x, y); (0, 0) is the top-left',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
       'ref.ok': 'Reference (LNS2): makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b>',
@@ -656,8 +664,21 @@
       const li = document.createElement('li');
       const h = head(i), tt = S.paths[i].length - 1, d = S.dist[i][h];
       const isDone = h === S.goals[i];
+      const w = S.map.w;
+      const hx = h % w, hy = Math.floor(h / w);
+      const g = S.goals[i], gx = g % w, gy = Math.floor(g / w);
+      const lb = S.dist[i][S.starts[i]];              // start → goal の最短手数 = このエージェントの distance 下界
+      const mv = L.pathMoves(S.paths[i]);             // 待機を除いた移動回数
+      const optimal = isDone && lb >= 0 && mv === lb;
       li.className = (i === S.sel ? 'sel ' : '') + (isDone ? 'done ' : '') + (S.collisions && S.collisions.conf[i] ? 'conf' : '');
-      li.innerHTML = `<span class="dot" style="background:${agentColor(i)}"></span><span class="nm">${i + 1}</span><span class="mono">t=${tt}</span><span class="mono">${t('agent.remain', d < 0 ? '∞' : d)}</span>${isDone ? '<span class="ok">✓</span>' : ''}`;
+      li.title = t('agent.tip', i + 1, hx, hy, gx, gy, mv, lb < 0 ? '∞' : lb,
+        !isDone ? t('agent.tipUnreached') : optimal ? t('agent.tipOpt') : t('agent.tipOver', mv - lb));
+      li.innerHTML = `<span class="dot" style="background:${agentColor(i)}"></span><span class="nm">${i + 1}</span>`
+        + '<span class="ag">'
+        +   `<span class="r1"><span class="co">(${hx},${hy})<i>→</i>(${gx},${gy})</span>${isDone ? '<span class="ok">✓</span>' : ''}</span>`
+        +   `<span class="r2"><span class="mono">t=${tt}</span><span class="mono">${t('agent.remain', d < 0 ? '∞' : d)}</span>`
+        +     `<span class="dl${optimal ? ' opt' : isDone ? ' over' : ''}">${mv}/${lb < 0 ? '∞' : lb}${optimal ? ' ' + t('agent.optimal') : ''}</span></span>`
+        + '</span>';
       li.onclick = () => select(i);
       ul.appendChild(li);
     }
@@ -1170,9 +1191,10 @@
     const name = S.lastResult && S.lastResult.name ? ` · ${S.lastResult.name}` : '';
     const caption = `Human MAPF · ${mapName(S.mapId)} · ${S.N} agents · makespan ${makespan} / moves ${moves}${name}`;
     const render = tt => {
-      const saved = { ctx, cell: S.cell, mode: S.mode, anim: S.anim };
-      ctx = c2; S.cell = cs; S.mode = 'play'; S.anim = { t: tt, paths, isRef: false, failT: null, makespan };
-      try { draw(); } finally { ctx = saved.ctx; S.cell = saved.cell; S.mode = saved.mode; S.anim = saved.anim; }
+      // 選択中のエージェントに付く黒枠は編集用の目印なので、GIF には残さない
+      const saved = { ctx, cell: S.cell, mode: S.mode, anim: S.anim, sel: S.sel };
+      ctx = c2; S.cell = cs; S.mode = 'play'; S.anim = { t: tt, paths, isRef: false, failT: null, makespan }; S.sel = -1;
+      try { draw(); } finally { ctx = saved.ctx; S.cell = saved.cell; S.mode = saved.mode; S.anim = saved.anim; S.sel = saved.sel; }
       c2.fillStyle = '#2b2a28'; c2.fillRect(0, cs * h, W, capH);
       c2.fillStyle = '#fff'; c2.font = '11px sans-serif'; c2.textAlign = 'left'; c2.textBaseline = 'middle';
       c2.fillText(`${caption} · t=${Math.floor(tt)}/${makespan}`, 6, cs * h + capH / 2);
