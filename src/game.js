@@ -82,6 +82,23 @@
       'auth.loginToSubmit': 'ログインして登録',
       'auth.sessionExpired': 'ログインし直してください',
       'wip.restored': '解きかけの経路を復元しました (やり直すには「全消去」)',
+      // ホームのお知らせ
+      'notice.date': '2026-08-26',
+      'notice.title': 'ランキングの登録にログインが必要になりました',
+      'notice.lead': 'なりすまし (他の人の名前での登録) を防ぐためです。これまで遊んでくださっていた方は、<b>これまでと同じ名前で登録すると、過去の記録をそのまま引き継げます</b>。',
+      'notice.stepsH': '登録の手順',
+      'notice.step1': '画面右上の <b>新規登録</b> を押す',
+      'notice.step2': 'これまで使っていた名前と、新しいパスワード (8 文字以上) を入力する',
+      'notice.step3': '<b>この名前で登録</b> を押す — 過去の記録は自動で引き継がれます',
+      'notice.n1': '<b>{0} までは、登録しなくてもこれまでどおり投稿できます。</b>それ以降はログインが必要です',
+      'notice.n2': '名前は<b>先着順</b>です。こんなに多くの方に遊んでいただけると思っておらず、過去の記録とご本人を紐付ける材料がないため、やむを得ずこの形にしました。申し訳ありません',
+      'notice.n3': '万一 名前を他の人に取られてしまった場合はご連絡ください。登録し直せるように対応します',
+      'notice.n4': 'パスワードは再発行できません。他で使っていないものを設定してください',
+      'notice.n5': '解きかけの経路がブラウザに自動保存されるようになりました。うっかりリロードしても続きから解けます',
+      'notice.deadline': '8 月 27 日 23:59',
+      'notice.loggedIn': '{0} としてログイン中です。このままランキングに登録できます。',
+      'notice.close': '閉じる',
+      'notice.reopen': 'お知らせ',
       'desc.tutorial': '障害物 2 つ。対角の 2 エージェントが入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
       // tutorial
       't1.h': '1. 目的',
@@ -179,6 +196,23 @@
       'auth.loginToSubmit': 'Log in to submit',
       'auth.sessionExpired': 'Please log in again',
       'wip.restored': 'Restored your work in progress (use "Clear all" to start over)',
+      // home notice
+      'notice.date': '2026-08-26',
+      'notice.title': 'Submitting to the leaderboard now requires an account',
+      'notice.lead': 'This is to stop anyone from submitting under someone else\u2019s name. If you have played before, <b>signing up with the same name keeps all of your earlier records</b>.',
+      'notice.stepsH': 'How to sign up',
+      'notice.step1': 'Press <b>Sign up</b> at the top right',
+      'notice.step2': 'Enter the name you have been using and a new password (8+ characters)',
+      'notice.step3': 'Press <b>Claim this name</b> — your earlier submissions come with it',
+      'notice.n1': '<b>Until {0} you can still submit without an account.</b> After that, logging in is required',
+      'notice.n2': 'Names are <b>first come, first served</b>. I did not expect this many players and kept nothing that ties past records to a person, so there is no way to verify ownership. Sorry about that',
+      'notice.n3': 'If someone else takes your name, please get in touch and I will free it up for you',
+      'notice.n4': 'Passwords cannot be reset, so please use one you do not use anywhere else',
+      'notice.n5': 'Your work in progress is now saved in the browser, so reloading no longer loses it',
+      'notice.deadline': '23:59 on 27 Aug (JST)',
+      'notice.loggedIn': 'Logged in as {0}. You can submit to the leaderboard as you are.',
+      'notice.close': 'Close',
+      'notice.reopen': 'Notice',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
@@ -858,22 +892,50 @@
     USER = u;
     try { u ? localStorage.setItem(AUTH_KEY, JSON.stringify(u)) : localStorage.removeItem(AUTH_KEY); } catch (e) { }
     renderAccount();
+    renderNotice();
     if ($('result').classList.contains('show')) refreshResultForm();
   }
   function playerName() { return USER ? USER.name : ''; }
+
+  // ---- ホームのお知らせ (ログイン導入の案内). 閉じたらこのブラウザでは出さない
+  const NOTICE_KEY = 'human_mapf_notice_login';
+  function noticeDismissed() { try { return localStorage.getItem(NOTICE_KEY) === '1'; } catch (e) { return false; } }
+  function renderNotice() {
+    const el = $('notice'); if (!el) return;
+    if (!LB.configured() || noticeDismissed()) { el.className = 'notice'; el.innerHTML = ''; return; }
+    const steps = USER
+      ? `<p class="done">${t('notice.loggedIn', escapeHtml(USER.name))}</p>`
+      : `<div class="steps"><b>${t('notice.stepsH')}</b><ol><li>${t('notice.step1')}</li><li>${t('notice.step2')}</li><li>${t('notice.step3')}</li></ol></div>`;
+    el.innerHTML = `<h3>${t('notice.title')}<span class="date">${t('notice.date')}</span></h3>
+      <p>${t('notice.lead')}</p>
+      ${steps}
+      <ul>
+        <li>${t('notice.n1', t('notice.deadline'))}</li>
+        <li>${t('notice.n2')}</li>
+        <li>${t('notice.n3')}</li>
+        <li>${t('notice.n4')}</li>
+        <li>${t('notice.n5')}</li>
+      </ul>
+      <div class="row"><button class="notice-close">${t('notice.close')}</button></div>`;
+    el.className = 'notice show';
+    const b = el.querySelector('.notice-close');
+    if (b) b.onclick = () => { try { localStorage.setItem(NOTICE_KEY, '1'); } catch (e) { } renderNotice(); renderAccount(); };
+  }
 
   function renderAccount() {
     const html = !LB.configured() ? ''
       : USER
         ? `<span class="who">${escapeHtml(USER.name)}</span><button class="auth-out">${t('auth.logout')}</button>`
         : `<button class="auth-in">${t('auth.login')}</button><button class="auth-up">${t('auth.register')}</button>`;
+    const reopen = (!LB.configured() || !noticeDismissed()) ? '' : `<button class="notice-open">${t('notice.reopen')}</button>`;
     for (const id of ['home-account', 'game-account']) {
       const el = $(id); if (!el) continue;
-      el.innerHTML = html;
+      el.innerHTML = (id === 'home-account' ? reopen : '') + html;
       const q = (c, fn) => { const b = el.querySelector(c); if (b) b.onclick = fn; };
       q('.auth-out', () => setUser(null));
       q('.auth-in', () => openAuth('login'));
       q('.auth-up', () => openAuth('register'));
+      q('.notice-open', () => { try { localStorage.removeItem(NOTICE_KEY); } catch (e) { } renderNotice(); renderAccount(); $('notice').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
     }
   }
 
@@ -1233,6 +1295,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     $('tutorial-home').innerHTML = tut; $('tutorial-game').innerHTML = tut;
     buildHome();
     renderAccount();
+    renderNotice();
     if ($('auth').classList.contains('show')) applyAuthLang();
     if ($('result').classList.contains('show')) refreshResultForm();
     if (S.map) {

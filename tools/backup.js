@@ -84,6 +84,9 @@ async function fetchPage(sheet, from) {
   if (!j.ok) die('サーバーが拒否しました: ' + j.error + (j.error === 'dump disabled' ? ' (スクリプトプロパティ BACKUP_TOKEN が未設定, または再デプロイ忘れ)' : ''));
   // dump 未対応の古いデプロイだと ?dump=1 が無視され, サービス情報が返ってくる
   if (!Array.isArray(j.rows)) die('デプロイ済みの Apps Script が dump API に未対応です. dist/leaderboard.gs を貼り直し,\n「デプロイを管理 → 編集 → バージョン: 新バージョン」で再デプロイしてください\n応答: ' + JSON.stringify(j).slice(0, 200));
+  // sheet を指定できない世代のサーバーは指定を無視して scores を返してくる. 取り違えないように確かめる
+  if (j.sheet == null) return sheet === 'scores' ? j : null;
+  if (j.sheet !== sheet) die(`サーバーが別のシートを返しました (要求 ${sheet} / 応答 ${j.sheet})`);
   return j;
 }
 
@@ -92,6 +95,7 @@ async function fetchSheet(sheet) {
   let from = 0, total = null;
   for (;;) {
     const j = await fetchPage(sheet, from);
+    if (!j) return null;              // このサーバーはまだこのシートに対応していない
     total = j.total;
     rows.push(...j.rows);
     process.stdout.write(`\r  ${sheet}: ${rows.length}/${total} 件取得...   `);
@@ -108,18 +112,20 @@ async function fetchSheet(sheet) {
   const rows = await fetchSheet('scores');
   const users = await fetchSheet('users');
   const total = rows.length;
+  if (!users) console.log('  注意: サーバーが users のダンプに未対応のため、アカウントは保存していません (Apps Script が更新前)');
 
   const now = new Date(), tag = stamp(now);
   fs.mkdirSync(outDir, { recursive: true });
   const json = JSON.stringify({ fetchedAt: now.toISOString(), url, total, rows }, null, 1) + '\n';
   const csv = toCsv('scores', rows);
-  const ujson = JSON.stringify({ fetchedAt: now.toISOString(), url, total: users.length, rows: users }, null, 1) + '\n';
-  const ucsv = toCsv('users', users);
+  const files = [[`scores-${tag}.json`, json], [`scores-${tag}.csv`, csv], ['scores-latest.json', json], ['scores-latest.csv', csv]];
+  if (users) {
+    const ujson = JSON.stringify({ fetchedAt: now.toISOString(), url, total: users.length, rows: users }, null, 1) + '\n';
+    const ucsv = toCsv('users', users);
+    files.push([`users-${tag}.json`, ujson], [`users-${tag}.csv`, ucsv], ['users-latest.json', ujson], ['users-latest.csv', ucsv]);
+  }
   const written = [];
-  for (const [name, data] of [
-    [`scores-${tag}.json`, json], [`scores-${tag}.csv`, csv], ['scores-latest.json', json], ['scores-latest.csv', csv],
-    [`users-${tag}.json`, ujson], [`users-${tag}.csv`, ucsv], ['users-latest.json', ujson], ['users-latest.csv', ucsv],
-  ]) {
+  for (const [name, data] of files) {
     const p = path.join(outDir, name);
     fs.writeFileSync(p, data);
     written.push(p);
@@ -128,7 +134,7 @@ async function fetchSheet(sheet) {
   const stages = new Set(), players = new Set();
   for (const r of rows) { stages.add(r.stage); players.add(r.name); }
   const times = rows.map(r => r.ts).filter(t => t > 0);
-  console.log(`投稿 ${total} 件 / 名前 ${players.size} 種 / ${stages.size} ステージ / 登録アカウント ${users.length} 件`);
+  console.log(`投稿 ${total} 件 / 名前 ${players.size} 種 / ${stages.size} ステージ` + (users ? ` / 登録アカウント ${users.length} 件` : ' / アカウント: 未取得'));
   if (times.length) console.log(`期間: ${new Date(Math.min(...times)).toLocaleString()} 〜 ${new Date(Math.max(...times)).toLocaleString()}`);
   for (const p of written) console.log('  wrote ' + path.relative(ROOT, p) + ' (' + (fs.statSync(p).size / 1024).toFixed(1) + ' KB)');
 })().catch(e => die(String((e && e.stack) || e)));
