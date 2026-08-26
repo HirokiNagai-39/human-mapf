@@ -205,3 +205,7 @@ ul#agents li .co i { font-style: normal; color: #aaa; margin: 0 1px; }
 ul#agents li .dl { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: #777; white-space: nowrap; margin-left: auto; }
 ul#agents li .r1 .ok { margin-left: auto; }
 ul#agents li .ok { margin-left: 4px; }
+
+/* ---- 経路データの保存 / 読み込み ---- */
+.save-msg { font-size: 11px; color: #555; margin-top: 5px; min-height: 1em; word-break: break-all; }
+.save-msg.err { color: #c62828; }

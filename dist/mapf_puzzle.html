@@ -231,6 +231,10 @@ ul#agents li .dl { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; 
 ul#agents li .r1 .ok { margin-left: auto; }
 ul#agents li .ok { margin-left: 4px; }
 
+/* ---- 経路データの保存 / 読み込み ---- */
+.save-msg { font-size: 11px; color: #555; margin-top: 5px; min-height: 1em; word-break: break-all; }
+.save-msg.err { color: #c62828; }
+
 </style>
 </head>
 <body>
@@ -306,6 +310,12 @@ ul#agents li .ok { margin-left: 4px; }
           <button id="btn-clear-agent" data-i18n="btn.clearAgent"></button>
           <button id="btn-clear-all" data-i18n="btn.clearAll"></button>
         </div>
+        <div class="row">
+          <button id="btn-save" data-i18n="btn.save"></button>
+          <button id="btn-load" data-i18n="btn.load"></button>
+          <input id="load-file" type="file" accept="application/json,.json" hidden>
+        </div>
+        <div id="save-msg" class="save-msg"></div>
       </div>
       <div class="card">
         <h2 data-i18n="card.share"></h2>
@@ -1292,6 +1302,16 @@ window.CONFIG = {
       'btn.judge': '▶ 採点 (Enter)', 'btn.stop': '■ 停止 (Esc)',
       'label.speed': '再生速度', 'unit.speed': '{0} step/s',
       'card.score': 'スコア', 'card.edit': '編集', 'card.agents': 'エージェント',
+      'btn.save': '💾 経路を保存', 'btn.load': '📂 経路を読み込み',
+      'save.done': '保存しました: {0}',
+      'save.empty': 'まだ経路がありません',
+      'save.loaded': '{0} 体の経路を読み込みました (makespan {1} / total distance {2})',
+      'save.badFile': '読み込めませんでした: {0}',
+      'save.notJson': 'ファイルの形式が違います',
+      'save.otherStage': 'このファイルは別のステージ ({0}) のものです。今は {1} を開いています',
+      'save.badN': 'エージェント数が合いません (ファイル {0} 体 / このステージ {1} 体)',
+      'save.badMove': '{0} 体目の経路に、この盤面では通れない手があります',
+      'save.mismatch': 'このファイルの開始位置が現在のステージと一致しません',
       'score.makespan': 'makespan (最大到達時刻)', 'score.moves': 'total distance (待機除く移動回数)', 'score.collisions': '衝突', 'score.done': 'ゴール到達',
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': '選択の経路を消去', 'btn.clearAll': '全消去',
       'agents.unit': '{0} agents', 'agent.remain': '残り{0}',
@@ -1415,6 +1435,16 @@ window.CONFIG = {
       'btn.judge': '▶ Submit (Enter)', 'btn.stop': '■ Stop (Esc)',
       'label.speed': 'Playback speed', 'unit.speed': '{0} step/s',
       'card.score': 'Score', 'card.edit': 'Edit', 'card.agents': 'Agents',
+      'btn.save': '💾 Save routes', 'btn.load': '📂 Load routes',
+      'save.done': 'Saved: {0}',
+      'save.empty': 'No routes drawn yet',
+      'save.loaded': 'Loaded routes for {0} agents (makespan {1} / total distance {2})',
+      'save.badFile': 'Could not load: {0}',
+      'save.notJson': 'Unexpected file format',
+      'save.otherStage': 'This file is for a different stage ({0}); you are on {1}',
+      'save.badN': 'Agent count does not match (file {0}, stage {1})',
+      'save.badMove': 'Agent {0} has a move that is not possible on this board',
+      'save.mismatch': 'The start positions in this file do not match this stage',
       'score.makespan': 'makespan (last arrival)', 'score.moves': 'total distance (moves only)', 'score.collisions': 'collisions', 'score.done': 'at goal',
       'btn.undo': '↶ Undo', 'btn.redo': '↷ Redo', 'btn.clearAgent': 'Clear selected path', 'btn.clearAll': 'Clear all',
       'agents.unit': '{0} agents', 'agent.remain': '{0} left',
@@ -1662,6 +1692,7 @@ window.CONFIG = {
     updateChampInfo();
     layout(); recompute(); renderAll();
     setStatus(wip ? t('wip.restored') : t('status.stage', mapName(mapId), N));
+    saveMsg('');
   }
 
   // 埋め込み参考解 (src/reference.js, tools/precompute.js で生成). 無ければその場で LNS2 を実行
@@ -2461,6 +2492,76 @@ window.CONFIG = {
     window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
   }
 
+  // ---- 経路データの保存 / 読み込み
+  function saveMsg(text, cls) {
+    const el = $('save-msg'); if (!el) return;
+    el.textContent = text; el.className = 'save-msg' + (cls ? ' ' + cls : '');
+  }
+  function stamp() {
+    const d = new Date(), z = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}${z(d.getMonth() + 1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}`;
+  }
+  function saveRoutes() {
+    if (!S.map) return;
+    if (!S.paths.some(p => p.length > 1)) { Sound.error(); saveMsg(t('save.empty'), 'err'); return; }
+    const m = L.metrics(S.paths.map(p => L.trimPath(p)));
+    const data = {
+      game: 'human-mapf', version: 1,
+      stage: stageKey(), map: S.mapId, agents: S.N,
+      savedAt: new Date().toISOString(),
+      makespan: m.makespan, moves: m.moves,
+      starts: S.starts, goals: S.goals,       // 読み込むときの照合用
+      paths: S.paths.map(p => encodePath(p)), // U/D/L/R/W の 1 文字 = 1 手
+    };
+    const name = `human-mapf_${S.mapId}-${S.N}_${stamp()}.json`;
+    download(new Blob([JSON.stringify(data)], { type: 'application/json' }), name);
+    Sound.select();
+    saveMsg(t('save.done', name));
+  }
+  // 読み込んだ経路がこの盤面で成立するか確かめてから反映する
+  function applyRoutes(data) {
+    if (!data || data.game !== 'human-mapf' || !Array.isArray(data.paths)) return { err: t('save.notJson') };
+    if (data.stage && data.stage !== stageKey()) return { err: t('save.otherStage', data.stage, stageKey()) };
+    if (data.paths.length !== S.N) return { err: t('save.badN', data.paths.length, S.N) };
+    if (Array.isArray(data.starts) && String(data.starts) !== String(S.starts)) return { err: t('save.mismatch') };
+    const w = S.map.w, out = [];
+    for (let i = 0; i < S.N; ++i) {
+      const str = String(data.paths[i]);
+      if (/[^UDLRW]/.test(str)) return { err: t('save.badMove', i + 1) };
+      let c = S.starts[i]; const p = [c];
+      for (const ch of str) {
+        const x = c % w;
+        if (ch === 'R') { if (x === w - 1) return { err: t('save.badMove', i + 1) }; c += 1; }
+        else if (ch === 'L') { if (x === 0) return { err: t('save.badMove', i + 1) }; c -= 1; }
+        else if (ch === 'D') c += w;
+        else if (ch === 'U') c -= w;
+        if (c < 0 || c >= w * S.map.h || !S.map.free[c]) return { err: t('save.badMove', i + 1) };
+        p.push(c);
+      }
+      out.push(p);
+    }
+    snapshot();                     // 読み込み前の状態を Undo で戻せるようにする
+    S.paths = out;
+    S.mode = 'edit'; S.anim = null;
+    recompute(); renderAll();
+    const m = L.metrics(S.paths.map(p => L.trimPath(p)));
+    return { ok: true, makespan: m.makespan, moves: m.moves };
+  }
+  async function loadRoutesFile(file) {
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const r = applyRoutes(data);
+      if (r.err) { Sound.error(); saveMsg(t('save.badFile', r.err), 'err'); return r; }
+      Sound.select();
+      saveMsg(t('save.loaded', S.N, r.makespan, r.moves));
+      return r;
+    } catch (e) {
+      Sound.error(); saveMsg(t('save.badFile', t('save.notJson')), 'err');
+      return { err: String(e.message || e) };
+    }
+  }
+
   function download(blob, name) {
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click();
@@ -2658,6 +2759,9 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-redo').addEventListener('click', doRedo);
   $('btn-clear-agent').addEventListener('click', () => { if (S.sel < 0 || S.mode !== 'edit') return; snapshot(); S.paths[S.sel] = [S.starts[S.sel]]; Sound.undo(); recompute(); renderAll(); });
   $('btn-clear-all').addEventListener('click', () => { if (S.mode !== 'edit') return; if (!confirm(t('confirm.clearAll'))) return; snapshot(); S.paths = S.starts.map(s => [s]); Sound.undo(); recompute(); renderAll(); });
+  $('btn-save').addEventListener('click', saveRoutes);
+  $('btn-load').addEventListener('click', () => { $('load-file').value = ''; $('load-file').click(); });
+  $('load-file').addEventListener('change', ev => { loadRoutesFile(ev.target.files && ev.target.files[0]); });
   $('btn-ranking').addEventListener('click', showRanking);
   $('ranking-close').addEventListener('click', () => $('ranking').classList.remove('show'));
   $('btn-gif').addEventListener('click', exportGif);
@@ -2688,7 +2792,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('speed').value = S.speed;
   applyLang();
   showHome();
-  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S, openAuth, setUser, user: () => USER, _lbFormHtml: () => lbFormHtml(), _refreshResultForm: () => refreshResultForm() };
+  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S, openAuth, setUser, user: () => USER, saveRoutes, applyRoutes, loadRoutesFile, _lbFormHtml: () => lbFormHtml(), _refreshResultForm: () => refreshResultForm() };
 })();
 
 </script>
