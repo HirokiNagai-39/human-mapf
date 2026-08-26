@@ -7,7 +7,7 @@
 各ステージには LNS2 ソルバーの参考解が埋め込まれており、それを基準に GOLD / SILVER / BRONZE のランクが付きます。
 UI は日本語 / 英語を切り替えられます。
 
-正解すると名前を入力して **オンラインランキング** (ステージごとに makespan 部門・total distance 部門) に登録でき、
+正解すると **オンラインランキング** (ステージごとに makespan 部門・total distance 部門) に登録でき、
 解答のアニメーションを **GIF で保存**、ステージ・スコア・順位を **𝕏 (Twitter) に投稿** できます
 (𝕏 の仕様上 GIF は自動添付できないので、保存した GIF を投稿画面にドラッグ&ドロップしてください)。
 
@@ -85,10 +85,10 @@ src/
   reference.js  各ステージの LNS2 参考解 (自動生成。スコア・下界・経路)
   config.js     設定 (ランキングサーバーの URL)
   gif.js        依存なしの GIF エンコーダ (LZW, 差分フレーム)
-  leaderboard.js ランキングのクライアント
+  leaderboard.js ランキング / ログインのクライアント
   game.js       ゲーム UI / 採点 / アニメーション / 効果音 (WebAudio 合成) / 日英 i18n / ランキング / GIF / 𝕏 投稿
   index.html, style.css
-server/leaderboard.gs  ランキングサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
+server/leaderboard.gs  ランキング + ログインのサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
 tools/precompute.js  LNS2 参考解 src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)。既定は差分計算＝既存ステージは触らず未計算のぶんだけ
 tools/artwork.js     イメージイラスト assets/hero.svg を生成 (既定: assets/promo-instance.json の 10×10 / 8 agents。`node tools/artwork.js assets/promo-instance-6agents.json` で 6 agents 版)
 tools/backup.js      ランキング (スプレッドシート) の全投稿を backups/ に保存 (`HUMAN_MAPF_BACKUP_TOKEN=… node tools/backup.js`, server/README.md 参照)

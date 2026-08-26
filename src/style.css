@@ -147,3 +147,21 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
 
 .home-footer { margin-top: 36px; padding-top: 12px; border-top: 1px solid #cfcac0; font-size: 12px; color: #777; text-align: center; }
 .home-footer a { color: #555; }
+
+/* ---- アカウント (ログイン) ---- */
+.account { font-size: 12px; color: #555; display: inline-flex; align-items: center; gap: 6px; }
+.account .who { font-weight: 600; color: #222; max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account button { font-size: 12px; padding: 3px 8px; }
+.topbar .account { margin-right: auto; }
+.auth-box { max-width: 420px; }
+.auth-tabs { display: flex; gap: 6px; margin: 12px 0 4px; }
+.auth-tabs button { flex: 1; }
+.auth-tabs button.on { background: #1e88e5; color: #fff; border-color: #1e88e5; }
+.auth-form { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.auth-form label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: #555; }
+.auth-form input { font-size: 15px; padding: 7px 9px; border: 1px solid #999; border-radius: 6px; }
+.auth-hint { font-size: 12px; min-height: 1.2em; color: #555; }
+.auth-hint.warn { color: #b26a00; }
+.auth-hint.err { color: #c62828; }
+.auth-box .note { font-size: 11px; color: #777; margin-top: 8px; line-height: 1.5; }
+.lb-form .who { font-weight: 600; }

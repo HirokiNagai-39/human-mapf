@@ -3,19 +3,25 @@
  *   LB.configured()                 バックエンド URL が設定されているか (src/config.js)
  *   LB.top(stage)     → { makespan: [entry...], moves: [entry...] }   各部門の上位 (同名はその部門の自己ベストのみ)
  *   LB.all()          → { stage: { makespan: entry, moves: entry } }  各ステージ・各部門の 1 位
- *   LB.submit(stage, name, paths) → { ok, score:{makespan,moves}, makespan:{rank,total,entries}, moves:{rank,total,entries} }
+ *   LB.checkName(name)→ { name, available, taken, legacy, submissions } 登録前の名前チェック
+ *   LB.register(name, password) → { name, token, legacy, claimed }    新規登録 (既存名は先着 claim)
+ *   LB.login(name, password)    → { name, token, submissions }        ログイン
+ *   LB.submit(stage, name, token, paths) → { ok, score, makespan:{...}, moves:{...} }
  *   entry = { name, makespan, moves, ts }
  * 部門の順序: makespan 部門 = makespan 昇順 → 総移動距離 昇順 → 登録時刻昇順 / 総移動距離部門はその逆
+ * 投稿にはログインが必須. 記録される名前はサーバーがトークンから引くので, 名前を騙ることはできない.
  */
 (function (root) {
   'use strict';
-  const TIMEOUT_MS = 12000;
+  const TIMEOUT_MS = 20000;
 
   function url() { return (root.CONFIG && root.CONFIG.leaderboardUrl || '').trim(); }
   function sanitizeName(s) {
     s = String(s || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim();
     return s.slice(0, 16);
   }
+  // サーバーの nameKey_ と同じ規則. 同一性の判定にだけ使う (表示は元の文字列)
+  function nameKey(s) { return sanitizeName(s).normalize('NFKC').replace(/\s+/g, '').toLowerCase(); }
   const cmpMakespan = (a, b) => a.makespan - b.makespan || a.moves - b.moves || (a.ts || 0) - (b.ts || 0);
   const cmpMoves = (a, b) => a.moves - b.moves || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
 
@@ -31,19 +37,22 @@
         headers: body ? { 'Content-Type': 'text/plain;charset=utf-8' } : undefined,
       });
       const j = await res.json();
-      if (!j || j.ok === false) throw new Error((j && j.error) || 'server error');
+      if (!j || j.ok === false) { const e = new Error((j && j.error) || 'server error'); e.detail = j; throw e; }
       return j;
     } finally { if (timer) clearTimeout(timer); }
   }
 
   root.LB = {
     configured: () => !!url(),
-    sanitizeName, cmpMakespan, cmpMoves,
+    sanitizeName, nameKey, cmpMakespan, cmpMoves,
     async top(stage) {
       const j = await request('GET', { stage });
       return { makespan: (j.makespan || []).sort(cmpMakespan), moves: (j.moves || []).sort(cmpMoves) };
     },
     async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
-    async submit(stage, name, paths) { return request('POST', {}, { stage, name: sanitizeName(name), paths, v: 1 }); },
+    async checkName(name) { return request('GET', { checkname: sanitizeName(name) }); },
+    async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }); },
+    async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }); },
+    async submit(stage, name, token, paths) { return request('POST', {}, { action: 'submit', stage, name, token, paths, v: 2 }); },
   };
 })(typeof self !== 'undefined' ? self : this);

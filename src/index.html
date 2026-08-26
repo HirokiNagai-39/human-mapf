@@ -24,6 +24,7 @@
 <div id="home" class="screen show">
   <div class="home-inner">
     <div class="topbar">
+      <span id="home-account" class="account"></span>
       <button id="home-lang" class="lang">EN</button>
     </div>
     <div class="hero">
@@ -49,6 +50,7 @@
     <button id="btn-home" data-i18n="btn.home"></button>
     <h1 id="stage-title">Human MAPF</h1>
     <span style="flex:1"></span>
+    <span id="game-account" class="account"></span>
     <button id="btn-lang" class="lang">EN</button>
     <button id="btn-sound"></button>
     <button id="btn-help" data-i18n="btn.help"></button>
@@ -112,6 +114,21 @@
     <div id="ranking-body"></div>
   </div>
 </div>
+<div id="auth" class="overlay">
+  <div class="box auth-box">
+    <div class="row" style="justify-content:space-between"><h2 id="auth-title" style="margin:0"></h2><button id="auth-close" data-i18n="btn.close"></button></div>
+    <div class="auth-tabs"><button id="auth-tab-login" type="button"></button><button id="auth-tab-register" type="button"></button></div>
+    <div class="auth-form">
+      <label><span id="auth-name-label"></span><input id="auth-name" maxlength="16" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      <label><span id="auth-pw-label"></span><input id="auth-pw" type="password" maxlength="72" autocomplete="current-password"></label>
+    </div>
+    <div id="auth-hint" class="auth-hint"></div>
+    <div class="row" style="justify-content:center"><button id="auth-go" class="primary"></button></div>
+    <div id="auth-msg" class="lb-msg"></div>
+    <div id="auth-note" class="note"></div>
+  </div>
+</div>
+
 <div id="help">
   <div class="box">
     <div class="row" style="justify-content:space-between"><h2 style="margin:0" data-i18n="home.howto"></h2><button id="help-close" data-i18n="btn.close"></button></div>

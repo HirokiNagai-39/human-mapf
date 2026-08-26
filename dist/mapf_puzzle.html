@@ -173,6 +173,24 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
 .home-footer { margin-top: 36px; padding-top: 12px; border-top: 1px solid #cfcac0; font-size: 12px; color: #777; text-align: center; }
 .home-footer a { color: #555; }
 
+/* ---- アカウント (ログイン) ---- */
+.account { font-size: 12px; color: #555; display: inline-flex; align-items: center; gap: 6px; }
+.account .who { font-weight: 600; color: #222; max-width: 10em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account button { font-size: 12px; padding: 3px 8px; }
+.topbar .account { margin-right: auto; }
+.auth-box { max-width: 420px; }
+.auth-tabs { display: flex; gap: 6px; margin: 12px 0 4px; }
+.auth-tabs button { flex: 1; }
+.auth-tabs button.on { background: #1e88e5; color: #fff; border-color: #1e88e5; }
+.auth-form { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.auth-form label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: #555; }
+.auth-form input { font-size: 15px; padding: 7px 9px; border: 1px solid #999; border-radius: 6px; }
+.auth-hint { font-size: 12px; min-height: 1.2em; color: #555; }
+.auth-hint.warn { color: #b26a00; }
+.auth-hint.err { color: #c62828; }
+.auth-box .note { font-size: 11px; color: #777; margin-top: 8px; line-height: 1.5; }
+.lb-form .who { font-weight: 600; }
+
 </style>
 </head>
 <body>
@@ -182,6 +200,7 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
 <div id="home" class="screen show">
   <div class="home-inner">
     <div class="topbar">
+      <span id="home-account" class="account"></span>
       <button id="home-lang" class="lang">EN</button>
     </div>
     <div class="hero">
@@ -207,6 +226,7 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
     <button id="btn-home" data-i18n="btn.home"></button>
     <h1 id="stage-title">Human MAPF</h1>
     <span style="flex:1"></span>
+    <span id="game-account" class="account"></span>
     <button id="btn-lang" class="lang">EN</button>
     <button id="btn-sound"></button>
     <button id="btn-help" data-i18n="btn.help"></button>
@@ -270,6 +290,21 @@ table.lb tr:nth-child(1) td:first-child { color: #d4a017; font-weight: 700; }
     <div id="ranking-body"></div>
   </div>
 </div>
+<div id="auth" class="overlay">
+  <div class="box auth-box">
+    <div class="row" style="justify-content:space-between"><h2 id="auth-title" style="margin:0"></h2><button id="auth-close" data-i18n="btn.close"></button></div>
+    <div class="auth-tabs"><button id="auth-tab-login" type="button"></button><button id="auth-tab-register" type="button"></button></div>
+    <div class="auth-form">
+      <label><span id="auth-name-label"></span><input id="auth-name" maxlength="16" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+      <label><span id="auth-pw-label"></span><input id="auth-pw" type="password" maxlength="72" autocomplete="current-password"></label>
+    </div>
+    <div id="auth-hint" class="auth-hint"></div>
+    <div class="row" style="justify-content:center"><button id="auth-go" class="primary"></button></div>
+    <div id="auth-msg" class="lb-msg"></div>
+    <div id="auth-note" class="note"></div>
+  </div>
+</div>
+
 <div id="help">
   <div class="box">
     <div class="row" style="justify-content:space-between"><h2 style="margin:0" data-i18n="home.howto"></h2><button id="help-close" data-i18n="btn.close"></button></div>
@@ -1122,19 +1157,25 @@ window.CONFIG = {
  *   LB.configured()                 バックエンド URL が設定されているか (src/config.js)
  *   LB.top(stage)     → { makespan: [entry...], moves: [entry...] }   各部門の上位 (同名はその部門の自己ベストのみ)
  *   LB.all()          → { stage: { makespan: entry, moves: entry } }  各ステージ・各部門の 1 位
- *   LB.submit(stage, name, paths) → { ok, score:{makespan,moves}, makespan:{rank,total,entries}, moves:{rank,total,entries} }
+ *   LB.checkName(name)→ { name, available, taken, legacy, submissions } 登録前の名前チェック
+ *   LB.register(name, password) → { name, token, legacy, claimed }    新規登録 (既存名は先着 claim)
+ *   LB.login(name, password)    → { name, token, submissions }        ログイン
+ *   LB.submit(stage, name, token, paths) → { ok, score, makespan:{...}, moves:{...} }
  *   entry = { name, makespan, moves, ts }
  * 部門の順序: makespan 部門 = makespan 昇順 → 総移動距離 昇順 → 登録時刻昇順 / 総移動距離部門はその逆
+ * 投稿にはログインが必須. 記録される名前はサーバーがトークンから引くので, 名前を騙ることはできない.
  */
 (function (root) {
   'use strict';
-  const TIMEOUT_MS = 12000;
+  const TIMEOUT_MS = 20000;
 
   function url() { return (root.CONFIG && root.CONFIG.leaderboardUrl || '').trim(); }
   function sanitizeName(s) {
     s = String(s || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim();
     return s.slice(0, 16);
   }
+  // サーバーの nameKey_ と同じ規則. 同一性の判定にだけ使う (表示は元の文字列)
+  function nameKey(s) { return sanitizeName(s).normalize('NFKC').replace(/\s+/g, '').toLowerCase(); }
   const cmpMakespan = (a, b) => a.makespan - b.makespan || a.moves - b.moves || (a.ts || 0) - (b.ts || 0);
   const cmpMoves = (a, b) => a.moves - b.moves || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
 
@@ -1150,20 +1191,23 @@ window.CONFIG = {
         headers: body ? { 'Content-Type': 'text/plain;charset=utf-8' } : undefined,
       });
       const j = await res.json();
-      if (!j || j.ok === false) throw new Error((j && j.error) || 'server error');
+      if (!j || j.ok === false) { const e = new Error((j && j.error) || 'server error'); e.detail = j; throw e; }
       return j;
     } finally { if (timer) clearTimeout(timer); }
   }
 
   root.LB = {
     configured: () => !!url(),
-    sanitizeName, cmpMakespan, cmpMoves,
+    sanitizeName, nameKey, cmpMakespan, cmpMoves,
     async top(stage) {
       const j = await request('GET', { stage });
       return { makespan: (j.makespan || []).sort(cmpMakespan), moves: (j.moves || []).sort(cmpMoves) };
     },
     async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
-    async submit(stage, name, paths) { return request('POST', {}, { stage, name: sanitizeName(name), paths, v: 1 }); },
+    async checkName(name) { return request('GET', { checkname: sanitizeName(name) }); },
+    async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }); },
+    async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }); },
+    async submit(stage, name, token, paths) { return request('POST', {}, { action: 'submit', stage, name, token, paths, v: 2 }); },
   };
 })(typeof self !== 'undefined' ? self : this);
 
@@ -1225,6 +1269,34 @@ window.CONFIG = {
       'tweet.text': 'Human MAPF「{0} {1} agents」{6}クリア! makespan {2}{3} / total distance {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
       'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
       'map.tutorial': 'チュートリアル', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
+      // アカウント
+      'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
+      'auth.titleLogin': 'ログイン', 'auth.titleRegister': '新規登録',
+      'auth.name': 'プレイヤー名 (16 文字まで)', 'auth.password': 'パスワード (8 文字以上)',
+      'auth.goLogin': 'ログイン', 'auth.goRegister': 'この名前で登録',
+      'auth.notLoggedIn': '未ログイン',
+      'auth.hintChecking': '確認中…',
+      'auth.hintFree': 'この名前は使えます',
+      'auth.hintTaken': 'この名前は登録済みです。あなたのものならログインしてください',
+      'auth.hintLegacy': 'この名前ではすでに {0} 件の記録があります。あなたなら、ここで登録すると過去の記録をそのまま引き継げます',
+      'auth.hintShortPw': 'パスワードは 8 文字以上にしてください',
+      'auth.okLogin': 'ようこそ、{0} さん',
+      'auth.okRegister': '登録しました。ようこそ、{0} さん',
+      'auth.okClaim': '登録しました。過去の記録 {0} 件を引き継ぎました',
+      'auth.errNoUser': 'その名前は登録されていません。新規登録してください',
+      'auth.errLegacy': 'その名前はまだ登録されていません。「新規登録」から登録すると、過去の記録 {0} 件を引き継げます',
+      'auth.errPassword': 'パスワードが違います (あと {0} 回)',
+      'auth.errLocked': '失敗が続いたため一時的にロックされています。{0} 秒後にやり直してください',
+      'auth.errTaken': 'その名前は登録済みです',
+      'auth.errShortPw': 'パスワードは 8 文字以上にしてください',
+      'auth.errName': '名前を入力してください',
+      'auth.errFail': '失敗しました: {0}',
+      'auth.working': '通信中…',
+      'auth.note': 'パスワードはこのゲームのランキング専用です。他で使っているものは避けてください。<b>再発行はできません</b>ので、忘れないようにしてください。ログイン状態はこのブラウザに保存されます。',
+      'auth.needLogin': 'ランキングに登録するにはログインしてください',
+      'auth.loginToSubmit': 'ログインして登録',
+      'auth.sessionExpired': 'ログインし直してください',
+      'wip.restored': '解きかけの経路を復元しました (やり直すには「全消去」)',
       'desc.tutorial': '障害物 2 つ。対角の 2 エージェントが入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
       // tutorial
       't1.h': '1. 目的',
@@ -1294,6 +1366,34 @@ window.CONFIG = {
       'tweet.text': 'I solved Human MAPF "{0}, {1} agents" {6}: makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
       'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
       'map.tutorial': 'Tutorial', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
+      // account
+      'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
+      'auth.titleLogin': 'Log in', 'auth.titleRegister': 'Sign up',
+      'auth.name': 'Player name (up to 16 chars)', 'auth.password': 'Password (8+ chars)',
+      'auth.goLogin': 'Log in', 'auth.goRegister': 'Claim this name',
+      'auth.notLoggedIn': 'Not logged in',
+      'auth.hintChecking': 'Checking…',
+      'auth.hintFree': 'This name is available',
+      'auth.hintTaken': 'This name is already registered. Log in if it is yours',
+      'auth.hintLegacy': 'This name already has {0} submissions. If that is you, signing up here keeps all of them',
+      'auth.hintShortPw': 'Password must be at least 8 characters',
+      'auth.okLogin': 'Welcome back, {0}',
+      'auth.okRegister': 'Registered. Welcome, {0}',
+      'auth.okClaim': 'Registered. Your {0} earlier submissions are now linked to this account',
+      'auth.errNoUser': 'No such player. Please sign up first',
+      'auth.errLegacy': 'That name is not registered yet. Use "Sign up" to claim it and keep its {0} earlier submissions',
+      'auth.errPassword': 'Wrong password ({0} attempts left)',
+      'auth.errLocked': 'Too many failed attempts. Try again in {0} seconds',
+      'auth.errTaken': 'That name is already registered',
+      'auth.errShortPw': 'Password must be at least 8 characters',
+      'auth.errName': 'Please enter a name',
+      'auth.errFail': 'Failed: {0}',
+      'auth.working': 'Working…',
+      'auth.note': 'This password is only for this game\u2019s leaderboard, so avoid reusing one. <b>It cannot be reset</b>, so do not lose it. Your login is stored in this browser.',
+      'auth.needLogin': 'Log in to submit to the leaderboard',
+      'auth.loginToSubmit': 'Log in to submit',
+      'auth.sessionExpired': 'Please log in again',
+      'wip.restored': 'Restored your work in progress (use "Clear all" to start over)',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
@@ -1378,6 +1478,43 @@ window.CONFIG = {
   function cellCenter(c) { const [x, y] = cellXY(c); return [S.ox + (x + 0.5) * S.cell, S.oy + (y + 0.5) * S.cell]; }
   function head(i) { return S.paths[i][S.paths[i].length - 1]; }
   function isAdj(a, b) { const d = Math.abs(a - b); return (d === 1 && Math.floor(a / S.map.w) === Math.floor(b / S.map.w)) || d === S.map.w; }
+  // ---- 解きかけの経路をこのブラウザに保存する (リロードや誤操作で失われないように)
+  function wipKey(mapId, N) { return `human_mapf_wip:${mapId}:${N}`; }
+  let wipTimer = null;
+  function saveWip() {
+    if (!S.map || S.mode !== 'edit') return;
+    if (wipTimer) clearTimeout(wipTimer);
+    wipTimer = setTimeout(() => {
+      try {
+        if (!S.paths.some(p => p.length > 1)) { localStorage.removeItem(wipKey(S.mapId, S.N)); return; }
+        localStorage.setItem(wipKey(S.mapId, S.N), JSON.stringify({ t: Date.now(), paths: S.paths.map(p => encodePath(p)) }));
+      } catch (e) { }
+    }, 400);
+  }
+  // 保存した経路を復元する. 少しでもおかしければ捨てて初期状態に戻す
+  function loadWip(mapId, N, starts, map) {
+    let d;
+    try { d = JSON.parse(localStorage.getItem(wipKey(mapId, N)) || 'null'); } catch (e) { return null; }
+    if (!d || !Array.isArray(d.paths) || d.paths.length !== starts.length) return null;
+    const out = [];
+    for (let i = 0; i < starts.length; ++i) {
+      const str = String(d.paths[i]);
+      if (/[^UDLRW]/.test(str)) return null;
+      let c = starts[i]; const p = [c];
+      for (const ch of str) {
+        const x = c % map.w;
+        if (ch === 'R') { if (x === map.w - 1) return null; c += 1; }
+        else if (ch === 'L') { if (x === 0) return null; c -= 1; }
+        else if (ch === 'D') c += map.w;
+        else if (ch === 'U') c -= map.w;
+        if (c < 0 || c >= map.w * map.h || !map.free[c]) return null;
+        p.push(c);
+      }
+      out.push(p);
+    }
+    return out.some(p => p.length > 1) ? out : null;
+  }
+
   function bestKey(mapId, N) { return `human_mapf_best:${mapId}:${N}`; }
   function readBest(mapId, N) { try { return JSON.parse(localStorage.getItem(bestKey(mapId, N)) || 'null'); } catch (e) { return null; } }
   function mapName(id) { return t('map.' + id); }
@@ -1391,6 +1528,8 @@ window.CONFIG = {
     S.starts = ins.starts; S.goals = ins.goals;
     S.dist = S.goals.map(g => L.bfsDist(S.G, g));
     S.paths = S.starts.map(s => [s]);
+    const wip = loadWip(mapId, N, S.starts, S.map);
+    if (wip) S.paths = wip;
     S.sel = N > 0 ? 0 : -1; S.drag = null;
     S.undo = []; S.redo = [];
     S.mode = 'edit'; S.anim = null;
@@ -1400,7 +1539,7 @@ window.CONFIG = {
     startReference();
     updateChampInfo();
     layout(); recompute(); renderAll();
-    setStatus(t('status.stage', mapName(mapId), N));
+    setStatus(wip ? t('wip.restored') : t('status.stage', mapName(mapId), N));
   }
 
   // 埋め込み参考解 (src/reference.js, tools/precompute.js で生成). 無ければその場で LNS2 を実行
@@ -1485,6 +1624,7 @@ window.CONFIG = {
     S.metrics = L.metrics(S.paths);
     computeLanes();
     updatePanel();
+    saveWip();
   }
 
   // ============================================================ layout / draw
@@ -1881,9 +2021,7 @@ window.CONFIG = {
   function showResult(rank, m, better, rk) {
     const box = $('result');
     const refLb = (rv, lv, pct) => S.ref ? ` <span class="sub">${t('result.refLb', rv, lv, pct)}</span>` : '';
-    const lbForm = LB.configured()
-      ? `<div class="lb-form"><input id="lb-name" maxlength="16" placeholder="${t('lb.namePh')}" value="${escapeHtml(playerName())}"><button id="lb-submit" class="primary">${t('lb.submit')}</button></div><div id="lb-msg" class="lb-msg"></div>`
-      : `<div class="lb-msg">${t('lb.notConfigured')}</div>`;
+    const lbForm = lbFormHtml();
     box.innerHTML = `<div class="rank">${rank.toUpperCase()}</div>
       <div>${t('result.makespan')} <b class="mono">${m.makespan}</b>${refLb(S.ref && S.ref.makespan, S.lb && S.lb.makespan, rk.pm)}</div>
       <div>${t('result.moves')} <b class="mono">${m.moves}</b>${refLb(S.ref && S.ref.moves, S.lb && S.lb.moves, rk.pd)}</div>
@@ -1899,16 +2037,137 @@ window.CONFIG = {
     $('res-gif').onclick = () => exportGif();
     $('res-tweet').onclick = () => tweet();
     $('res-ranking').onclick = () => showRanking();
-    if ($('lb-submit')) {
-      $('lb-submit').onclick = () => submitScore();
-      $('lb-name').onkeydown = ev => { if (ev.key === 'Enter') submitScore(); ev.stopPropagation(); };
-      setTimeout(() => { if (!playerName()) $('lb-name').focus(); }, 50);
-    }
+    wireResultForm();
+  }
+
+  // ログイン済みなら名前は固定表示 (騙れないので入力欄は出さない). 未ログインならログインへ誘導する
+  function lbFormHtml() {
+    if (!LB.configured()) return `<div class="lb-msg">${t('lb.notConfigured')}</div>`;
+    if (!USER) return `<div class="lb-form"><button id="lb-login" class="primary">${t('auth.loginToSubmit')}</button></div><div id="lb-msg" class="lb-msg">${t('auth.needLogin')}</div>`;
+    return `<div class="lb-form"><span class="who">${escapeHtml(USER.name)}</span><button id="lb-submit" class="primary">${t('lb.submit')}</button></div><div id="lb-msg" class="lb-msg"></div>`;
+  }
+  function wireResultForm() {
+    if ($('lb-submit')) $('lb-submit').onclick = () => submitScore();
+    if ($('lb-login')) $('lb-login').onclick = () => openAuth('login');
+  }
+  // ログイン状態が変わったら、開いている結果パネルのフォームを差し替える
+  function refreshResultForm() {
+    const holder = $('result').querySelector('.lb-form');
+    if (!holder) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = lbFormHtml();
+    const msg = $('result').querySelector('#lb-msg');
+    holder.replaceWith(...wrap.childNodes);
+    if (msg && $('result').querySelector('#lb-msg') !== msg) msg.remove();
+    wireResultForm();
   }
 
   // ============================================================ ranking
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
-  function playerName() { try { return localStorage.getItem('human_mapf_name') || ''; } catch (e) { return ''; } }
+  // ---- ログイン状態 (このブラウザに保存する). token はサーバーが発行した値
+  const AUTH_KEY = 'human_mapf_auth';
+  let USER = null;
+  try { USER = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch (e) { USER = null; }
+  if (USER && !(USER.name && USER.token)) USER = null;
+  function setUser(u) {
+    USER = u;
+    try { u ? localStorage.setItem(AUTH_KEY, JSON.stringify(u)) : localStorage.removeItem(AUTH_KEY); } catch (e) { }
+    renderAccount();
+    if ($('result').classList.contains('show')) refreshResultForm();
+  }
+  function playerName() { return USER ? USER.name : ''; }
+
+  function renderAccount() {
+    const html = !LB.configured() ? ''
+      : USER
+        ? `<span class="who">${escapeHtml(USER.name)}</span><button class="auth-out">${t('auth.logout')}</button>`
+        : `<button class="auth-in">${t('auth.login')}</button><button class="auth-up">${t('auth.register')}</button>`;
+    for (const id of ['home-account', 'game-account']) {
+      const el = $(id); if (!el) continue;
+      el.innerHTML = html;
+      const q = (c, fn) => { const b = el.querySelector(c); if (b) b.onclick = fn; };
+      q('.auth-out', () => setUser(null));
+      q('.auth-in', () => openAuth('login'));
+      q('.auth-up', () => openAuth('register'));
+    }
+  }
+
+  // ---- ログイン / 新規登録モーダル
+  let AUTH_MODE = 'login', authTimer = null;
+  function openAuth(mode, presetName) {
+    AUTH_MODE = mode;
+    $('auth').classList.add('show');
+    $('auth-msg').textContent = ''; $('auth-msg').className = 'lb-msg';
+    $('auth-hint').textContent = ''; $('auth-hint').className = 'auth-hint';
+    if (presetName != null) $('auth-name').value = presetName;
+    $('auth-pw').value = '';
+    applyAuthLang();
+    setTimeout(() => ($('auth-name').value ? $('auth-pw') : $('auth-name')).focus(), 50);
+  }
+  function closeAuth() { $('auth').classList.remove('show'); if (authTimer) clearTimeout(authTimer); }
+  function applyAuthLang() {
+    const reg = AUTH_MODE === 'register';
+    $('auth-title').textContent = t(reg ? 'auth.titleRegister' : 'auth.titleLogin');
+    $('auth-tab-login').textContent = t('auth.login');
+    $('auth-tab-register').textContent = t('auth.register');
+    $('auth-tab-login').className = reg ? '' : 'on';
+    $('auth-tab-register').className = reg ? 'on' : '';
+    $('auth-name-label').textContent = t('auth.name');
+    $('auth-pw-label').textContent = t('auth.password');
+    $('auth-pw').autocomplete = reg ? 'new-password' : 'current-password';
+    $('auth-go').textContent = t(reg ? 'auth.goRegister' : 'auth.goLogin');
+    $('auth-note').innerHTML = t('auth.note');
+  }
+  // 新規登録のときだけ、入力中の名前が使えるかをサーバーに問い合わせる
+  function scheduleNameCheck() {
+    if (authTimer) clearTimeout(authTimer);
+    if (AUTH_MODE !== 'register') { $('auth-hint').textContent = ''; return; }
+    const name = LB.sanitizeName($('auth-name').value);
+    const hint = $('auth-hint');
+    if (!name) { hint.textContent = ''; hint.className = 'auth-hint'; return; }
+    hint.textContent = t('auth.hintChecking'); hint.className = 'auth-hint';
+    authTimer = setTimeout(async () => {
+      try {
+        const r = await LB.checkName(name);
+        if (LB.nameKey($('auth-name').value) !== LB.nameKey(name)) return;   // 入力が変わっていたら捨てる
+        if (r.taken) { hint.textContent = t('auth.hintTaken'); hint.className = 'auth-hint err'; }
+        else if (r.legacy) { hint.textContent = t('auth.hintLegacy', r.submissions); hint.className = 'auth-hint warn'; }
+        else { hint.textContent = t('auth.hintFree'); hint.className = 'auth-hint'; }
+      } catch (e) { hint.textContent = ''; }
+    }, 400);
+  }
+  function authErrorText(e) {
+    const d = e.detail || {}, msg = String(e.message || e);
+    if (msg === 'no such user') return t('auth.errNoUser');
+    if (msg.indexOf('not registered') === 0) return t('auth.errLegacy', d.submissions || 0);
+    if (msg === 'wrong password') return t('auth.errPassword', d.remaining == null ? 0 : d.remaining);
+    if (msg === 'locked') return t('auth.errLocked', d.retryAfter || 60);
+    if (msg === 'name taken') return t('auth.errTaken');
+    if (msg === 'password too short') return t('auth.errShortPw');
+    if (msg === 'bad name') return t('auth.errName');
+    return t('auth.errFail', msg);
+  }
+  async function submitAuth() {
+    const name = LB.sanitizeName($('auth-name').value), pw = $('auth-pw').value;
+    const msg = $('auth-msg'), go = $('auth-go');
+    msg.className = 'lb-msg';
+    if (!name) { msg.className = 'lb-msg err'; msg.textContent = t('auth.errName'); $('auth-name').focus(); return; }
+    if (AUTH_MODE === 'register' && pw.length < 8) { msg.className = 'lb-msg err'; msg.textContent = t('auth.errShortPw'); $('auth-pw').focus(); return; }
+    go.disabled = true; msg.textContent = t('auth.working');
+    try {
+      const r = AUTH_MODE === 'register' ? await LB.register(name, pw) : await LB.login(name, pw);
+      setUser({ name: r.name, token: r.token });
+      msg.className = 'lb-msg';
+      msg.textContent = AUTH_MODE === 'register'
+        ? (r.claimed > 0 ? t('auth.okClaim', r.claimed) : t('auth.okRegister', r.name))
+        : t('auth.okLogin', r.name);
+      Sound.select();
+      setTimeout(() => { closeAuth(); if ($('result').classList.contains('show')) refreshResultForm(); }, 900);
+    } catch (e) {
+      msg.className = 'lb-msg err'; msg.textContent = authErrorText(e);
+      if (String(e.message).indexOf('not registered') === 0) { AUTH_MODE = 'register'; applyAuthLang(); }
+    } finally { go.disabled = false; }
+  }
   function stageKey() { return `${S.mapId}:${S.N}`; }
   function encodePath(p) {
     let out = '';
@@ -1918,13 +2177,13 @@ window.CONFIG = {
 
   async function submitScore() {
     const r = S.lastResult; if (!r || !LB.configured()) return;
-    const input = $('lb-name'), msg = $('lb-msg'), btn = $('lb-submit');
-    const name = LB.sanitizeName(input.value);
-    if (!name) { msg.className = 'lb-msg err'; msg.textContent = t('lb.needName'); input.focus(); return; }
-    try { localStorage.setItem('human_mapf_name', name); } catch (e) { }
-    btn.disabled = true; input.disabled = true; msg.className = 'lb-msg'; msg.textContent = t('lb.submitting');
+    if (!USER) { openAuth('login'); return; }
+    const msg = $('lb-msg'), btn = $('lb-submit');
+    if (!btn) return;
+    btn.disabled = true; msg.className = 'lb-msg'; msg.textContent = t('lb.submitting');
     try {
-      const res = await LB.submit(stageKey(), name, r.paths);
+      const res = await LB.submit(stageKey(), USER.name, USER.token, r.paths);
+      const name = res.name || USER.name;
       r.name = name;
       r.rankMakespan = { rank: res.makespan.rank, total: res.makespan.total };
       r.rankMoves = { rank: res.moves.rank, total: res.moves.total };
@@ -1933,8 +2192,17 @@ window.CONFIG = {
       S.champs = null; updateChampInfo(); updatePanel();
       Sound.goal();
     } catch (e) {
-      msg.className = 'lb-msg err'; msg.textContent = t('lb.submitFail', e.message || e);
-      btn.disabled = false; input.disabled = false;
+      const em = String(e.message || e);
+      if (em.indexOf('bad token') === 0 || em.indexOf('login required') === 0) {
+        // シート側でトークンが無効にされた / 別端末で作り直された場合
+        setUser(null);   // ここでフォームが「ログインして登録」に差し替わる
+        const m2 = $('lb-msg');
+        if (m2) { m2.className = 'lb-msg err'; m2.textContent = t('auth.sessionExpired'); }
+        openAuth('login', r.name || '');
+        return;
+      }
+      msg.className = 'lb-msg err'; msg.textContent = t('lb.submitFail', em);
+      btn.disabled = false;
     }
   }
 
@@ -2179,6 +2447,9 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     const tut = tutorialHTML();
     $('tutorial-home').innerHTML = tut; $('tutorial-game').innerHTML = tut;
     buildHome();
+    renderAccount();
+    if ($('auth').classList.contains('show')) applyAuthLang();
+    if ($('result').classList.contains('show')) refreshResultForm();
     if (S.map) {
       $('stage-title').textContent = t('stage.title', mapName(S.mapId), S.N);
       if (S.mode === 'edit') setStatus(t('status.stage', mapName(S.mapId), S.N));
@@ -2214,6 +2485,13 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-lang').addEventListener('click', toggleLang);
   $('home-lang').addEventListener('click', toggleLang);
   $('speed').addEventListener('input', () => { S.speed = +$('speed').value; $('speed-val').textContent = t('unit.speed', S.speed); });
+  $('auth-close').addEventListener('click', closeAuth);
+  $('auth-tab-login').addEventListener('click', () => { AUTH_MODE = 'login'; applyAuthLang(); scheduleNameCheck(); $('auth-msg').textContent = ''; });
+  $('auth-tab-register').addEventListener('click', () => { AUTH_MODE = 'register'; applyAuthLang(); scheduleNameCheck(); $('auth-msg').textContent = ''; });
+  $('auth-go').addEventListener('click', submitAuth);
+  $('auth-name').addEventListener('input', scheduleNameCheck);
+  for (const id of ['auth-name', 'auth-pw']) $(id).addEventListener('keydown', ev => { if (ev.key === 'Enter') submitAuth(); ev.stopPropagation(); });
+  $('auth').addEventListener('click', ev => { if (ev.target === $('auth')) closeAuth(); });
   $('btn-help').addEventListener('click', () => { $('help').classList.toggle('show'); });
   $('help-close').addEventListener('click', () => { $('help').classList.remove('show'); });
   window.addEventListener('resize', () => { if (S.map && $('game').classList.contains('show')) { layout(); draw(); } });
@@ -2222,7 +2500,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('speed').value = S.speed;
   applyLang();
   showHome();
-  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S };
+  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S, openAuth, setUser, user: () => USER, _lbFormHtml: () => lbFormHtml(), _refreshResultForm: () => refreshResultForm() };
 })();
 
 </script>

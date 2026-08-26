@@ -13,9 +13,11 @@
  *
  * 出力 (既定は backups/, .gitignore 済み):
  *   scores-YYYYMMDD-HHMMSS.json … { fetchedAt, url, total, rows: [{ts,stage,name,makespan,moves,paths}] }
- *   scores-YYYYMMDD-HHMMSS.csv  … シートと同じ列 (ts,stage,name,makespan,moves,paths)
- *   scores-latest.json / .csv   … 最新のコピー (差分確認用)
- * 復旧はこの CSV をスプレッドシートの scores シートに貼り戻す (server/README.md 参照).
+ *   scores-YYYYMMDD-HHMMSS.csv  … scores シートと同じ列
+ *   users-YYYYMMDD-HHMMSS.json / .csv … アカウント (パスワードのハッシュとソルト. 平文は保存されていない)
+ *   scores-latest.* / users-latest.*  … 最新のコピー (差分確認用)
+ * 復旧はこの CSV をスプレッドシートの各シートに貼り戻す (server/README.md 参照).
+ * users のバックアップにはログイン情報が含まれるので, 取り扱いは scores より慎重に.
  */
 'use strict';
 const fs = require('fs'), path = require('path');
@@ -45,9 +47,14 @@ function csvCell(v) {
   const s = String(v);
   return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
-function toCsv(rows) {
-  const lines = ['ts,stage,name,makespan,moves,paths'];
-  for (const r of rows) lines.push([r.ts, r.stage, r.name, r.makespan, r.moves, (r.paths || []).join(',')].map(csvCell).join(','));
+const COLS = {
+  scores: ['ts', 'stage', 'name', 'makespan', 'moves', 'paths'],
+  users: ['name', 'namekey', 'salt', 'hash', 'iter', 'tokenSalt', 'serial', 'created', 'lastLogin', 'fail', 'failUntil', 'legacy'],
+};
+function toCsv(sheet, rows) {
+  const cols = COLS[sheet];
+  const lines = [cols.join(',')];
+  for (const r of rows) lines.push(cols.map(c => csvCell(Array.isArray(r[c]) ? r[c].join(',') : r[c])).join(','));
   return lines.join('\n') + '\n';
 }
 
@@ -71,8 +78,8 @@ async function getJson(u) {
   die('サーバーから JSON が取れませんでした (4 回試行)\n' + last);
 }
 
-async function fetchPage(from) {
-  const q = `dump=1&token=${encodeURIComponent(token)}&from=${from}&limit=500`;
+async function fetchPage(sheet, from) {
+  const q = `dump=1&token=${encodeURIComponent(token)}&sheet=${sheet}&from=${from}&limit=500`;
   const j = await getJson(url + (url.includes('?') ? '&' : '?') + q);
   if (!j.ok) die('サーバーが拒否しました: ' + j.error + (j.error === 'dump disabled' ? ' (スクリプトプロパティ BACKUP_TOKEN が未設定, または再デプロイ忘れ)' : ''));
   // dump 未対応の古いデプロイだと ?dump=1 が無視され, サービス情報が返ってくる
@@ -80,27 +87,39 @@ async function fetchPage(from) {
   return j;
 }
 
-(async () => {
+async function fetchSheet(sheet) {
   const rows = [];
   let from = 0, total = null;
   for (;;) {
-    const j = await fetchPage(from);
+    const j = await fetchPage(sheet, from);
     total = j.total;
     rows.push(...j.rows);
-    process.stdout.write(`\r  ${rows.length}/${total} 件取得...`);
+    process.stdout.write(`\r  ${sheet}: ${rows.length}/${total} 件取得...   `);
     if (j.next == null) break;
     if (j.count === 0) die('取得が進みません (count=0)');
     from = j.next;
   }
   process.stdout.write('\n');
-  if (rows.length !== total) die(`件数が合いません (取得 ${rows.length} / サーバー ${total})`);
+  if (rows.length !== total) die(`${sheet} の件数が合いません (取得 ${rows.length} / サーバー ${total})`);
+  return rows;
+}
+
+(async () => {
+  const rows = await fetchSheet('scores');
+  const users = await fetchSheet('users');
+  const total = rows.length;
 
   const now = new Date(), tag = stamp(now);
   fs.mkdirSync(outDir, { recursive: true });
   const json = JSON.stringify({ fetchedAt: now.toISOString(), url, total, rows }, null, 1) + '\n';
-  const csv = toCsv(rows);
+  const csv = toCsv('scores', rows);
+  const ujson = JSON.stringify({ fetchedAt: now.toISOString(), url, total: users.length, rows: users }, null, 1) + '\n';
+  const ucsv = toCsv('users', users);
   const written = [];
-  for (const [name, data] of [[`scores-${tag}.json`, json], [`scores-${tag}.csv`, csv], ['scores-latest.json', json], ['scores-latest.csv', csv]]) {
+  for (const [name, data] of [
+    [`scores-${tag}.json`, json], [`scores-${tag}.csv`, csv], ['scores-latest.json', json], ['scores-latest.csv', csv],
+    [`users-${tag}.json`, ujson], [`users-${tag}.csv`, ucsv], ['users-latest.json', ujson], ['users-latest.csv', ucsv],
+  ]) {
     const p = path.join(outDir, name);
     fs.writeFileSync(p, data);
     written.push(p);
@@ -109,7 +128,7 @@ async function fetchPage(from) {
   const stages = new Set(), players = new Set();
   for (const r of rows) { stages.add(r.stage); players.add(r.name); }
   const times = rows.map(r => r.ts).filter(t => t > 0);
-  console.log(`${total} 件 / ${players.size} プレイヤー / ${stages.size} ステージ`);
+  console.log(`投稿 ${total} 件 / 名前 ${players.size} 種 / ${stages.size} ステージ / 登録アカウント ${users.length} 件`);
   if (times.length) console.log(`期間: ${new Date(Math.min(...times)).toLocaleString()} 〜 ${new Date(Math.max(...times)).toLocaleString()}`);
   for (const p of written) console.log('  wrote ' + path.relative(ROOT, p) + ' (' + (fs.statSync(p).size / 1024).toFixed(1) + ' KB)');
 })().catch(e => die(String((e && e.stack) || e)));

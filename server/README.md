@@ -3,6 +3,7 @@
 Human MAPF のランキングは、Google スプレッドシートを DB にした Google Apps Script (GAS) のウェブアプリで動きます。
 無料・サーバー不要で、Google アカウントがあれば 5 分で用意できます。
 送られてきた解はサーバー側で検証 (合法な移動・全員ゴール・衝突なし) してからスコアを計算するので、数値の改ざんはできません。
+投稿にはログインが必要で、記録される名前はサーバーがトークンから引くため、他人の名前を騙ることもできません。
 
 ## 手順
 
@@ -24,6 +25,7 @@ Human MAPF のランキングは、Google スプレッドシートを DB にし�
 
 - コードを変更したら、Apps Script 側で **デプロイ → デプロイを管理 → 編集 → バージョン: 新バージョン** で再デプロイしないと反映されません (URL は変わりません)
 - スコアはシート `scores` に 1 行ずつ追記されます (ts, stage, name, makespan, moves, paths)。荒らしの行はシートで直接削除できます
+- アカウントはシート `users` に入ります (初回アクセス時に自動生成)。パスワードは salt 付きの反復 SHA-256 ハッシュで保存され、平文は残りません
 - 同じ名前で複数回登録した場合、各部門 (makespan / 総移動距離) でその名前の自己ベストだけがランキングに載ります
 - GAS の無料枠 (1 日あたりの実行時間など) は個人ゲームの規模なら十分です
 
@@ -41,15 +43,55 @@ Human MAPF のランキングは、Google スプレッドシートを DB にし�
    HUMAN_MAPF_BACKUP_TOKEN=<設定したトークン> node tools/backup.js
    ```
 
-   `backups/scores-YYYYMMDD-HHMMSS.json` / `.csv` と、上書き更新される `scores-latest.json` / `.csv` が作られます
-   (`backups/` は `.gitignore` 済み。別の場所に置きたいときは `--out <dir>`)。
+   `scores` と `users` の両方が保存されます (`backups/scores-YYYYMMDD-HHMMSS.json` / `.csv`、`users-…`、
+   および上書き更新される `*-latest.*`)。`backups/` は `.gitignore` 済み。別の場所に置きたいときは `--out <dir>`。
+   **`users-*` にはログイン情報 (パスワードのハッシュとソルト) が入るので、`scores-*` より慎重に扱ってください。**
 
 - **トークンは公開リポジトリに書かないこと** (スクリプトプロパティに置くのはそのため)。漏れたら値を変えて再デプロイすれば無効化できます
 - ダンプ API は読み取り専用です。トークンが漏れても書き換えはできませんが、プレイヤー名と経路が読めます
-- **復旧の手順**: 新しいスプレッドシート + Apps Script を用意し、`scores` シートに `backups/scores-*.csv` を
-  そのまま貼り付ける (1 行目がヘッダー `ts,stage,name,makespan,moves,paths`)。ts は数値、paths はカンマ区切りの文字列 1 セルです
+- **復旧の手順**: 新しいスプレッドシート + Apps Script を用意し、`scores` シートに `backups/scores-*.csv` を、
+  `users` シートに `backups/users-*.csv` をそのまま貼り付ける (1 行目がヘッダー)。ts は数値、paths はカンマ区切りの文字列 1 セルです。
+  `users` を戻せば、プレイヤーは元のパスワードでそのままログインできます
 - 自動化するなら `cron` などで上のコマンドを定期実行する、または Google ドライブ側でスプレッドシートを
   定期コピーする (Apps Script の時間主導トリガー + `DriveApp`) 方法もあります
+
+## ログイン (なりすまし防止)
+
+投稿にはログインが必要です。名前 + パスワードで登録し、サーバーが発行したトークンをブラウザに保存します。
+
+- **同じ名前は登録できません。** 大文字小文字・全角半角・空白の違いは同じ名前として扱います (`Foo` `ｆｏｏ` `f o o` はすべて同一)
+- **記録される名前はトークンから引いた登録済みの表示名です。** リクエストの `name` を書き換えても他人にはなれません
+- パスワードは `users` シートに salt 付き反復 SHA-256 (既定 1000 回) のハッシュで保存されます。行ごとに `iter` を持つので、後から回数を増やせます
+- ログイン失敗が 5 回続くと 60 秒ロックされます
+- トークンは `sha256(tokenSalt | namekey | serial)` で、シートには平文で置きません。**特定の利用者を強制ログアウトさせたいときは、その行の `serial` を +1 してください** (全端末のトークンが無効になります)
+- パスワードの再発行機能はありません。忘れた人が出たら、`users` シートのその行を削除すれば、本人が同じ名前で登録し直せます (過去の記録は名前で紐づいているのでそのまま残ります)
+
+### 移行期間 (更新中に解いている人を守る)
+
+ログイン必須に切り替えた瞬間、**更新前のページを開いたまま解いている人の提出が弾かれてしまう**ため、猶予期間を設けています。
+
+- 期間中は、**まだ登録されていない名前に限り**、ログイン前 (トークン無し) の投稿も受け付けます。更新前のページからの提出がそのまま通るので、解きかけの結果が無駄になりません
+- **登録済みの名前は期間中でもトークンが必須**です。つまり、なりすまし防止は登録した瞬間から効きます
+- 期間中のトークン無し投稿も、名前の表記は既存の記録に揃えられます (ランキングが分断されない)
+- 既定の期限はコード内の `LEGACY_UNTIL_DEFAULT` (2026-08-27 23:59 JST)。**スクリプトプロパティ `LEGACY_UNTIL` を作れば再デプロイなしで変更できます** (ISO 8601 かミリ秒)
+- **早く締めたいとき**: `LEGACY_UNTIL` に過去の日時 (例: `0`) を設定 → 即座にログイン必須になります
+- いまの状態はウェブアプリ URL をそのまま開くと `legacyUntil` / `legacyOpen` で確認できます
+
+期限が過ぎたら、未登録の名前での投稿は `login required — ページを再読み込みしてログインしてください` で拒否されます (このメッセージは更新前のページにもそのまま表示されます)。
+
+### 既存プレイヤーの引き継ぎ (先着 claim)
+
+ログイン機能の導入前に投稿していた名前は、**その名前で最初に登録した人のものになります**。登録すると過去の記録がそのまま自分のものとして引き継がれ、表示名は既存の記録の表記に揃えられます (`alice` で登録しても、既存の記録が `Alice` なら `Alice` になる)。
+登録画面で既存の名前を入力すると「この名前ではすでに N 件の記録があります」と表示されます。
+
+導入直後は、なりすましを防ぐために**プレイヤーに早めの登録を告知してください**。誰かに名前を取られてしまった場合は、`users` シートのその行を削除すれば claim をやり直せます。
+
+### 切り替えの手順
+
+1. **先に Apps Script を更新**する (`dist/leaderboard.gs` を貼って新バージョンでデプロイ)。移行期間があるので、更新前のページを開いている人はそのまま投稿を続けられます
+2. 次に `git push` して GitHub Pages を更新する。以降にページを開いた人からログイン UI が出ます
+3. プレイヤーに登録を告知する
+4. 全員の登録が済んだら、`LEGACY_UNTIL` を過去の日時にして移行期間を閉じる
 
 ## API
 
@@ -57,7 +99,10 @@ Human MAPF のランキングは、Google スプレッドシートを DB にし�
 |---|---|
 | `GET ?stage=empty:10` | `{ ok, makespan: [entry…], moves: [entry…], players }` (各部門の上位 20) |
 | `GET ?all=1` | `{ ok, best: { "empty:10": { makespan: entry, moves: entry, players }, … } }` |
+| `GET ?checkname=<name>` | `{ ok, name, available, taken, legacy, submissions }` (登録前の名前チェック) |
 | `GET ?dump=1&token=…&from=0&limit=500` | `{ ok, total, from, count, next, rows: [{ ts, stage, name, makespan, moves, paths }] }` (バックアップ用。`BACKUP_TOKEN` 必須) |
-| `POST` (JSON `{ stage, name, paths }`) | `{ ok, score, makespan: { rank, total, improved, best, entries }, moves: {…} }` |
+| `POST { action: 'register', name, password }` | `{ ok, name, token, legacy, claimed }` |
+| `POST { action: 'login', name, password }` | `{ ok, name, token, submissions }` |
+| `POST { action: 'submit', name, token, stage, paths }` | `{ ok, name, legacy, score, makespan: { rank, total, improved, best, entries }, moves: {…} }` |
 
 `entry = { name, makespan, moves, ts }`。`paths` は各エージェントの移動列 (`U/D/L/R/W`) の配列です。
