@@ -661,6 +661,8 @@
  * API (ウェブアプリ URL):
  *   GET  ?stage=<map>:<N>   → { ok, makespan: [entry...], moves: [entry...], players }
  *   GET  ?all=1             → { ok, best: { "<map>:<N>": { makespan: entry, moves: entry, players } } }
+ *   GET  ?dump=1&token=<BACKUP_TOKEN>[&from=0&limit=500]
+ *                           → { ok, total, from, count, next, rows: [{ts,stage,name,makespan,moves,paths}] }  (バックアップ用. tools/backup.js)
  *   POST body JSON { stage, name, paths: ["UDLRW..." x N] }
  *                           → { ok, score:{makespan,moves}, makespan:{rank,total,improved,best,entries}, moves:{...} }
  *   entry = { name, makespan, moves, ts }
@@ -676,6 +678,21 @@ function getSheet_() {
   return sh;
 }
 function json_(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
+
+// バックアップ用: シートの生の行 (paths 込み) をそのまま返す. 応答が大きくなるので from/limit で分割して取る
+var DUMP_MAX = 500;
+function dump_(from, limit) {
+  var sh = getSheet_(), last = sh.getLastRow();
+  var total = Math.max(0, last - 1);
+  from = Math.max(0, Math.floor(from) || 0);
+  limit = Math.min(Math.max(1, Math.floor(limit) || DUMP_MAX), DUMP_MAX);
+  var n = Math.max(0, Math.min(limit, total - from));
+  var rows = n ? sh.getRange(2 + from, 1, n, 6).getValues().map(function (r) {
+    return { ts: +r[0], stage: String(r[1]), name: String(r[2]), makespan: +r[3], moves: +r[4], paths: String(r[5]).split(",") };
+  }) : [];
+  var next = from + rows.length;
+  return { ok: true, total: total, from: from, count: rows.length, next: next < total ? next : null, rows: rows };
+}
 
 function readAll_() {
   var sh = getSheet_(); var last = sh.getLastRow();
@@ -699,6 +716,13 @@ function strip_(e) { return e ? { name: e.name, makespan: e.makespan, moves: e.m
 function doGet(e) {
   try {
     var p = (e && e.parameter) || {};
+    if (p.dump) {
+      // トークンはスクリプトプロパティ BACKUP_TOKEN に設定する (未設定ならダンプ無効). 公開リポジトリに書かないこと
+      var tok = PropertiesService.getScriptProperties().getProperty("BACKUP_TOKEN");
+      if (!tok) return json_({ ok: false, error: "dump disabled" });
+      if (String(p.token || "") !== String(tok)) return json_({ ok: false, error: "bad token" });
+      return json_(dump_(+p.from || 0, +p.limit || DUMP_MAX));
+    }
     var rows = readAll_();
     if (p.stage) {
       var b = board_(rows, String(p.stage));
