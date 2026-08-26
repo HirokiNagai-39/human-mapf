@@ -680,7 +680,14 @@
 var SHEET_NAME = 'scores';
 var USERS_SHEET = 'users';
 var TOP_N = 20;
-var HASH_ITER = 1000;      // パスワードのハッシュ反復回数 (行ごとに保存するので後から変えられる)
+// パスワードのハッシュ反復回数. GAS の Utilities.computeDigest は 1 回あたり十数 ms かかるため
+// 大きくしすぎると登録・ログインがタイムアウトする. スクリプトプロパティ HASH_ITER で調整できる
+// (行ごとに iter を保存しているので、変更しても既存アカウントはそのままログインできる).
+var HASH_ITER_DEFAULT = 100;
+function hashIter_() {
+  var v = +(PropertiesService.getScriptProperties().getProperty('HASH_ITER') || HASH_ITER_DEFAULT);
+  return v >= 1 && v <= 5000 ? Math.floor(v) : HASH_ITER_DEFAULT;
+}
 var MAX_FAIL = 5;          // 連続ログイン失敗の上限
 var LOCK_MS = 60 * 1000;   // 上限に達したときのロック時間
 // 移行期間: この時刻までは「まだ登録されていない名前」に限り, ログイン前 (トークン無し) の投稿も受け付ける.
@@ -750,7 +757,7 @@ function readUsers_() {
   return rows.map(function (r, i) {
     return {
       row: i + 2, name: String(r[0]), namekey: String(r[1]), salt: String(r[2]), hash: String(r[3]),
-      iter: +r[4] || HASH_ITER, tokenSalt: String(r[5]), serial: +r[6] || 1,
+      iter: +r[4] || HASH_ITER_DEFAULT, tokenSalt: String(r[5]), serial: +r[6] || 1,
       created: +r[7], lastLogin: +r[8], fail: +r[9] || 0, failUntil: +r[10] || 0, legacy: !!r[11],
     };
   });
@@ -830,6 +837,16 @@ function doGet(e) {
       if (sheet !== SHEET_NAME && sheet !== USERS_SHEET) return json_({ ok: false, error: 'bad sheet' });
       return json_(dump_(sheet, +p.from || 0, +p.limit || DUMP_MAX));
     }
+    if (p.bench) {
+      // ハッシュの所要時間を実環境で測る (チューニング用). BACKUP_TOKEN で保護する
+      var bt = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
+      if (!bt || !equalConst_(String(p.token || ''), String(bt))) return json_({ ok: false, error: 'bad token' });
+      var n = Math.min(Math.max(1, +p.n || 100), 2000);
+      var t0 = Date.now();
+      hashPw_('benchmark-password', 'benchmark-salt', n);
+      var ms = Date.now() - t0;
+      return json_({ ok: true, iterations: n, ms: ms, msPerIteration: ms / n, currentIter: hashIter_() });
+    }
     if (p.checkname) {
       var nm = cleanName_(p.checkname), key = nameKey_(nm);
       if (!key) return json_({ ok: false, error: 'bad name' });
@@ -887,7 +904,8 @@ function doRegister_(body) {
   var lg = legacyInfo_(key);
   if (lg.count > 0 && lg.name) name = lg.name;   // 既存の記録と同じ表記に揃える (ランキングは表示名で集計するため)
   var salt = randomHex_(), tokenSalt = randomHex_(), now = Date.now();
-  var u = { name: name, namekey: key, salt: salt, hash: hashPw_(body.password, salt, HASH_ITER), iter: HASH_ITER, tokenSalt: tokenSalt, serial: 1 };
+  var iter = hashIter_();
+  var u = { name: name, namekey: key, salt: salt, hash: hashPw_(body.password, salt, iter), iter: iter, tokenSalt: tokenSalt, serial: 1 };
   getUsers_().appendRow([u.name, u.namekey, u.salt, u.hash, u.iter, u.tokenSalt, u.serial, now, now, 0, 0, lg.count > 0]);
   return { ok: true, name: u.name, token: makeToken_(u), legacy: lg.count > 0, claimed: lg.count };
 }

@@ -76,8 +76,9 @@
       'auth.errShortPw': 'パスワードは 8 文字以上にしてください',
       'auth.errName': '名前を入力してください',
       'auth.errFail': '失敗しました: {0}',
+      'auth.errTimeout': '応答がありませんでした。登録自体は完了している場合があるので、「ログイン」から入れるか試してください',
       'auth.working': '通信中…',
-      'auth.note': 'パスワードはこのゲームのランキング専用です。他で使っているものは避けてください。<b>再発行はできません</b>ので、忘れないようにしてください。ログイン状態はこのブラウザに保存されます。',
+      'auth.note': 'パスワードは<b>再発行できません</b>ので、忘れないようにしてください。ログイン状態はこのブラウザに保存されます。',
       'auth.needLogin': 'ランキングに登録するにはログインしてください',
       'auth.loginToSubmit': 'ログインして登録',
       'auth.sessionExpired': 'ログインし直してください',
@@ -93,7 +94,7 @@
       'notice.n1': '<b>{0} までは、登録しなくてもこれまでどおり投稿できます。</b>それ以降はログインが必要です',
       'notice.n2': '名前は<b>先着順</b>です。こんなに多くの方に遊んでいただけると思っておらず、過去の記録とご本人を紐付ける材料がないため、やむを得ずこの形にしました。申し訳ありません',
       'notice.n3': '万一 名前を他の人に取られてしまった場合はご連絡ください。登録し直せるように対応します',
-      'notice.n4': 'パスワードは再発行できません。他で使っていないものを設定してください',
+      'notice.n4': 'パスワードは再発行できません。忘れないようにしてください',
       'notice.n5': '解きかけの経路がブラウザに自動保存されるようになりました。うっかりリロードしても続きから解けます',
       'notice.deadline': '8 月 27 日 23:59',
       'notice.loggedIn': '{0} としてログイン中です。このままランキングに登録できます。',
@@ -190,8 +191,9 @@
       'auth.errShortPw': 'Password must be at least 8 characters',
       'auth.errName': 'Please enter a name',
       'auth.errFail': 'Failed: {0}',
+      'auth.errTimeout': 'The server did not respond in time. It may have gone through anyway — try "Log in" with the same name and password',
       'auth.working': 'Working…',
-      'auth.note': 'This password is only for this game\u2019s leaderboard, so avoid reusing one. <b>It cannot be reset</b>, so do not lose it. Your login is stored in this browser.',
+      'auth.note': 'Your password <b>cannot be reset</b>, so do not lose it. Your login is stored in this browser.',
       'auth.needLogin': 'Log in to submit to the leaderboard',
       'auth.loginToSubmit': 'Log in to submit',
       'auth.sessionExpired': 'Please log in again',
@@ -207,7 +209,7 @@
       'notice.n1': '<b>Until {0} you can still submit without an account.</b> After that, logging in is required',
       'notice.n2': 'Names are <b>first come, first served</b>. I did not expect this many players and kept nothing that ties past records to a person, so there is no way to verify ownership. Sorry about that',
       'notice.n3': 'If someone else takes your name, please get in touch and I will free it up for you',
-      'notice.n4': 'Passwords cannot be reset, so please use one you do not use anywhere else',
+      'notice.n4': 'Passwords cannot be reset, so please do not lose yours',
       'notice.n5': 'Your work in progress is now saved in the browser, so reloading no longer loses it',
       'notice.deadline': '23:59 on 27 Aug (JST)',
       'notice.loggedIn': 'Logged in as {0}. You can submit to the leaderboard as you are.',
@@ -985,6 +987,7 @@
   }
   function authErrorText(e) {
     const d = e.detail || {}, msg = String(e.message || e);
+    if (e.timeout || msg === 'timeout') return t('auth.errTimeout');
     if (msg === 'no such user') return t('auth.errNoUser');
     if (msg.indexOf('not registered') === 0) return t('auth.errLegacy', d.submissions || 0);
     if (msg === 'wrong password') return t('auth.errPassword', d.remaining == null ? 0 : d.remaining);

@@ -14,6 +14,8 @@
 (function (root) {
   'use strict';
   const TIMEOUT_MS = 20000;
+  // 登録・ログインはサーバー側でパスワードのハッシュ計算が入るぶん時間がかかる
+  const AUTH_TIMEOUT_MS = 60000;
 
   function url() { return (root.CONFIG && root.CONFIG.leaderboardUrl || '').trim(); }
   function sanitizeName(s) {
@@ -25,11 +27,11 @@
   const cmpMakespan = (a, b) => a.makespan - b.makespan || a.moves - b.moves || (a.ts || 0) - (b.ts || 0);
   const cmpMoves = (a, b) => a.moves - b.moves || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
 
-  async function request(method, params, body) {
+  async function request(method, params, body, timeoutMs) {
     const base = url(); if (!base) throw new Error('not configured');
     const q = Object.entries(params || {}).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
     const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timer = ctrl && setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    const timer = ctrl && setTimeout(() => ctrl.abort(), timeoutMs || TIMEOUT_MS);
     try {
       const res = await fetch(base + (q ? (base.includes('?') ? '&' : '?') + q : ''), {
         method, body: body ? JSON.stringify(body) : undefined, redirect: 'follow', signal: ctrl && ctrl.signal,
@@ -39,6 +41,10 @@
       const j = await res.json();
       if (!j || j.ok === false) { const e = new Error((j && j.error) || 'server error'); e.detail = j; throw e; }
       return j;
+    } catch (e) {
+      // 打ち切ったときのブラウザ既定のメッセージは意味が分からないので、判別できる印を付ける
+      if (e && (e.name === 'AbortError' || /aborted/i.test(String(e.message)))) { const t = new Error('timeout'); t.timeout = true; throw t; }
+      throw e;
     } finally { if (timer) clearTimeout(timer); }
   }
 
@@ -51,8 +57,8 @@
     },
     async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
     async checkName(name) { return request('GET', { checkname: sanitizeName(name) }); },
-    async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }); },
-    async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }); },
+    async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
+    async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
     async submit(stage, name, token, paths) { return request('POST', {}, { action: 'submit', stage, name, token, paths, v: 2 }); },
   };
 })(typeof self !== 'undefined' ? self : this);
