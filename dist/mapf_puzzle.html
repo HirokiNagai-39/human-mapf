@@ -1300,7 +1300,7 @@ window.CONFIG = {
       'agent.tip': 'エージェント {0}\n現在地 ({1}, {2}) → ゴール ({3}, {4})\n移動 {5} 手 / 最短 {6} 手{7}',
       'agent.tipOpt': '\n最短経路を達成', 'agent.tipOver': '\n最短より {0} 手多い', 'agent.tipUnreached': '\nまだゴールに着いていない',
       'agent.optimal': '最短', 'agent.dist': '移動 {0} 手 / 最短 {1} 手',
-      'card.agentsHint': '座標は (x, y)。左上が (0, 0)',
+      'card.agentsHint': '座標は (x, y)。<b>x は下方向 (行)、y は右方向 (列)</b>。左上が (0, 0)',
       'card.agentsLegend': '右端は<b>移動手数 / 最短手数</b>: <b class="lg opt">緑=最短で到達</b> · <b class="lg over">橙=遠回り</b> · <b class="lg">灰=未到達</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
@@ -1423,7 +1423,7 @@ window.CONFIG = {
       'agent.tip': 'Agent {0}\nAt ({1}, {2}) → goal ({3}, {4})\n{5} moves / shortest {6}{7}',
       'agent.tipOpt': '\nShortest path achieved', 'agent.tipOver': '\n{0} more than the shortest', 'agent.tipUnreached': '\nNot at the goal yet',
       'agent.optimal': 'min', 'agent.dist': '{0} moves / shortest {1}',
-      'card.agentsHint': 'Coordinates are (x, y); (0, 0) is the top-left',
+      'card.agentsHint': 'Coordinates are (x, y): <b>x goes down (row), y goes right (column)</b>. (0, 0) is the top-left',
       'card.agentsLegend': 'On the right: <b>moves / shortest</b> — <b class="lg opt">green = shortest</b> · <b class="lg over">orange = longer</b> · <b class="lg">grey = not there yet</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
@@ -1941,8 +1941,8 @@ window.CONFIG = {
       const h = head(i), tt = S.paths[i].length - 1, d = S.dist[i][h];
       const isDone = h === S.goals[i];
       const w = S.map.w;
-      const hx = h % w, hy = Math.floor(h / w);
-      const g = S.goals[i], gx = g % w, gy = Math.floor(g / w);
+      const hx = Math.floor(h / w), hy = h % w;                 // x は下方向 (行), y は右方向 (列)
+      const g = S.goals[i], gx = Math.floor(g / w), gy = g % w;
       const lb = S.dist[i][S.starts[i]];              // start → goal の最短手数 = このエージェントの distance 下界
       const mv = L.pathMoves(S.paths[i]);             // 待機を除いた移動回数
       const optimal = isDone && lb >= 0 && mv === lb;
