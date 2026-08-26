@@ -89,13 +89,26 @@ src/
   game.js       ゲーム UI / 採点 / アニメーション / 効果音 (WebAudio 合成) / 日英 i18n / ランキング / GIF / 𝕏 投稿
   index.html, style.css
 server/leaderboard.gs  ランキングサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
-tools/precompute.js  全ステージの LNS2 を回して src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)
+tools/precompute.js  LNS2 参考解 src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)。既定は差分計算＝既存ステージは触らず未計算のぶんだけ
 tools/artwork.js     イメージイラスト assets/hero.svg を生成 (既定: assets/promo-instance.json の 10×10 / 8 agents。`node tools/artwork.js assets/promo-instance-6agents.json` で 6 agents 版)
 tools/backup.js      ランキング (スプレッドシート) の全投稿を backups/ に保存 (`HUMAN_MAPF_BACKUP_TOKEN=… node tools/backup.js`, server/README.md 参照)
 build.js      src/ を dist/mapf_puzzle.html にインライン化 (`node build.js`, 依存なし)
 ```
 
 マップや agents 数を変えたら `node tools/precompute.js` → `node build.js` の順で再生成してください
+
+> **参考解を計算し直すときの注意**
+> `src/reference.js` の参考解はランク (DIAMOND〜BRONZE) の判定基準です。LNS2 は時間制限で打ち切る乱択なので、
+> 同じステージでも実行するたびに結果が変わりえます。計算し直すと**過去にプレイした人のランクが後からズレます**。
+> そのため `precompute.js` は既定で「既存エントリは残し、まだ無いステージだけ計算する」動作になっています。
+>
+> - `node tools/precompute.js` … マップを追加したときはこれだけでよい (新ステージのみ計算)
+> - `node tools/precompute.js --check` … 計算せず、既存の参考解がいまのマップ定義と整合しているか検証だけする
+> - `node tools/precompute.js --only city` / `--only city:30,city:40` … 指定ステージだけ計算し直す
+> - `node tools/precompute.js --force` … 全ステージ計算し直す (**既存ランクの基準が変わる**)
+>
+> `--force` / `--only` で既存ステージのスコアが変わった場合は、終了時に一覧が警告表示されます。
+> 念のため実行前に `src/reference.js` を `backups/` にコピーしておくと安全です
 (埋め込み参考解がステージと一致しない場合は、ゲーム側でその場で LNS2 を計算するフォールバックが動きます)。
 
 開発時は `src/index.html` を直接開いても動きます。
