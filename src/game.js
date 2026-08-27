@@ -72,7 +72,7 @@
       'tweet.text': 'Human MAPF「{0} {1} agents」{6}クリア! makespan {2}{3} / total distance {4}{5} #HumanMAPF', 'tweet.rank': ' ({0}位/{1}人)',
       'tweet.note': '𝕏 の投稿画面には、保存した GIF をドラッグ&ドロップで添付してください (自動添付はできません)',
       'map.tutorial': 'チュートリアル', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
-      'map.warehouse_hard': 'warehouse-hard', 'map.hourglass': 'hourglass', 'map.bremen': 'Bremen',
+      'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       // アカウント
       'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
       'auth.titleLogin': 'ログイン', 'auth.titleRegister': '新規登録',
@@ -209,7 +209,7 @@
       'tweet.text': 'I solved Human MAPF "{0}, {1} agents" {6}: makespan {2}{3} / distance {4}{5} #HumanMAPF', 'tweet.rank': ' (#{0}/{1})',
       'tweet.note': 'Attach the saved GIF to the 𝕏 post by drag & drop (it cannot be attached automatically)',
       'map.tutorial': 'Tutorial', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
-      'map.warehouse_hard': 'warehouse-hard', 'map.hourglass': 'hourglass', 'map.bremen': 'Bremen',
+      'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       // account
       'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
       'auth.titleLogin': 'Log in', 'auth.titleRegister': 'Sign up',

@@ -150,8 +150,8 @@
     { id: 'room', name: 'Room 4x4', gen: () => room(2), agents: STAGE_AGENTS },
     { id: 'maze', name: 'Maze 6x6', gen: () => maze(5), agents: STAGE_AGENTS },
     { id: 'warehouse', name: 'Warehouse', gen: () => warehouse(2), agents: STAGE_AGENTS },
-    { id: 'warehouse_hard', name: 'warehouse-hard', gen: () => warehouse(1, 6, 4, 5), agents: STAGE_AGENTS },
-    { id: 'hourglass', name: 'hourglass', gen: () => hourglass(), agents: STAGE_AGENTS },
+    { id: 'warehouse_hard', name: 'Warehouse-hard', gen: () => warehouse(1, 6, 4, 5), agents: STAGE_AGENTS },
+    { id: 'hourglass', name: 'Hourglass', gen: () => hourglass(), agents: STAGE_AGENTS },
     { id: 'bremen', name: 'Bremen', gen: () => bremen(), agents: [10, 50, 100, 200, 300] },
   ];
 
