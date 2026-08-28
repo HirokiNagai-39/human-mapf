@@ -40,7 +40,7 @@
       'card.agentsLegend': '右端は<b>移動手数 / 最短手数</b>。盤面で選択中のマスの色は <b class="lg opt">緑=最短で移動中</b> · <b class="lg over">橙=遠回り</b> · <b class="lg">灰=未着手</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
-      'ref.ok': '参考解 (LNS2): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
+      'ref.ok': '参考解 ({2}): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
       'ref.fail': '参考解 (LNS2): 見つかりませんでした',
       'lb': '下界: makespan <span class="mono">{0}</span> / total distance <span class="mono">{1}</span>',
       'best': 'ベスト: makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b> {2}', 'best.none': 'ベスト: —',
@@ -50,7 +50,7 @@
       'judge.colFail': '不正解: t={0} で衝突 (× 印). 経路を修正してください.',
       'judge.ok': '正解! makespan {0} / total distance {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
-      'result.diamond': '両指標で参考解 (LNS2) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
+      'result.diamond': '両指標で参考解 ({0}) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
       'result.gold': '両指標で参考解の 120% 以内', 'result.silver': '両指標で参考解の 130% 以内', 'result.bronze': '両指標で参考解の 150% 以内',
       'result.clear': '衝突なしで全員到達. 両指標を参考解の 150% 以内にすると BRONZE',
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (参考解比, 両指標)',
@@ -179,7 +179,7 @@
       'card.agentsLegend': 'On the right: <b>moves / shortest</b>. The highlighted cell is <b class="lg opt">green = still shortest</b> · <b class="lg over">orange = longer</b> · <b class="lg">grey = not started</b>',
       'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
-      'ref.ok': 'Reference (LNS2): makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b>',
+      'ref.ok': 'Reference ({2}): makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b>',
       'ref.fail': 'Reference (LNS2): not available',
       'lb': 'Lower bound: makespan <span class="mono">{0}</span> / distance <span class="mono">{1}</span>',
       'best': 'Best: makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b> {2}', 'best.none': 'Best: —',
@@ -189,7 +189,7 @@
       'judge.colFail': 'Incorrect: collision at t={0} (marked ×). Fix the paths.',
       'judge.ok': 'Correct! makespan {0} / distance {1}', 'judge.refPart': ' (reference {0} / {1})', 'judge.lbPart': ' [lower bound {0} / {1}]', 'judge.newBest': ' — new best!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '({2}% of ref {0}, LB {1})', 'result.newBest': '★ New best',
-      'result.diamond': 'Matched or beat the reference (LNS2) on both metrics — top rank!', 'result.platinum': 'Within 110% of the reference on both metrics. DIAMOND is close',
+      'result.diamond': 'Matched or beat the reference ({0}) on both metrics — top rank!', 'result.platinum': 'Within 110% of the reference on both metrics. DIAMOND is close',
       'result.gold': 'Within 120% of the reference on both metrics', 'result.silver': 'Within 130% of the reference on both metrics', 'result.bronze': 'Within 150% of the reference on both metrics',
       'result.clear': 'All agents arrived without collisions. Get both metrics within 150% of the reference for BRONZE',
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (of the reference, both metrics)',
@@ -674,10 +674,16 @@
   // ============================================================ panel
   function setStatus(msg, cls) { const e = $('status'); e.textContent = msg; e.className = 'status ' + (cls || ''); }
 
+  // 参考解のソルバー名 (既定は LNS2. 埋め込み解を別ソルバーで作ったマップは MAP_DEFS の refSolver)
+  function refSolver() {
+    const d = M.MAP_DEFS.find(x => x.id === S.mapId);
+    return (d && d.refSolver) || 'LNS2';
+  }
+
   function updateRefPanel() {
     const e = $('ref-info');
     if (S.refState === 'running') e.innerHTML = t('ref.running', S.solver ? S.solver._iter : 0);
-    else if (S.refState === 'ok') e.innerHTML = t('ref.ok', S.ref.makespan, S.ref.moves);
+    else if (S.refState === 'ok') e.innerHTML = t('ref.ok', S.ref.makespan, S.ref.moves, refSolver());
     else if (S.refState === 'fail') e.innerHTML = t('ref.fail');
     else e.textContent = '';
     if (S.lb) $('lb-info').innerHTML = t('lb', S.lb.makespan, S.lb.moves);
@@ -928,7 +934,7 @@
       <div>${t('result.makespan')} <b class="mono">${m.makespan}</b>${refLb(S.ref && S.ref.makespan, S.lb && S.lb.makespan, rk.pm)}</div>
       <div>${t('result.moves')} <b class="mono">${m.moves}</b>${refLb(S.ref && S.ref.moves, S.lb && S.lb.moves, rk.pd)}</div>
       ${better ? `<div class="sub">${t('result.newBest')}</div>` : ''}
-      <div class="sub">${t('result.' + rank)}</div>
+      <div class="sub">${t('result.' + rank, refSolver())}</div>
       <div class="note">${t('result.ranks')}</div>
       ${lbForm}
       <div class="row"><button id="res-gif">${t('btn.gif')}</button><button id="res-tweet">${t('btn.tweet')}</button><button id="res-ranking">${t('btn.ranking')}</button></div>
