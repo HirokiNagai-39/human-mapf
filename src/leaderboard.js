@@ -31,7 +31,22 @@
   const totalScore = e => e.makespan * e.moves;
   const cmpTotal = (a, b) => totalScore(a) - totalScore(b) || a.makespan - b.makespan || (a.ts || 0) - (b.ts || 0);
 
+  // GAS はまれに一時エラー (429/500 や HTML のエラーページ) を返すので, GET だけ少し待って再試行する.
+  // POST (登録・ログイン・投稿) は二重実行になり得るため再試行しない.
+  // サーバーが ok:false を返したもの (e.detail あり) は何度送っても同じなので再試行しない.
+  const RETRY_DELAYS_MS = [1000, 3000];
   async function request(method, params, body, timeoutMs) {
+    if (!url()) throw new Error('not configured');
+    for (let attempt = 0; ; ++attempt) {
+      try { return await requestOnce(method, params, body, timeoutMs); }
+      catch (e) {
+        if (method !== 'GET' || (e && e.detail) || attempt >= RETRY_DELAYS_MS.length) throw e;
+        await new Promise(r => setTimeout(r, RETRY_DELAYS_MS[attempt]));
+      }
+    }
+  }
+
+  async function requestOnce(method, params, body, timeoutMs) {
     const base = url(); if (!base) throw new Error('not configured');
     const q = Object.entries(params || {}).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
     const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;

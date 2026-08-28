@@ -64,7 +64,7 @@
       'lb.namePh': 'あなたの名前 (16 文字まで)', 'lb.submit': 'ランキングに登録', 'lb.submitting': '登録中…',
       'lb.result': '👑 総合 <b>{4} 位</b> / {5} 人 · ⏱️ makespan <b>{0} 位</b> / {1} 人 · 👣 total distance <b>{2} 位</b> / {3} 人', 'lb.notImproved': '(自己ベスト更新なし: 既存の記録で順位を表示)',
       'lb.submitFail': '登録できませんでした: {0}', 'lb.needName': '名前を入力してください',
-      'champ.line': '1 位 — 👑 総合: {5} ({6}) · ⏱️ makespan: {0} ({1}) · 👣 total distance: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません',
+      'champ.line': '1 位 — 👑 総合: {5} ({6}) · ⏱️ makespan: {0} ({1}) · 👣 total distance: {2} ({3}) · {4} 人', 'champ.none': 'まだ登録がありません', 'champ.error': 'ランキングを取得できませんでした (通信エラー)',
       'champ.chipMs': 'makespan 部門 1 位: {0} (makespan {1})', 'champ.chipMv': 'total distance 部門 1 位: {0} (total distance {1})', 'champ.chipBoth': '両部門 1 位: {0} (makespan {1} / total distance {2})',
       'champ.chipTotal': '総合部門 1 位: {0} (makespan {1} × total distance {2} = {3})',
       'champ.chipAll': '全部門 1 位: {0}',
@@ -203,7 +203,7 @@
       'lb.namePh': 'Your name (up to 16 chars)', 'lb.submit': 'Submit to ranking', 'lb.submitting': 'Submitting…',
       'lb.result': '👑 Overall: <b>#{4}</b> of {5} · ⏱️ Makespan: <b>#{0}</b> of {1} · 👣 Distance: <b>#{2}</b> of {3}', 'lb.notImproved': '(not a personal best: rank of your existing record)',
       'lb.submitFail': 'Submission failed: {0}', 'lb.needName': 'Please enter your name',
-      'champ.line': '#1 — 👑 overall: {5} ({6}) · ⏱️ makespan: {0} ({1}) · 👣 distance: {2} ({3}) · {4} players', 'champ.none': 'No entries yet',
+      'champ.line': '#1 — 👑 overall: {5} ({6}) · ⏱️ makespan: {0} ({1}) · 👣 distance: {2} ({3}) · {4} players', 'champ.none': 'No entries yet', 'champ.error': 'Could not load the ranking (network error)',
       'champ.chipMs': 'Makespan #1: {0} (makespan {1})', 'champ.chipMv': 'Total distance #1: {0} (distance {1})', 'champ.chipBoth': '#1 in both: {0} (makespan {1} / distance {2})',
       'champ.chipTotal': 'Overall #1: {0} (makespan {1} × distance {2} = {3})',
       'champ.chipAll': '#1 in all divisions: {0}',
@@ -337,7 +337,7 @@
     collisions: null, metrics: null, best: null,
     cell: 32, ox: 0, oy: 0,
     lanes: null, // Map(edgeKey -> [agent ids])
-    lastResult: null, gifBusy: false, champs: null, champsAt: 0,
+    lastResult: null, gifBusy: false, champs: null, champsAt: 0, champsErr: false,
   };
 
   const canvas = $('board'); let ctx = canvas.getContext('2d');
@@ -1173,7 +1173,8 @@
   async function fetchChamps() {
     if (!LB.configured()) return null;
     if (S.champs && Date.now() - S.champsAt < 60000) return S.champs;
-    try { S.champs = await LB.all(); S.champsAt = Date.now(); } catch (e) { S.champs = null; }
+    try { S.champs = await LB.all(); S.champsAt = Date.now(); S.champsErr = false; }
+    catch (e) { S.champsErr = true; }   // 失敗しても前回取得した内容は残す (60 秒後にまた試す)
     return S.champs;
   }
   async function updateChampInfo() {
@@ -1186,7 +1187,7 @@
     el.innerHTML = b && b.makespan
       ? t('champ.line', escapeHtml(b.makespan.name), b.makespan.makespan, escapeHtml(b.moves.name), b.moves.moves, b.players,
           b.total ? escapeHtml(b.total.name) : '-', b.total ? b.total.makespan * b.total.moves : '-')
-      : t('champ.none');
+      : t(!c && S.champsErr ? 'champ.error' : 'champ.none');
   }
   // ステージ選択のチップに両部門の 1 位を表示 (⏱️ = makespan 部門 / 👣 = total distance 部門)
   const ICON_MS = '⏱️', ICON_MV = '👣', ICON_TOTAL = '👑';
