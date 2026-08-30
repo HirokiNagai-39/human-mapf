@@ -33,6 +33,10 @@ const FORCE = has('--force'), DRY = has('--dry-run'), CHECK = has('--check');
 // フィット済みの重み (backups/difficulty-20260830/difficulty_fit_final.json). 変えないこと
 const P = { hG: 530.2599958001202, hE: 722.8951866219752, sW: 0.08774461626532612, pw: 1, fT: 269.7007569733206, cW: 11.490386602468575, qc: 4, qg: 0.01 };
 const TL_MS = 60000;
+// 手動の初期値上書き (ステージ → d0). 式は「ソルバーにとっての難しさ」なので, 状態空間が小さく人間なら試行錯誤で
+// 解けそうなステージは控えめに始め, 成績によるフィードバック (計測値 ±600) で動けるようにする. 計測成分はそのまま残す.
+// 2026-08-30 ユーザー決定: Small tree は計測値 2411 / 3004 / 3241 → 1800 / 2000 / 2200 (計測の順序は保つ)
+const OVERRIDES = { 'small_tree_1:5': 1800, 'small_tree_2:5': 2000, 'small_tree_3:5': 2200 };
 
 function pava(v) {
   const blocks = v.map(x => ({ sum: x, n: 1 }));
@@ -81,7 +85,8 @@ if (CHECK) {
   let bad = 0;
   for (const st of Object.keys(existing)) {
     const e = existing[st];
-    if (score(e) !== e.d0) { console.log(`  ${st}: d0=${e.d0} だが式からは ${score(e)}`); ++bad; }
+    const want = OVERRIDES[st] != null ? OVERRIDES[st] : score(e);
+    if (want !== e.d0) { console.log(`  ${st}: d0=${e.d0} だが${OVERRIDES[st] != null ? '上書き表' : '式'}からは ${want}`); ++bad; }
     if (!REF[st]) { console.log(`  ${st}: reference.js に無い`); ++bad; }
   }
   console.log(`既存の difficulty: ${Object.keys(existing).length} ステージ ${bad ? `(問題 ${bad} 件)` : '(すべて整合)'}`);
@@ -90,13 +95,15 @@ if (CHECK) {
 if (!dir) { console.error('計測データのディレクトリを指定してください'); process.exit(1); }
 
 const out = FORCE ? {} : { ...existing };
+for (const st of Object.keys(OVERRIDES)) if (out[st] && out[st].d0 !== OVERRIDES[st]) { out[st] = { ...out[st], measured: out[st].measured != null ? out[st].measured : out[st].d0, d0: OVERRIDES[st] }; console.log(`  ${st}: 上書き ${out[st].measured} → ${OVERRIDES[st]}`); }
 const rows = loadComponents(dir);
 let added = 0;
 for (const r of rows) {
   if (out[r.st]) continue;
   // 成分は丸めて保存し, d0 は丸めた成分から計算する (--check で式との整合を厳密に確認できるように)
   const c = { g: +r.g.toFixed(5), e: +r.e.toFixed(5), t: +r.t.toFixed(5), c: +r.c.toFixed(5), labor: r.labor };
-  out[r.st] = { d0: score(c), ...c };
+  out[r.st] = { d0: OVERRIDES[r.st] != null ? OVERRIDES[r.st] : score(c), ...c };
+  if (OVERRIDES[r.st] != null) out[r.st].measured = score(c);
   ++added;
 }
 const stages = []; for (const d of M.MAP_DEFS) for (const N of d.agents) stages.push(`${d.id}:${N}`);
