@@ -113,7 +113,7 @@
       // レーティング / difficulty
       'rating.btn': 'レーティング', 'rating.title': 'レーティング',
       'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': '解いた数', 'rating.atPar': '最良スコア到達', 'rating.atParTip': 'そのステージの最良スコア (参考解と人間ベストの良い方) と同等のスコアで解いたステージ数', 'rating.best': '最高 performance',
-      'rating.note': 'ステージごとの performance を AHC と同じ式でまとめた値です。performance は「ステージの difficulty」と「最良スコア (参考解と人間ベストの良い方) にどれだけ迫ったか」と「ステージ内の順位」から決まります。difficulty は LaCAM3 / LNS2 の計測値を出発点に、みなさんの回答状況で更新されます。',
+      'rating.note': 'ステージごとの performance をまとめた値です。良い performance ほど重く、多く解くほど上限に近づきます。performance は「ステージの difficulty」と「最良スコア (参考解と人間ベストの良い方) にどれだけ迫ったか」と「ステージ内の順位」から決まります。difficulty は LaCAM3 / LNS2 の計測値を出発点に、みなさんの回答状況で更新されます。',
       'rating.empty': 'まだ誰の rating もありません', 'rating.updated': '更新: {0}',
       'rating.mine': 'あなたの rating', 'rating.none': 'rating なし',
       'diff.tip': 'difficulty {0} (計測値 {1}, 投稿者 {2} 人)', 'diff.label': 'difficulty',
@@ -249,7 +249,7 @@
       // rating / difficulty
       'rating.btn': 'Rating', 'rating.title': 'Rating',
       'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': 'Solved', 'rating.atPar': 'Best-score solves', 'rating.atParTip': 'Stages solved with a score equal to the best known (the better of the reference and the best human solution)', 'rating.best': 'Best performance',
-      'rating.note': 'Per-stage performances are combined with the same formula as AtCoder Heuristic Contest. A performance depends on the stage difficulty, how close you got to the best known score (the better of the reference solution and the best human solution), and your rank on the stage. Difficulties start from LaCAM3 / LNS2 measurements and are updated by how players do.',
+      'rating.note': 'Your rating combines your per-stage performances: better ones weigh more, and solving more stages brings you closer to the ceiling. A performance depends on the stage difficulty, how close you got to the best known score (the better of the reference solution and the best human solution), and your rank on the stage. Difficulties start from LaCAM3 / LNS2 measurements and are updated by how players do.',
       'rating.empty': 'No ratings yet', 'rating.updated': 'Updated: {0}',
       'rating.mine': 'Your rating', 'rating.none': 'unrated',
       'diff.tip': 'difficulty {0} (measured {1}, {2} players)', 'diff.label': 'difficulty',
