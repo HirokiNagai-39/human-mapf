@@ -10,7 +10,8 @@ const TMP = process.env.DIFF_TMP || (__dirname + '/lacam_tmp');
 const T = 60, SEEDS = [0, 1, 2], PAR = 8;
 
 const stages = [];
-for (const d of M.MAP_DEFS) for (const N of d.agents) stages.push([d.id, N]);
+const ONLY_MAPS = process.env.DIFF_ONLY ? new Set(process.env.DIFF_ONLY.split(',')) : null;
+for (const d of M.MAP_DEFS) if (!ONLY_MAPS || ONLY_MAPS.has(d.id)) for (const N of d.agents) stages.push([d.id, N]);
 
 const jobs = [];
 for (const [id, N] of stages) {

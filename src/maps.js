@@ -141,6 +141,19 @@
     return m;
   }
 
+  // 6x6 の木 (閉路なし, 空きマスはすべて幅 1). 6x6 の全パターン (1,061 万通り) から, 5 台のランダム配置で LaCAM3 が
+  // 初期解に 2 秒以上かかるものを探して選んだ. 文字列は行優先 36 文字 ('@' = 障害物). start/goal は instanceSeed で固定
+  function smallTree(pattern) {
+    const m = blank(6, 6, 1);
+    for (let i = 0; i < 36; ++i) if (pattern.charCodeAt(i) === 64) m.free[i] = 0;
+    return m;
+  }
+  const SMALL_TREES = [
+    ['small_tree_1', '@@@.....@.@..@..@..@.@......@.@@@@@@', 821540000],
+    ['small_tree_2', '@@...@@..@..@.@..@@.@@....@@@..@@@@@', 1719425020],
+    ['small_tree_3', '@@...@@@.@..@...@...@@@..@.....@.@@@', 1664658025],
+  ];
+
   // 障害物は固定 (乱数 seed も固定). start / goal は (map, N) ごとに固定 seed で生成する
   const STAGE_AGENTS = [10, 20, 30, 40, 50];
   const MAP_DEFS = [
@@ -155,6 +168,7 @@
     { id: 'bremen', name: 'Bremen', gen: () => bremen(), agents: [10, 50, 100, 200, 300] },
     // 5x5 の空マップに 21〜25 台 (25 台では空きマスなし). 参考解は LaCAM* 300 秒 (tools/precompute.js では計算しない)
     { id: 'empty_but_not_empty', name: 'Empty but not empty', gen: () => blank(5, 5, 1), agents: [21, 22, 23, 24, 25], refSolver: 'LaCAM3' },
+    ...SMALL_TREES.map(([id, pattern, seed], i) => ({ id, name: `Small tree No.${i + 1}`, gen: () => smallTree(pattern), agents: [5], instanceSeed: seed, refSolver: 'LaCAM3' })),
   ];
 
   function getMap(id) {

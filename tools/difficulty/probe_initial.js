@@ -28,7 +28,8 @@ if (process.argv[2] === 'child') {
 }
 
 const stages = [];
-for (const d of M.MAP_DEFS) for (const N of d.agents) stages.push([d.id, N]);
+const ONLY_MAPS = process.env.DIFF_ONLY ? new Set(process.env.DIFF_ONLY.split(',')) : null;
+for (const d of M.MAP_DEFS) if (!ONLY_MAPS || ONLY_MAPS.has(d.id)) for (const N of d.agents) stages.push([d.id, N]);
 
 const out = {};
 for (const [id, N] of stages) {

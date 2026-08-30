@@ -7,7 +7,8 @@ const fs = require('fs');
 const L = require('../../src/lns2.js');
 const M = require('../../src/maps.js');
 const out = {};
-for (const d of M.MAP_DEFS) for (const N of d.agents) {
+const ONLY_MAPS = process.env.DIFF_ONLY ? new Set(process.env.DIFF_ONLY.split(',')) : null;
+for (const d of M.MAP_DEFS) if (!ONLY_MAPS || ONLY_MAPS.has(d.id)) for (const N of d.agents) {
   const map = M.getMap(d.id), G = L.buildGraph(map);
   const ins = L.generateInstance(G, N, M.stageSeed(d.id, N));
   const deg = c => G.nbrCnt[c] - 1;   // nbr[0] は自分自身

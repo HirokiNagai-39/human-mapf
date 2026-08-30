@@ -10,7 +10,8 @@ const T = 60, SEEDS = [0, 1, 2];
 const med = a => { const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; };
 
 const out = {};
-for (const d of M.MAP_DEFS) for (const N of d.agents) {
+const ONLY_MAPS = process.env.DIFF_ONLY ? new Set(process.env.DIFF_ONLY.split(',')) : null;
+for (const d of M.MAP_DEFS) if (!ONLY_MAPS || ONLY_MAPS.has(d.id)) for (const N of d.agents) {
   const st = `${d.id}:${N}`, runs = [];
   for (const s of SEEDS) {
     const f = `${TMP}/ma_${d.id}_${N}.s${s}.out.txt`;

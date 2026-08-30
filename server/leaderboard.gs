@@ -318,7 +318,7 @@ function record_(body, name, legacy) {
 // 解の検証: ステージのマップ・start/goal を再生成し, 経路の合法性と衝突を確認. スコアはここで計算する
 function validate_(body, name) {
   var stage = String(body.stage || '');
-  var m = /^([a-z_]+):(\d+)$/.exec(stage);
+  var m = /^([a-z_][a-z0-9_]*):(\d+)$/.exec(stage);
   if (!m) return { ok: false, error: 'bad stage' };
   var def = null;
   for (var d = 0; d < MAPS.MAP_DEFS.length; ++d) if (MAPS.MAP_DEFS[d].id === m[1]) def = MAPS.MAP_DEFS[d];

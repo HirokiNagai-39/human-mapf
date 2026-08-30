@@ -74,6 +74,7 @@
       'map.tutorial': 'チュートリアル', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
+      'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3',
       // アカウント
       'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
       'auth.titleLogin': 'ログイン', 'auth.titleRegister': '新規登録',
@@ -122,6 +123,7 @@
       'desc.hourglass': '砂時計。中央は幅 1 の通路 1 マスだけ',
       'desc.bremen': 'ブレーメン旧市街',
       'desc.empty_but_not_empty': 'empty?',
+      'desc.small_tree_1': '閉路のない小さな木。すれ違うには行き止まりに退避するしかない', 'desc.small_tree_2': '閉路のない小さな木。すれ違うには行き止まりに退避するしかない', 'desc.small_tree_3': '閉路のない小さな木。すれ違うには行き止まりに退避するしかない',
       // tutorial
       't1.h': '1. 目的',
       't1.p': '丸 (エージェント) を、同じ番号・同じ色の四角 (ゴール) まで動かす<b>経路</b>を全員分作ります。時刻 t=0 から始まり、各時刻に全員が同時に 1 手ずつ動きます。全員が衝突なくゴールに着けば正解。<b>makespan</b> (全員がゴールに着く時刻) と <b>total distance</b> (総移動距離: 待機を除く移動回数の合計) が小さいほど高評価です。',
@@ -210,6 +212,7 @@
       'map.tutorial': 'Tutorial', 'map.empty': 'Empty', 'map.random': 'Random', 'map.room': 'Room', 'map.maze': 'Maze', 'map.warehouse': 'Warehouse',
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
+      'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3',
       // account
       'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
       'auth.titleLogin': 'Log in', 'auth.titleRegister': 'Sign up',
@@ -258,6 +261,7 @@
       'desc.hourglass': 'An hourglass whose neck is a single cell',
       'desc.bremen': 'Bremen old town',
       'desc.empty_but_not_empty': 'empty?',
+      'desc.small_tree_1': 'A small tree with no cycles — to pass, someone has to back into a dead end', 'desc.small_tree_2': 'A small tree with no cycles — to pass, someone has to back into a dead end', 'desc.small_tree_3': 'A small tree with no cycles — to pass, someone has to back into a dead end',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
       't2.h': '2. One step', 't2.move': 'Move 1 cell up/down/left/right', 't2.wait': 'Wait in place (shown as ● on the path)', 't2.p': 'No diagonal moves. Black cells are obstacles. Turning straight back (A→B→A) is allowed (dragging back onto the previous cell undoes the step, so use the arrow keys, or release and drag again, to enter a backward move).',
