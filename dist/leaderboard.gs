@@ -1121,13 +1121,20 @@ function computeRatings_(rows) {
   for (var it = 0; it < RT.ITER; ++it) {
     // performance
     Object.keys(byStage).forEach(function (st) {
-      var list = byStage[st].slice().sort(function (a, b) { return a.r - b.r; });
+      var list = byStage[st].slice().sort(function (a, b) { return a.prod - b.prod; });
+      // 同率 (makespan × distance が同じ) は AtCoder と同じく順位の平均を使う: 2 位に 3 人なら全員 (2+4)/2 = 3 位
+      var rankOf = [];
+      for (var i0 = 0; i0 < list.length;) {
+        var j0 = i0; while (j0 + 1 < list.length && list[j0 + 1].prod === list[i0].prod) ++j0;
+        for (var k0 = i0; k0 <= j0; ++k0) rankOf[k0] = (i0 + 1 + j0 + 1) / 2;
+        i0 = j0 + 1;
+      }
       list.forEach(function (s, i) {
         var y = clamp_(s.y, 0.03, 0.97);
         s.pAbs = D[st] + RT.OFFSET + RT.KAPPA * Math.log(y / (1 - y)) / LN6;
         if (list.length >= 2) {
           var others = list.filter(function (o) { return o !== s; }).map(function (o) { return R[o.name]; });
-          var pRel = clamp_(perfFromRank_(others, i + 1), s.pAbs - RT.RELCLAMP, s.pAbs + RT.RELCLAMP);
+          var pRel = clamp_(perfFromRank_(others, rankOf[i]), s.pAbs - RT.RELCLAMP, s.pAbs + RT.RELCLAMP);
           var lam = (list.length - 1) / (list.length + 9);
           s.p = s.pAbs + lam * (pRel - s.pAbs);
         } else s.p = s.pAbs;
