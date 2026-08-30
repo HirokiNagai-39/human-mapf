@@ -88,6 +88,22 @@ input[type=range] { width: 120px; }
 .chip .rk { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; }
 .chip.diamond .rk { color: #1e9be0; } .chip.platinum .rk { color: #607d8b; } .chip.gold .rk { color: #b8860b; } .chip.silver .rk { color: #757575; } .chip.bronze .rk { color: #8a4f22; } .chip.clear .rk { color: #757575; }
 .chip .sc { display: block; font-size: 10px; color: #555; }
+/* difficulty / rating の色 (AtCoder と同じ) */
+.rt-gray { --rc: #808080; } .rt-brown { --rc: #804000; } .rt-green { --rc: #008000; } .rt-cyan { --rc: #00c0c0; }
+.rt-blue { --rc: #0000ff; } .rt-yellow { --rc: #c0c000; } .rt-orange { --rc: #ff8000; } .rt-red { --rc: #ff0000; }
+.diffnum, .account .who[class*="rt-"], td[class*="rt-"], .account .rating-open[class*="rt-"] { color: var(--rc); }
+#game header .account .who[class*="rt-"] { filter: brightness(1.6); }   /* 暗いヘッダーでも読めるように */
+/* AtCoder Problems 風の丸: 帯の中での進み具合 (--p) を下から塗る */
+.diff { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--rc); box-sizing: border-box; margin-right: 4px; vertical-align: -1px;
+  background: linear-gradient(to top, var(--rc) var(--p, 0%), transparent var(--p, 0%)); }
+#stage-title .diff { width: 14px; height: 14px; border-width: 2px; vertical-align: 0; margin-right: 3px; }
+.diffnum { font-size: 14px; font-weight: 700; }
+.account .rating-open { font-weight: 700; border-color: var(--rc, #999); }
+.account .rating-open.unrated { color: #777; font-weight: 400; }
+#rating .box { max-width: 720px; }
+#rating .note { font-size: 12px; color: #555; line-height: 1.6; margin: 6px 0 10px; }
+table.lb.rating td:nth-child(2) { font-weight: 600; }
+table.lb.rating td .sub { font-size: 11px; color: #777; font-weight: 400; }
 
 /* ---------- tutorial ---------- */
 .tutorial { display: flex; flex-direction: column; gap: 14px; }

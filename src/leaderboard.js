@@ -79,6 +79,8 @@
       };
     },
     async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
+    // レーティングと難易度 (サーバーで全投稿から再計算した値). players は rating 降順, stages[stage] = { d, d0, par, players }
+    async ratings() { const j = await request('GET', { ratings: 1 }); return { updated: j.updated || 0, players: j.players || [], stages: j.stages || {} }; },
     async checkName(name) { return request('GET', { checkname: sanitizeName(name) }); },
     async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
     async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },

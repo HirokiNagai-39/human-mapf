@@ -113,6 +113,22 @@ input[type=range] { width: 120px; }
 .chip .rk { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; }
 .chip.diamond .rk { color: #1e9be0; } .chip.platinum .rk { color: #607d8b; } .chip.gold .rk { color: #b8860b; } .chip.silver .rk { color: #757575; } .chip.bronze .rk { color: #8a4f22; } .chip.clear .rk { color: #757575; }
 .chip .sc { display: block; font-size: 10px; color: #555; }
+/* difficulty / rating の色 (AtCoder と同じ) */
+.rt-gray { --rc: #808080; } .rt-brown { --rc: #804000; } .rt-green { --rc: #008000; } .rt-cyan { --rc: #00c0c0; }
+.rt-blue { --rc: #0000ff; } .rt-yellow { --rc: #c0c000; } .rt-orange { --rc: #ff8000; } .rt-red { --rc: #ff0000; }
+.diffnum, .account .who[class*="rt-"], td[class*="rt-"], .account .rating-open[class*="rt-"] { color: var(--rc); }
+#game header .account .who[class*="rt-"] { filter: brightness(1.6); }   /* 暗いヘッダーでも読めるように */
+/* AtCoder Problems 風の丸: 帯の中での進み具合 (--p) を下から塗る */
+.diff { display: inline-block; width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--rc); box-sizing: border-box; margin-right: 4px; vertical-align: -1px;
+  background: linear-gradient(to top, var(--rc) var(--p, 0%), transparent var(--p, 0%)); }
+#stage-title .diff { width: 14px; height: 14px; border-width: 2px; vertical-align: 0; margin-right: 3px; }
+.diffnum { font-size: 14px; font-weight: 700; }
+.account .rating-open { font-weight: 700; border-color: var(--rc, #999); }
+.account .rating-open.unrated { color: #777; font-weight: 400; }
+#rating .box { max-width: 720px; }
+#rating .note { font-size: 12px; color: #555; line-height: 1.6; margin: 6px 0 10px; }
+table.lb.rating td:nth-child(2) { font-weight: 600; }
+table.lb.rating td .sub { font-size: 11px; color: #777; font-weight: 400; }
 
 /* ---------- tutorial ---------- */
 .tutorial { display: flex; flex-direction: column; gap: 14px; }
@@ -245,6 +261,7 @@ ul#agents li .ok { margin-left: 4px; }
   <div class="home-inner">
     <div class="topbar">
       <span id="home-account" class="account"></span>
+      <button id="home-rating" data-i18n="rating.btn"></button>
       <button id="home-lang" class="lang">EN</button>
     </div>
     <div class="hero">
@@ -341,6 +358,12 @@ ul#agents li .ok { margin-left: 4px; }
   <div class="box">
     <div class="row" style="justify-content:space-between"><h2 id="ranking-title" style="margin:0"></h2><button id="ranking-close" data-i18n="btn.close"></button></div>
     <div id="ranking-body"></div>
+  </div>
+</div>
+<div id="rating" class="overlay">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h2 id="rating-title" style="margin:0"></h2><button id="rating-close" data-i18n="btn.close"></button></div>
+    <div id="rating-body"></div>
   </div>
 </div>
 <div id="auth" class="overlay">
@@ -1063,6 +1086,17 @@ ul#agents li .ok { margin-left: 4px; }
 
 </script>
 <script>
+/* difficulty.js — 自動生成 (tools/difficulty.js). 各ステージの difficulty の事前値 d0 とその成分.
+ * d0 は LaCAM3 / LNS2 の計測から決まる固定値. プレイヤーの成績によるフィードバック後の値はサーバーが持つ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.DIFFICULTY = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  return {"tutorial:2":{"d0":51,"g":0,"e":0,"t":0.18814,"c":0,"labor":14},"empty:10":{"d0":94,"g":0,"e":0.00725,"t":0.34505,"c":0,"labor":170},"empty:20":{"d0":481,"g":0.01377,"e":0.00725,"t":0.46083,"c":0,"labor":280},"empty:30":{"d0":881,"g":0.03922,"e":0.00725,"t":0.83099,"c":0,"labor":570},"empty:40":{"d0":896,"g":0.03922,"e":0.00725,"t":1.01748,"c":0,"labor":840},"empty:50":{"d0":1159,"g":0.07171,"e":0.00725,"t":1.05374,"c":0,"labor":1150},"random:10":{"d0":442,"g":0.01195,"e":0.00591,"t":0.49557,"c":0,"labor":200},"random:20":{"d0":857,"g":0.03825,"e":0.00591,"t":0.6349,"c":0,"labor":440},"random:30":{"d0":882,"g":0.03825,"e":0.01125,"t":0.94245,"c":0,"labor":600},"random:40":{"d0":1053,"g":0.05724,"e":0.01125,"t":0.94245,"c":0,"labor":960},"random:50":{"d0":1553,"g":0.16197,"e":0.01125,"t":1.18952,"c":0,"labor":1150},"room:10":{"d0":89,"g":0,"e":0,"t":0.32304,"c":0,"labor":200},"room:20":{"d0":1141,"g":0.0704,"e":0.0058,"t":0.96544,"c":0,"labor":540},"room:30":{"d0":1232,"g":0.0852,"e":0.0058,"t":1.02015,"c":0,"labor":690},"room:40":{"d0":1560,"g":0.14673,"e":0.03657,"t":1.71301,"c":0,"labor":1280},"room:50":{"d0":1723,"g":0.20071,"e":0.05071,"t":1.71301,"c":0,"labor":1750},"maze:10":{"d0":864,"g":0.03971,"e":0,"t":0.5616,"c":0,"labor":390},"maze:20":{"d0":1253,"g":0.08831,"e":0.01932,"t":0.91989,"c":0,"labor":940},"maze:30":{"d0":1481,"g":0.12569,"e":0.01932,"t":1.74517,"c":0,"labor":1680},"maze:40":{"d0":1871,"g":0.19087,"e":0.0648,"t":3.28391,"c":0,"labor":2120},"maze:50":{"d0":2090,"g":0.24636,"e":0.0798,"t":3.95631,"c":0,"labor":3000},"warehouse:10":{"d0":339,"g":0.00806,"e":0.01575,"t":0.34505,"c":0,"labor":270},"warehouse:20":{"d0":1129,"g":0.07108,"e":0.01919,"t":0.38908,"c":0,"labor":340},"warehouse:30":{"d0":1287,"g":0.09494,"e":0.01919,"t":0.93439,"c":0,"labor":840},"warehouse:40":{"d0":1291,"g":0.09494,"e":0.01919,"t":0.95952,"c":0,"labor":1240},"warehouse:50":{"d0":1657,"g":0.19874,"e":0.01919,"t":1.10983,"c":0,"labor":1400},"warehouse_hard:10":{"d0":1158,"g":0.07697,"e":0,"t":0.58294,"c":0.7,"labor":270},"warehouse_hard:20":{"d0":1195,"g":0.07697,"e":0.04464,"t":0.66306,"c":1.5,"labor":560},"warehouse_hard:30":{"d0":2012,"g":0.28706,"e":0.09062,"t":1.68202,"c":2.6915,"labor":960},"warehouse_hard:40":{"d0":2423,"g":0.40482,"e":0.20792,"t":3.65503,"c":2.6915,"labor":1600},"warehouse_hard:50":{"d0":2921,"g":0.48267,"e":0.22927,"t":4.77816,"c":3.3,"labor":1950},"hourglass:10":{"d0":107,"g":0,"e":0,"t":0.38908,"c":0,"labor":230},"hourglass:20":{"d0":1087,"g":0.0309,"e":0.08081,"t":2.69863,"c":0,"labor":560},"hourglass:30":{"d0":1735,"g":0.16354,"e":0.08081,"t":2.69863,"c":0,"labor":1200},"hourglass:40":{"d0":1931,"g":0.24774,"e":0.08081,"t":2.69863,"c":0,"labor":1800},"hourglass:50":{"d0":2232,"g":0.44237,"e":0.0977,"t":2.69863,"c":0,"labor":3150},"bremen:10":{"d0":242,"g":0.00299,"e":0,"t":0.70665,"c":0,"labor":660},"bremen:50":{"d0":659,"g":0.01292,"e":0.00054,"t":1.43493,"c":0,"labor":3450},"bremen:100":{"d0":1351,"g":0.05853,"e":0.00421,"t":1.8987,"c":0,"labor":8200},"bremen:200":{"d0":2234,"g":0.13193,"e":0.01509,"t":2.74269,"c":0.004,"labor":17800},"bremen:300":{"d0":2950,"g":0.13193,"e":0.01509,"t":3.63394,"c":0.004,"labor":27300},"empty_but_not_empty:21":{"d0":2854,"g":0.53551,"e":0.58974,"t":4.77816,"c":0,"labor":168},"empty_but_not_empty:22":{"d0":2933,"g":0.53551,"e":0.71185,"t":4.77816,"c":0,"labor":176},"empty_but_not_empty:23":{"d0":3210,"g":0.69952,"e":0.94016,"t":4.77816,"c":0,"labor":207},"empty_but_not_empty:24":{"d0":3406,"g":1.05003,"e":0.94016,"t":4.77816,"c":0,"labor":312},"empty_but_not_empty:25":{"d0":3508,"g":1.18454,"e":1.0044,"t":4.77816,"c":0,"labor":325}};
+});
+
+</script>
+<script>
 /*
  * config.js — 配布時に編集する設定
  *   leaderboardUrl: Google Apps Script ウェブアプリの URL (server/README.md 参照).
@@ -1315,6 +1349,8 @@ window.CONFIG = {
       };
     },
     async all() { const j = await request('GET', { all: 1 }); return j.best || {}; },
+    // レーティングと難易度 (サーバーで全投稿から再計算した値). players は rating 降順, stages[stage] = { d, d0, par, players }
+    async ratings() { const j = await request('GET', { ratings: 1 }); return { updated: j.updated || 0, players: j.players || [], stages: j.stages || {} }; },
     async checkName(name) { return request('GET', { checkname: sanitizeName(name) }); },
     async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
     async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
@@ -1430,22 +1466,19 @@ window.CONFIG = {
       'auth.sessionExpired': 'ログインし直してください',
       'wip.restored': '解きかけの経路を復元しました (やり直すには「全消去」)',
       // ホームのお知らせ
-      'notice.date': '2026-08-26',
-      'notice.title': 'ランキングの登録にログインが必要になりました',
-      'notice.lead': 'なりすまし (他の人の名前での登録) を防ぐためです。これまで遊んでくださっていた方は、<b>これまでと同じ名前で登録すると、過去の記録をそのまま引き継げます</b>。',
-      'notice.stepsH': '登録の手順',
-      'notice.step1': '画面右上の <b>新規登録</b> を押す',
-      'notice.step2': 'これまで使っていた名前と、新しいパスワード (8 文字以上) を入力する',
-      'notice.step3': '<b>この名前で登録</b> を押す — 過去の記録は自動で引き継がれます',
-      'notice.n1': '<b>{0} までは、登録しなくてもこれまでどおり投稿できます。</b>それ以降はログインが必要です',
-      'notice.n2': '名前は<b>先着順</b>です。こんなに多くの方に遊んでいただけると思っておらず、過去の記録とご本人を紐付ける材料がないため、やむを得ずこの形にしました。申し訳ありません',
-      'notice.n3': '万一 名前を他の人に取られてしまった場合はご連絡ください。登録し直せるように対応します',
-      'notice.n4': 'パスワードは再発行できません。忘れないようにしてください',
-      'notice.n5': '解きかけの経路がブラウザに自動保存されるようになりました。うっかりリロードしても続きから解けます',
-      'notice.deadline': '8 月 27 日 23:59',
-      'notice.loggedIn': '{0} としてログイン中です。このままランキングに登録できます。',
+      'notice.date': '2026-08-30',
+      'notice.title': 'レーティング機能を追加しました',
+      'notice.lead': '難しい問題を良いスコアで多く解くほどレーティングが伸びます。問題の難しさは、回答状況によって変化します。',
+      'notice.loggedIn': '{0} としてログイン中です。',
       'notice.close': '閉じる',
       'notice.reopen': 'お知らせ',
+      // レーティング / difficulty
+      'rating.btn': 'レーティング', 'rating.title': 'レーティング',
+      'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': '解いた数', 'rating.atPar': 'うち par 到達', 'rating.best': '最高 performance',
+      'rating.note': 'ステージごとの performance を AHC と同じ式でまとめた値です。performance は「ステージの difficulty」と「par (参考解と人間ベストの良い方) にどれだけ迫ったか」と「ステージ内の順位」から決まります。difficulty は LaCAM3 / LNS2 の計測値を出発点に、みなさんの回答状況で更新されます。',
+      'rating.empty': 'まだ誰の rating もありません', 'rating.updated': '更新: {0}',
+      'rating.mine': 'あなたの rating', 'rating.none': 'rating なし',
+      'diff.tip': 'difficulty {0} (計測値 {1}, 投稿者 {2} 人)', 'diff.label': 'difficulty',
       'desc.tutorial': '障害物 2 つ。対角の 2 エージェントが入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
       'desc.warehouse_hard': '棚が 6 行 4 列, 通路幅 1。すれ違えない',
       'desc.hourglass': '砂時計。中央は幅 1 の通路 1 マスだけ',
@@ -1569,22 +1602,19 @@ window.CONFIG = {
       'auth.sessionExpired': 'Please log in again',
       'wip.restored': 'Restored your work in progress (use "Clear all" to start over)',
       // home notice
-      'notice.date': '2026-08-26',
-      'notice.title': 'Submitting to the leaderboard now requires an account',
-      'notice.lead': 'This is to stop anyone from submitting under someone else\u2019s name. If you have played before, <b>signing up with the same name keeps all of your earlier records</b>.',
-      'notice.stepsH': 'How to sign up',
-      'notice.step1': 'Press <b>Sign up</b> at the top right',
-      'notice.step2': 'Enter the name you have been using and a new password (8+ characters)',
-      'notice.step3': 'Press <b>Claim this name</b> — your earlier submissions come with it',
-      'notice.n1': '<b>Until {0} you can still submit without an account.</b> After that, logging in is required',
-      'notice.n2': 'Names are <b>first come, first served</b>. I did not expect this many players and kept nothing that ties past records to a person, so there is no way to verify ownership. Sorry about that',
-      'notice.n3': 'If someone else takes your name, please get in touch and I will free it up for you',
-      'notice.n4': 'Passwords cannot be reset, so please do not lose yours',
-      'notice.n5': 'Your work in progress is now saved in the browser, so reloading no longer loses it',
-      'notice.deadline': '23:59 on 27 Aug (JST)',
-      'notice.loggedIn': 'Logged in as {0}. You can submit to the leaderboard as you are.',
+      'notice.date': '2026-08-30',
+      'notice.title': 'Ratings are here',
+      'notice.lead': 'Your rating grows as you solve more hard stages with good scores. Stage difficulty changes with how players do on it.',
+      'notice.loggedIn': 'Logged in as {0}.',
       'notice.close': 'Close',
       'notice.reopen': 'Notice',
+      // rating / difficulty
+      'rating.btn': 'Rating', 'rating.title': 'Rating',
+      'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': 'Solved', 'rating.atPar': 'at par', 'rating.best': 'Best performance',
+      'rating.note': 'Per-stage performances are combined with the same formula as AtCoder Heuristic Contest. A performance depends on the stage difficulty, how close you got to par (the better of the reference solution and the best human solution), and your rank on the stage. Difficulties start from LaCAM3 / LNS2 measurements and are updated by how players do.',
+      'rating.empty': 'No ratings yet', 'rating.updated': 'Updated: {0}',
+      'rating.mine': 'Your rating', 'rating.none': 'unrated',
+      'diff.tip': 'difficulty {0} (measured {1}, {2} players)', 'diff.label': 'difficulty',
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
       'desc.warehouse_hard': '6 rows × 4 columns of shelves, 1-wide aisles — no passing',
       'desc.hourglass': 'An hourglass whose neck is a single cell',
@@ -1663,7 +1693,7 @@ window.CONFIG = {
     collisions: null, metrics: null, best: null,
     cell: 32, ox: 0, oy: 0,
     lanes: null, // Map(edgeKey -> [agent ids])
-    lastResult: null, gifBusy: false, champs: null, champsAt: 0, champsErr: false,
+    lastResult: null, gifBusy: false, champs: null, champsAt: 0, champsErr: false, ratings: null, ratingsAt: 0,
   };
 
   const canvas = $('board'); let ctx = canvas.getContext('2d');
@@ -2158,7 +2188,7 @@ window.CONFIG = {
   window.addEventListener('keydown', ev => {
     if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
     if (!$('game').classList.contains('show')) return;
-    if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); } return; }
+    if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); } return; }
     if (S.mode !== 'edit') return;
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); if (ev.shiftKey) doRedo(); else doUndo(); return; }
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); doRedo(); return; }
@@ -2312,35 +2342,31 @@ window.CONFIG = {
   }
   function playerName() { return USER ? USER.name : ''; }
 
-  // ---- ホームのお知らせ (ログイン導入の案内). 閉じたらこのブラウザでは出さない
-  const NOTICE_KEY = 'human_mapf_notice_login';
+  // ---- ホームのお知らせ (レーティング導入の案内). 閉じたらこのブラウザでは出さない (キーを変えると再表示される)
+  const NOTICE_KEY = 'human_mapf_notice_rating';
   function noticeDismissed() { try { return localStorage.getItem(NOTICE_KEY) === '1'; } catch (e) { return false; } }
   function renderNotice() {
     const el = $('notice'); if (!el) return;
     if (!LB.configured() || noticeDismissed()) { el.className = 'notice'; el.innerHTML = ''; return; }
-    const steps = USER
-      ? `<p class="done">${t('notice.loggedIn', escapeHtml(USER.name))}</p>`
-      : `<div class="steps"><b>${t('notice.stepsH')}</b><ol><li>${t('notice.step1')}</li><li>${t('notice.step2')}</li><li>${t('notice.step3')}</li></ol></div>`;
     el.innerHTML = `<h3>${t('notice.title')}<span class="date">${t('notice.date')}</span></h3>
       <p>${t('notice.lead')}</p>
-      ${steps}
-      <ul>
-        <li>${t('notice.n1', t('notice.deadline'))}</li>
-        <li>${t('notice.n2')}</li>
-        <li>${t('notice.n3')}</li>
-        <li>${t('notice.n4')}</li>
-        <li>${t('notice.n5')}</li>
-      </ul>
-      <div class="row"><button class="notice-close">${t('notice.close')}</button></div>`;
+      ${USER ? `<p class="done">${t('notice.loggedIn', escapeHtml(USER.name))}</p>` : ''}
+      <div class="row"><button class="notice-rating">${t('rating.btn')}</button><button class="notice-close">${t('notice.close')}</button></div>`;
+    const rb = el.querySelector('.notice-rating');
+    if (rb) rb.onclick = () => showRatings();
     el.className = 'notice show';
     const b = el.querySelector('.notice-close');
     if (b) b.onclick = () => { try { localStorage.setItem(NOTICE_KEY, '1'); } catch (e) { } renderNotice(); renderAccount(); };
   }
 
   function renderAccount() {
+    const mine = USER && S.ratings ? S.ratings.players.find(p => LB.nameKey(p.name) === LB.nameKey(USER.name)) : null;
+    const rt = !USER ? '' : mine
+      ? `<button class="rating-open ${ratingClass(mine.rating)}" title="${t('rating.mine')}">${mine.rating}</button>`
+      : `<button class="rating-open unrated" title="${t('rating.mine')}">${t('rating.none')}</button>`;
     const html = !LB.configured() ? ''
       : USER
-        ? `<span class="who">${escapeHtml(USER.name)}</span><button class="auth-out">${t('auth.logout')}</button>`
+        ? `<span class="who ${mine ? ratingClass(mine.rating) : ''}">${escapeHtml(USER.name)}</span>${rt}<button class="auth-out">${t('auth.logout')}</button>`
         : `<button class="auth-in">${t('auth.login')}</button><button class="auth-up">${t('auth.register')}</button>`;
     const reopen = (!LB.configured() || !noticeDismissed()) ? '' : `<button class="notice-open">${t('notice.reopen')}</button>`;
     for (const id of ['home-account', 'game-account']) {
@@ -2348,6 +2374,7 @@ window.CONFIG = {
       el.innerHTML = (id === 'home-account' ? reopen : '') + html;
       const q = (c, fn) => { const b = el.querySelector(c); if (b) b.onclick = fn; };
       q('.auth-out', () => setUser(null));
+      q('.rating-open', () => showRatings());
       q('.auth-in', () => openAuth('login'));
       q('.auth-up', () => openAuth('register'));
       q('.notice-open', () => { try { localStorage.removeItem(NOTICE_KEY); } catch (e) { } renderNotice(); renderAccount(); $('notice').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
@@ -2454,7 +2481,7 @@ window.CONFIG = {
       msg.innerHTML = t('lb.result', res.makespan.rank, res.makespan.total, res.moves.rank, res.moves.total,
         (res.total && res.total.rank) || 0, (res.total && res.total.total) || 0)
         + ((res.makespan.improved || res.moves.improved) ? '' : ` <span class="sub">${t('lb.notImproved')}</span>`);
-      S.champs = null; updateChampInfo(); updatePanel();
+      S.champs = null; S.ratingsAt = 0; updateChampInfo(); updatePanel();
       Sound.goal();
     } catch (e) {
       const em = String(e.message || e);
@@ -2524,6 +2551,61 @@ window.CONFIG = {
     sp.title = tip;
     return sp;
   }
+  // ============================================================ difficulty / rating
+  // AtCoder と同じ色分け. 灰 0〜399 / 茶 / 緑 / 水 / 青 / 黄 / 橙 / 赤 2800〜
+  const RATING_BANDS = [[2800, 'red'], [2400, 'orange'], [2000, 'yellow'], [1600, 'blue'], [1200, 'cyan'], [800, 'green'], [400, 'brown'], [-Infinity, 'gray']];
+  function ratingClass(v) { return 'rt-' + RATING_BANDS.find(([lo]) => v >= lo)[1]; }
+  // サーバーの値 (成績によるフィードバック後) があればそれ, 無ければ埋め込みの計測値 d0
+  function diffInfo(stage) {
+    const base = window.DIFFICULTY && window.DIFFICULTY[stage];
+    const srv = S.ratings && S.ratings.stages[stage];
+    if (!base && !srv) return null;
+    return { d: srv ? srv.d : base.d0, d0: base ? base.d0 : srv.d0, players: srv ? srv.players : 0 };
+  }
+  // AtCoder Problems 風の丸: 色の帯の中でどこまで来たかを下から塗る. big=true なら数値も添える
+  function diffBadge(stage, big) {
+    const i = diffInfo(stage); if (!i) return '';
+    const d = Math.max(0, i.d), lo = d >= 2800 ? 2800 : Math.floor(d / 400) * 400;
+    const pct = d >= 3200 ? 100 : Math.round((d - lo) / 400 * 100);
+    const tip = t('diff.tip', d, i.d0, i.players);
+    return `<span class="diff ${ratingClass(d)}" style="--p:${pct}%" title="${tip}"></span>${big ? `<span class="diffnum ${ratingClass(d)}" title="${tip}">${d}</span>` : ''}`;
+  }
+  async function fetchRatings() {
+    if (!LB.configured()) return null;
+    if (S.ratings && Date.now() - S.ratingsAt < 300000) return S.ratings;
+    try { S.ratings = await LB.ratings(); S.ratingsAt = Date.now(); } catch (e) { }
+    return S.ratings;
+  }
+  // サーバーの difficulty が届いたらチップの丸を描き直し, アカウント欄に rating を出す
+  async function decorateDifficulty() {
+    const had = !!S.ratings;
+    const r = await fetchRatings(); if (!r) return;
+    document.querySelectorAll('#stage-cards .chip[data-stage]').forEach(ch => {
+      const old = ch.querySelector('.diff'); if (!old) return;
+      const wrap = document.createElement('span'); wrap.innerHTML = diffBadge(ch.getAttribute('data-stage'));
+      if (wrap.firstChild) old.replaceWith(wrap.firstChild);
+    });
+    if (!had) renderAccount();
+  }
+  async function showRatings() {
+    const ov = $('rating'), body = $('rating-body');
+    $('rating-title').textContent = t('rating.title');
+    ov.classList.add('show');
+    if (!LB.configured()) { body.innerHTML = `<div class="lb-msg">${t('lb.notConfigured')}</div>`; return; }
+    body.innerHTML = `<div class="lb-msg">${t('lb.loading')}</div>`;
+    const r = await fetchRatings();
+    if (!r) { body.innerHTML = `<div class="lb-msg err">${t('lb.error', 'network')}</div>`; return; }
+    const me = LB.nameKey(playerName());
+    const rows = r.players.map((p, i) => `<tr class="${LB.nameKey(p.name) === me ? 'me' : ''}"><td>${i + 1}</td><td class="${ratingClass(p.rating)}">${escapeHtml(p.name)}</td><td class="mono ${ratingClass(p.rating)}">${p.rating}</td><td class="mono">${p.solved}</td><td class="mono">${p.atPar}</td><td class="mono">${p.best} <span class="sub">${escapeHtml(stageLabel(p.bestStage))}</span></td></tr>`).join('');
+    body.innerHTML = `<div class="note">${t('rating.note')}</div>
+      ${r.players.length ? `<table class="lb rating"><tr><th>${t('rating.rank')}</th><th>${t('rating.name')}</th><th>${t('rating.rating')}</th><th>${t('rating.solved')}</th><th>${t('rating.atPar')}</th><th>${t('rating.best')}</th></tr>${rows}</table>` : `<div class="lb-msg">${t('rating.empty')}</div>`}
+      <div class="sub">${t('rating.updated', r.updated ? new Date(r.updated).toLocaleString() : '-')}</div>`;
+  }
+  function stageLabel(stage) {
+    const [id, n] = String(stage || '').split(':');
+    return id ? `${mapName(id)} ${t('agents.unit', +n)}` : '';
+  }
+
   async function decorateHomeChamps() {
     const c = await fetchChamps(); if (!c) return;
     document.querySelectorAll('#stage-cards .chip[data-stage]').forEach(ch => {
@@ -2762,13 +2844,14 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
         const b = readBest(d.id, n);
         const ch = document.createElement('button'); ch.className = 'chip' + (b ? ' ' + b.rank : '');
         ch.setAttribute('data-stage', `${d.id}:${n}`);
-        ch.innerHTML = t('agents.unit', n) + (b ? `<span class="rk">${b.rank.toUpperCase()}</span><span class="sc">${b.makespan} / ${b.moves}</span>` : '');
+        ch.innerHTML = diffBadge(`${d.id}:${n}`) + t('agents.unit', n) + (b ? `<span class="rk">${b.rank.toUpperCase()}</span><span class="sc">${b.makespan} / ${b.moves}</span>` : '');
         ch.onclick = () => { Sound.ensure(); Sound.select(); showGame(d.id, n); };
         chips.appendChild(ch);
       }
       info.appendChild(chips); card.appendChild(info); wrap.appendChild(card);
     }
     decorateHomeChamps();
+    decorateDifficulty();
   }
 
   function showHome() {
@@ -2776,13 +2859,13 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     S.solver = null;
     buildHome();
     $('game').classList.remove('show'); $('home').classList.add('show');
-    $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('result').className = 'result';
+    $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); $('result').className = 'result';
   }
 
   function showGame(mapId, N) {
     $('home').classList.remove('show'); $('game').classList.add('show');
     $('result').className = 'result';
-    $('stage-title').textContent = t('stage.title', mapName(mapId), N);
+    $('stage-title').innerHTML = escapeHtml(t('stage.title', mapName(mapId), N)) + ' ' + diffBadge(`${mapId}:${N}`, true);
     try { loadStage(mapId, N); } catch (e) { setStatus(t('status.genFail', e.message), 'bad'); }
   }
 
@@ -2826,6 +2909,8 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-load').addEventListener('click', () => { $('load-file').value = ''; $('load-file').click(); });
   $('load-file').addEventListener('change', ev => { loadRoutesFile(ev.target.files && ev.target.files[0]); });
   $('btn-ranking').addEventListener('click', showRanking);
+  $('rating-close').addEventListener('click', () => $('rating').classList.remove('show'));
+  $('home-rating').addEventListener('click', () => { Sound.ensure(); showRatings(); });
   $('ranking-close').addEventListener('click', () => $('ranking').classList.remove('show'));
   $('btn-gif').addEventListener('click', exportGif);
   $('btn-tweet').addEventListener('click', tweet);

@@ -12,9 +12,10 @@ const LICENSE_HEADER = `<!--
 html = html.replace('<!DOCTYPE html>', '<!DOCTYPE html>\n' + LICENSE_HEADER);
 html = html.replace(/<!-- BUILD:CSS -->[\s\S]*?<!-- \/BUILD:CSS -->/, () => `<style>\n${src('style.css')}\n</style>`);
 html = html.replace(/<!-- BUILD:JS -->[\s\S]*?<!-- \/BUILD:JS -->/, () =>
-  ['lns2.js', 'maps.js', 'reference.js', 'config.js', 'gif.js', 'leaderboard.js', 'game.js'].map(f => `<script>\n${src(f).replace(/<\/script>/g, '<\\/script>')}\n</script>`).join('\n'));
+  ['lns2.js', 'maps.js', 'reference.js', 'difficulty.js', 'config.js', 'gif.js', 'leaderboard.js', 'game.js'].map(f => `<script>\n${src(f).replace(/<\/script>/g, '<\\/script>')}\n</script>`).join('\n'));
 // ランキングサーバー (Google Apps Script) 用: ソルバー + マップ + サーバーコードを 1 ファイルに
-const gs = ['lns2.js', 'maps.js'].map(src).join('\n') + '\n' + fs.readFileSync(path.join(__dirname, 'server', 'leaderboard.gs'), 'utf8');
+const gs = ['lns2.js', 'maps.js', 'reference.js', 'difficulty.js'].map(src).join('\n') + '\n'
+  + ['leaderboard.gs', 'rating.gs'].map(f => fs.readFileSync(path.join(__dirname, 'server', f), 'utf8')).join('\n');
 fs.mkdirSync(path.join(__dirname, 'dist'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'dist', 'leaderboard.gs'), gs);
 console.log('wrote dist/leaderboard.gs', (gs.length / 1024).toFixed(1) + ' KB');

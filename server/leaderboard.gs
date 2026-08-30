@@ -203,7 +203,14 @@ function doGet(e) {
       var u = findUser_(key), lg = legacyInfo_(key);
       return json_({ ok: true, name: u ? u.name : (lg.name || nm), available: !u, taken: !!u, legacy: !u && lg.count > 0, submissions: lg.count });
     }
+    if (p.recompute) {
+      var rt = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
+      if (!rt || !equalConst_(String(p.token || ''), String(rt))) return json_({ ok: false, error: 'bad token' });
+      var rlock = LockService.getScriptLock(); rlock.waitLock(20000);
+      try { return json_(recomputeRatings_()); } finally { rlock.releaseLock(); }
+    }
     var rows = readAll_();
+    if (p.ratings) return json_(ratingsResponse_(rows));
     if (p.stage) {
       var b = board_(rows, String(p.stage));
       return json_({ ok: true, stage: p.stage, makespan: b.makespan.slice(0, TOP_N).map(strip_), moves: b.moves.slice(0, TOP_N).map(strip_), total: b.total.slice(0, TOP_N).map(strip_), players: b.makespan.length });
@@ -286,15 +293,10 @@ function doSubmit_(body) {
   var key = nameKey_(body.name);
   if (!key) return { ok: false, error: 'bad name' };
   var u = findUser_(key);
-  if (u) {
-    // 登録済みの名前は移行期間中でも必ずトークンが要る (なりすまし防止は登録した瞬間から効く)
-    if (!equalConst_(String(body.token || ''), makeToken_(u))) return { ok: false, error: 'bad token' + RELOAD_HINT };
-    return record_(body, u.name, false);
-  }
-  // 未登録の名前: 移行期間のあいだだけ, 更新前のページからの投稿を受け付ける
-  if (Date.now() >= legacyUntil_()) return { ok: false, error: 'login required' + RELOAD_HINT };
-  var lg = legacyInfo_(key);
-  return record_(body, lg.name || cleanName_(body.name), true);   // 表記は既存の記録に合わせる
+  // 投稿は登録済みアカウントのトークン必須 (移行期間は 2026-08-27 で終了. 未登録の名前は受け付けない)
+  if (!u) return { ok: false, error: 'login required' + RELOAD_HINT };
+  if (!equalConst_(String(body.token || ''), makeToken_(u))) return { ok: false, error: 'bad token' + RELOAD_HINT };
+  return record_(body, u.name, false);
 }
 
 function record_(body, name, legacy) {
