@@ -60,8 +60,24 @@ UI は日本語 / 英語を切り替えられます。
 | room | 19×19 | 4×4 の部屋 ×16、幅 1〜2 の通路 | 10, 20, 30, 40, 50 |
 | maze | 17×17 | 幅 2 通路・幅 1 壁の 6×6 迷路 (+ ループ少々) | 10, 20, 30, 40, 50 |
 | warehouse | 23×14 | 幅 1 × 長さ 5 の棚 4 行 3 列、通路幅 2 | 10, 20, 30, 40, 50 |
+| warehouse-hard | 25×13 | 棚 6 行 4 列、通路幅 1 (すれ違えない) | 10, 20, 30, 40, 50 |
+| hourglass | 21×21 | 砂時計。中央は幅 1 の通路 1 マスだけ | 10, 20, 30, 40, 50 |
+| Bremen | 50×50 | ブレーメン旧市街の地図から起こした障害物 | 10, 50, 100, 200, 300 |
+| Empty but not empty | 5×5 | 空のマップだがほぼ満員 (25 台では空きマスなし) | 21, 22, 23, 24, 25 |
 
 ベストスコアはブラウザの localStorage に (map, agents) ごとに保存されます。
+
+### difficulty とレーティング
+
+各ステージには AtCoder 風の **difficulty** (灰 0〜399 / 茶 / 緑 / 水 / 青 / 黄 / 橙 / 赤 2800〜) が付いています。
+出発点はプレイヤーの成績に依存しないソルバーの計測値 (`src/difficulty.js`, 手順は [tools/difficulty/README.md](tools/difficulty/README.md)):
+LaCAM3 が 60 秒かけても下界に近づけない度合い、anytime 改善の余地、LNS2 が実行可能解を見つけられる確率、
+幅 1 の通路ですれ違えないペアの数、台数 × makespan の作業量、を合成したものです。公開後はプレイヤーの回答状況で
+サーバーが更新します (レート R の人が成績 y で解いたとき、期待値との差の分だけ動くロジスティックモデル。計測値を事前分布にして ±600 まで)。
+
+**レーティング**はステージごとの performance を [AHC Rating System ver.2](https://img.atcoder.jp/file/AHC_rating_v2.pdf) と同じ式でまとめた値です。
+performance は「ステージの difficulty」「par (参考解と人間ベストの良い方) にどれだけ迫ったか」「ステージ内の順位」から決まり、
+難しいステージを良いスコアで多く解くほど上がります。計算はサーバー (`server/rating.gs`) が全投稿から行い、ゲーム内の「レーティング」で一覧できます。
 
 ## オンラインランキングの有効化
 
@@ -82,14 +98,17 @@ UI は日本語 / 英語を切り替えられます。
 src/
   lns2.js       LNS2 ソルバー (停止 + 上下左右の標準 MAPF, 頂点/辺衝突)。Node とブラウザ両対応
   maps.js       マップ生成 (障害物・start/goal は固定)
-  reference.js  各ステージの LNS2 参考解 (自動生成。スコア・下界・経路)
+  reference.js  各ステージの参考解 (自動生成。スコア・下界・経路。LNS2, 一部 LaCAM3)
+  difficulty.js 各ステージの difficulty の事前値 (自動生成。tools/difficulty.js)
   config.js     設定 (ランキングサーバーの URL)
   gif.js        依存なしの GIF エンコーダ (LZW, 差分フレーム)
   leaderboard.js ランキング / ログインのクライアント
   game.js       ゲーム UI / 採点 / アニメーション / 効果音 (WebAudio 合成) / 日英 i18n / ランキング / GIF / 𝕏 投稿
   index.html, style.css
 server/leaderboard.gs  ランキング + ログインのサーバー (Google Apps Script). build で dist/leaderboard.gs に同梱
+server/rating.gs       レーティングと difficulty のフィードバック (同上)
 tools/precompute.js  LNS2 参考解 src/reference.js を生成 (`node tools/precompute.js [seeds] [sec]`)。既定は差分計算＝既存ステージは触らず未計算のぶんだけ
+tools/difficulty.js  計測データから src/difficulty.js を生成 (`node tools/difficulty.js <計測データのディレクトリ>`, 既定は差分)。計測は tools/difficulty/
 tools/artwork.js     イメージイラスト assets/hero.svg を生成 (既定: assets/promo-instance.json の 10×10 / 8 agents。`node tools/artwork.js assets/promo-instance-6agents.json` で 6 agents 版)
 tools/backup.js      ランキング (スプレッドシート) の全投稿を backups/ に保存 (`HUMAN_MAPF_BACKUP_TOKEN=… node tools/backup.js`, server/README.md 参照)
 build.js      src/ を dist/mapf_puzzle.html にインライン化 (`node build.js`, 依存なし)
