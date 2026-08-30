@@ -112,8 +112,8 @@
       'notice.reopen': 'お知らせ',
       // レーティング / difficulty
       'rating.btn': 'レーティング', 'rating.title': 'レーティング',
-      'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': '解いた数', 'rating.atPar': 'うち par 到達', 'rating.best': '最高 performance',
-      'rating.note': 'ステージごとの performance を AHC と同じ式でまとめた値です。performance は「ステージの difficulty」と「par (参考解と人間ベストの良い方) にどれだけ迫ったか」と「ステージ内の順位」から決まります。difficulty は LaCAM3 / LNS2 の計測値を出発点に、みなさんの回答状況で更新されます。',
+      'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': '解いた数', 'rating.atPar': '最良スコア到達', 'rating.atParTip': 'そのステージの最良スコア (参考解と人間ベストの良い方) と同等のスコアで解いたステージ数', 'rating.best': '最高 performance',
+      'rating.note': 'ステージごとの performance を AHC と同じ式でまとめた値です。performance は「ステージの difficulty」と「最良スコア (参考解と人間ベストの良い方) にどれだけ迫ったか」と「ステージ内の順位」から決まります。difficulty は LaCAM3 / LNS2 の計測値を出発点に、みなさんの回答状況で更新されます。',
       'rating.empty': 'まだ誰の rating もありません', 'rating.updated': '更新: {0}',
       'rating.mine': 'あなたの rating', 'rating.none': 'rating なし',
       'diff.tip': 'difficulty {0} (計測値 {1}, 投稿者 {2} 人)', 'diff.label': 'difficulty',
@@ -248,8 +248,8 @@
       'notice.reopen': 'Notice',
       // rating / difficulty
       'rating.btn': 'Rating', 'rating.title': 'Rating',
-      'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': 'Solved', 'rating.atPar': 'at par', 'rating.best': 'Best performance',
-      'rating.note': 'Per-stage performances are combined with the same formula as AtCoder Heuristic Contest. A performance depends on the stage difficulty, how close you got to par (the better of the reference solution and the best human solution), and your rank on the stage. Difficulties start from LaCAM3 / LNS2 measurements and are updated by how players do.',
+      'rating.rank': '#', 'rating.name': 'Name', 'rating.rating': 'Rating', 'rating.solved': 'Solved', 'rating.atPar': 'Best-score solves', 'rating.atParTip': 'Stages solved with a score equal to the best known (the better of the reference and the best human solution)', 'rating.best': 'Best performance',
+      'rating.note': 'Per-stage performances are combined with the same formula as AtCoder Heuristic Contest. A performance depends on the stage difficulty, how close you got to the best known score (the better of the reference solution and the best human solution), and your rank on the stage. Difficulties start from LaCAM3 / LNS2 measurements and are updated by how players do.',
       'rating.empty': 'No ratings yet', 'rating.updated': 'Updated: {0}',
       'rating.mine': 'Your rating', 'rating.none': 'unrated',
       'diff.tip': 'difficulty {0} (measured {1}, {2} players)', 'diff.label': 'difficulty',
@@ -1236,7 +1236,7 @@
     const me = LB.nameKey(playerName());
     const rows = r.players.map((p, i) => `<tr class="${LB.nameKey(p.name) === me ? 'me' : ''}"><td>${i + 1}</td><td class="${ratingClass(p.rating)}">${escapeHtml(p.name)}</td><td class="mono ${ratingClass(p.rating)}">${p.rating}</td><td class="mono">${p.solved}</td><td class="mono">${p.atPar}</td><td class="mono">${p.best} <span class="sub">${escapeHtml(stageLabel(p.bestStage))}</span></td></tr>`).join('');
     body.innerHTML = `<div class="note">${t('rating.note')}</div>
-      ${r.players.length ? `<table class="lb rating"><tr><th>${t('rating.rank')}</th><th>${t('rating.name')}</th><th>${t('rating.rating')}</th><th>${t('rating.solved')}</th><th>${t('rating.atPar')}</th><th>${t('rating.best')}</th></tr>${rows}</table>` : `<div class="lb-msg">${t('rating.empty')}</div>`}
+      ${r.players.length ? `<table class="lb rating"><tr><th>${t('rating.rank')}</th><th>${t('rating.name')}</th><th>${t('rating.rating')}</th><th>${t('rating.solved')}</th><th title="${t('rating.atParTip')}">${t('rating.atPar')}</th><th>${t('rating.best')}</th></tr>${rows}</table>` : `<div class="lb-msg">${t('rating.empty')}</div>`}
       <div class="sub">${t('rating.updated', r.updated ? new Date(r.updated).toLocaleString() : '-')}</div>`;
   }
   function stageLabel(stage) {
