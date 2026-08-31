@@ -105,9 +105,10 @@
       'auth.sessionExpired': 'ログインし直してください',
       'wip.restored': '解きかけの経路を復元しました (やり直すには「全消去」)',
       // ホームのお知らせ
-      'notice.date': '2026-08-30',
-      'notice.title': 'レーティング機能を追加しました',
-      'notice.lead': '難しい問題を良いスコアで多く解くほどレーティングが伸びます。問題の難しさは、回答状況によって変化します。',
+      'notice.date': '2026-08-31',
+      'notice.title': 'ステージメーカーを追加しました',
+      'notice.lead': '「作問」からステージを作成し、自分で解けた問題は公開できます。公開された問題は <b>unrated</b>（difficulty なし・レート変動なし・ランクなし。ランキングは付きます）で、「みんなのステージ」に並びます。',
+      'notice.i1': '<b>writer の募集</b>: rating 1800 以上の方は、ステージメーカーで問題の「writer として応募」ができます。採用された場合は運営が difficulty を設定し、<b>rated</b> の問題として出題されます。すでに一般公開したステージは応募できません',
       'notice.loggedIn': '{0} としてログイン中です。',
       'notice.close': '閉じる',
       'notice.reopen': 'お知らせ',
@@ -118,6 +119,40 @@
       'rating.empty': 'まだ誰の rating もありません', 'rating.updated': '更新: {0}',
       'rating.mine': 'あなたの rating', 'rating.none': 'rating なし',
       'diff.tip': 'difficulty {0} (計測値 {1}, 投稿者 {2} 人)', 'diff.label': 'difficulty',
+      // ステージメーカー
+      'home.custom': 'みんなのステージ',
+      'maker.open': '✏️ 作問', 'maker.inbox': '📮 受信箱', 'maker.title': 'ステージメーカー',
+      'maker.tabMap': 'マップ作成', 'maker.tabStage': 'ステージ作成', 'maker.tabSolve': '自作問題を回答', 'maker.tabPublish': '投稿',
+      'maker.newMap': '新しいマップ', 'maker.width': '幅', 'maker.height': '高さ', 'maker.name': 'マップ名',
+      'maker.saveMap': 'マップを保存', 'maker.delMap': 'マップを削除',
+      'maker.drawHint': 'クリック / ドラッグで障害物を塗る・消せます。保存時に空きマスが連結かチェックします',
+      'maker.mapSaved': 'マップを保存しました。「ステージ作成」でスタート / ゴールを置いてください',
+      'maker.noName': 'マップ名を入力してください', 'maker.notConnected': '空きマスが連結ではありません',
+      'maker.stagesDropped': 'マップの変更で配置が無効になったステージを削除しました: {0} agents。回答もやり直しです',
+      'maker.mapChanged': 'マップを変更したので、全ステージの回答が無効になりました',
+      'maker.selectMap': 'マップ', 'maker.agents': 'agents',
+      'maker.modeStart': 'スタート配置', 'maker.modeGoal': 'ゴール配置', 'maker.modeErase': '消す',
+      'maker.random': '🎲 ランダム一括生成', 'maker.saveStage': 'ステージ保存', 'maker.delStage': '削除',
+      'maker.placed': 'スタート {0}/{1} · ゴール {2}/{3}',
+      'maker.stageSaved': '{0} agents のステージを保存しました。「自作問題を回答」で解いてください',
+      'maker.needPlace': 'スタートとゴールを {0} 個ずつ置いてください (空きマスも {0} 個以上必要です)',
+      'maker.noMaps': 'まだマップがありません。「マップ作成」から作ってください',
+      'maker.noStages': 'ステージがありません。「マップ作成」→「ステージ作成」の順に作ってください',
+      'maker.solved': '✓ {0}', 'maker.unsolved': '未回答',
+      'maker.solveHint': 'ステージを解いて「回答を記録」してください。マップの全ステージを解くと投稿できるようになります',
+      'maker.needAllSolved': '未回答のステージがあるため、まだ投稿できません',
+      'maker.pubPublic': '一般公開', 'maker.pubWriter': 'writer として応募',
+      'maker.pubPublicDesc': '<b>一般公開</b>: すぐに全員が遊べます。unrated (difficulty なし・レート変動なし・ランクなし)。ランキングは付きます。',
+      'maker.pubWriterDesc': '<b>writer として応募</b>: rating 1800 以上のみ。公開されず運営にだけ届き、採用されると運営が difficulty を設定して rated 問題になります。',
+      'maker.publish': '投稿する', 'maker.publishing': '投稿中…', 'maker.published': '投稿しました ({0})',
+      'maker.publishedAs': '投稿済み ({0})', 'maker.writerLocked': '(writer 応募は rating 1800 以上。現在 {0})',
+      'maker.loginToPublish': '投稿にはログインが必要です',
+      'maker.solverAsk': '何を使って解きましたか？ (人力 または ソルバー名)', 'maker.solverDefault': '人力',
+      'maker.solverSave': '回答を記録', 'maker.solverSaved': '記録しました。マップの全ステージを解くと投稿できます',
+      'custom.unrated': 'unrated', 'custom.by': '作: {0}', 'custom.none': 'まだ公開ステージがありません',
+      'custom.stageTitle': '{0} — {1} agents',
+      'inbox.empty': 'writer の応募はありません', 'inbox.dl': 'JSON をダウンロード', 'inbox.item': '作: {0} · {1}×{2}',
+
       'desc.tutorial': '障害物 2 つ。対角の 2 エージェントが入れ替わる練習', 'desc.empty': '空のマップ', 'desc.random': '約 10% が障害物', 'desc.room': '4×4 の部屋 ×16, 幅 1〜2 の通路でつながる', 'desc.maze': '幅 2 の通路の 6×6 迷路', 'desc.warehouse': '幅 1 × 長さ 5 の棚が 4 行 3 列, 通路幅 2',
       'desc.warehouse_hard': '棚が 6 行 4 列, 通路幅 1。すれ違えない',
       'desc.hourglass': '砂時計。中央は幅 1 の通路 1 マスだけ',
@@ -243,9 +278,10 @@
       'auth.sessionExpired': 'Please log in again',
       'wip.restored': 'Restored your work in progress (use "Clear all" to start over)',
       // home notice
-      'notice.date': '2026-08-30',
-      'notice.title': 'Ratings are here',
-      'notice.lead': 'Your rating grows as you solve more hard stages with good scores. Stage difficulty changes with how players do on it.',
+      'notice.date': '2026-08-31',
+      'notice.title': 'Stage maker is here',
+      'notice.lead': 'Create stages from the new Maker and publish the ones you have solved yourself. Published stages are <b>unrated</b> (no difficulty, no rating changes, no medal ranks - leaderboards still apply) and appear under "Community stages".',
+      'notice.i1': '<b>Writers wanted</b>: players rated 1800+ can instead submit a stage as a writer application. Accepted stages get a difficulty from the operator and become <b>rated</b>. Stages you have already published cannot be applied',
       'notice.loggedIn': 'Logged in as {0}.',
       'notice.close': 'Close',
       'notice.reopen': 'Notice',
@@ -256,6 +292,40 @@
       'rating.empty': 'No ratings yet', 'rating.updated': 'Updated: {0}',
       'rating.mine': 'Your rating', 'rating.none': 'unrated',
       'diff.tip': 'difficulty {0} (measured {1}, {2} players)', 'diff.label': 'difficulty',
+      // stage maker
+      'home.custom': 'Community stages',
+      'maker.open': '✏️ Create', 'maker.inbox': '📮 Inbox', 'maker.title': 'Stage maker',
+      'maker.tabMap': 'Map', 'maker.tabStage': 'Stages', 'maker.tabSolve': 'Solve mine', 'maker.tabPublish': 'Publish',
+      'maker.newMap': 'New map', 'maker.width': 'Width', 'maker.height': 'Height', 'maker.name': 'Map name',
+      'maker.saveMap': 'Save map', 'maker.delMap': 'Delete map',
+      'maker.drawHint': 'Click / drag to paint or erase obstacles. Connectivity is checked on save',
+      'maker.mapSaved': 'Map saved. Place starts and goals in the "Stages" tab',
+      'maker.noName': 'Please enter a map name', 'maker.notConnected': 'Free cells are not connected',
+      'maker.stagesDropped': 'Stages whose placement became invalid were removed: {0} agents. Recorded solutions were reset too',
+      'maker.mapChanged': 'The map changed, so all recorded solutions were reset',
+      'maker.selectMap': 'Map', 'maker.agents': 'agents',
+      'maker.modeStart': 'Place starts', 'maker.modeGoal': 'Place goals', 'maker.modeErase': 'Erase',
+      'maker.random': '🎲 Randomize all', 'maker.saveStage': 'Save stage', 'maker.delStage': 'Delete',
+      'maker.placed': 'starts {0}/{1} · goals {2}/{3}',
+      'maker.stageSaved': 'Saved the {0}-agent stage. Solve it under "Solve mine"',
+      'maker.needPlace': 'Place {0} starts and {0} goals (needs at least {0} free cells)',
+      'maker.noMaps': 'No maps yet — create one in the "Map" tab',
+      'maker.noStages': 'No stages yet — use "Map" then "Stages"',
+      'maker.solved': '✓ {0}', 'maker.unsolved': 'unsolved',
+      'maker.solveHint': 'Solve a stage and record how you solved it. Once every stage of a map is solved, you can publish it',
+      'maker.needAllSolved': 'Some stages are still unsolved, so this map cannot be published yet',
+      'maker.pubPublic': 'Publish for everyone', 'maker.pubWriter': 'Apply as a writer',
+      'maker.pubPublicDesc': '<b>Publish for everyone</b>: playable immediately by all, unrated (no difficulty, no rating changes, no medal ranks). Leaderboards still apply.',
+      'maker.pubWriterDesc': '<b>Apply as a writer</b>: rating 1800+ only. Not published; it goes to the operator, and accepted stages become rated with an assigned difficulty.',
+      'maker.publish': 'Submit', 'maker.publishing': 'Submitting…', 'maker.published': 'Submitted ({0})',
+      'maker.publishedAs': 'Submitted ({0})', 'maker.writerLocked': '(writer applications need rating 1800+; yours is {0})',
+      'maker.loginToPublish': 'Log in to publish',
+      'maker.solverAsk': 'What did you solve it with? (by hand, or a solver name)', 'maker.solverDefault': 'by hand',
+      'maker.solverSave': 'Record solution', 'maker.solverSaved': 'Recorded. Solve every stage of the map to publish it',
+      'custom.unrated': 'unrated', 'custom.by': 'by {0}', 'custom.none': 'No community stages yet',
+      'custom.stageTitle': '{0} — {1} agents',
+      'inbox.empty': 'No writer applications', 'inbox.dl': 'Download JSON', 'inbox.item': 'by {0} · {1}×{2}',
+
       'desc.tutorial': '2 obstacles. Two agents swap diagonally', 'desc.empty': 'Empty map', 'desc.random': 'About 10% obstacles', 'desc.room': '16 rooms of 4×4 joined by 1–2 wide doors', 'desc.maze': '6×6 maze with 2-wide corridors', 'desc.warehouse': '1×5 shelves in 4 rows × 3 columns, 2-wide aisles',
       'desc.warehouse_hard': '6 rows × 4 columns of shelves, 1-wide aisles — no passing',
       'desc.hourglass': 'An hourglass whose neck is a single cell',
@@ -335,7 +405,7 @@
     collisions: null, metrics: null, best: null,
     cell: 32, ox: 0, oy: 0,
     lanes: null, // Map(edgeKey -> [agent ids])
-    lastResult: null, gifBusy: false, champs: null, champsAt: 0, champsErr: false, ratings: null, ratingsAt: 0,
+    lastResult: null, gifBusy: false, champs: null, champsAt: 0, champsErr: false, ratings: null, ratingsAt: 0, custom: null, customList: null, customAt: 0,
   };
 
   const canvas = $('board'); let ctx = canvas.getContext('2d');
@@ -397,10 +467,11 @@
 
   function bestKey(mapId, N) { return `human_mapf_best:${mapId}:${N}`; }
   function readBest(mapId, N) { try { return JSON.parse(localStorage.getItem(bestKey(mapId, N)) || 'null'); } catch (e) { return null; } }
-  function mapName(id) { return t('map.' + id); }
+  function mapName(id) { if (S.custom && id === S.mapId) return S.custom.name; return t('map.' + id); }
 
   // ============================================================ stage
   function loadStage(mapId, N) {
+    S.custom = null;
     S.mapId = mapId; S.N = N; S.seed = M.stageSeed(mapId, N);
     S.map = M.getMap(mapId);
     S.G = L.buildGraph(S.map);
@@ -830,7 +901,7 @@
   window.addEventListener('keydown', ev => {
     if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
     if (!$('game').classList.contains('show')) return;
-    if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); } return; }
+    if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); $('maker').classList.remove('show'); $('inbox').classList.remove('show'); } return; }
     if (S.mode !== 'edit') return;
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); if (ev.shiftKey) doRedo(); else doUndo(); return; }
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); doRedo(); return; }
@@ -925,6 +996,7 @@
   }
 
   function showResult(rank, m, better, rk) {
+    if (S.custom) return showCustomResult(m);
     const box = $('result');
     const refLb = (rv, lv, pct) => S.ref ? ` <span class="sub">${t('result.refLb', rv, lv, pct)}</span>` : '';
     const lbForm = lbFormHtml();
@@ -981,17 +1053,19 @@
     renderAccount();
     renderNotice();
     if ($('result').classList.contains('show')) refreshResultForm();
+    if ($('maker').classList.contains('show')) renderMaker();
   }
   function playerName() { return USER ? USER.name : ''; }
 
   // ---- ホームのお知らせ (レーティング導入の案内). 閉じたらこのブラウザでは出さない (キーを変えると再表示される)
-  const NOTICE_KEY = 'human_mapf_notice_rating';
+  const NOTICE_KEY = 'human_mapf_notice_maker';
   function noticeDismissed() { try { return localStorage.getItem(NOTICE_KEY) === '1'; } catch (e) { return false; } }
   function renderNotice() {
     const el = $('notice'); if (!el) return;
     if (!LB.configured() || noticeDismissed()) { el.className = 'notice'; el.innerHTML = ''; return; }
     el.innerHTML = `<h3>${t('notice.title')}<span class="date">${t('notice.date')}</span></h3>
       <p>${t('notice.lead')}</p>
+      <ul><li>${t('notice.i1')}</li></ul>
       ${USER ? `<p class="done">${t('notice.loggedIn', escapeHtml(USER.name))}</p>` : ''}
       <div class="row"><button class="notice-rating">${t('rating.btn')}</button><button class="notice-close">${t('notice.close')}</button></div>`;
     const rb = el.querySelector('.notice-rating');
@@ -1174,6 +1248,7 @@
   }
   async function updateChampInfo() {
     const el = $('champ-info');
+    if (S.custom) { el.textContent = ''; return; }
     if (!LB.configured()) { el.textContent = ''; return; }
     const key = stageKey();
     const c = await fetchChamps();
@@ -1501,7 +1576,9 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     S.solver = null;
     buildHome();
     $('game').classList.remove('show'); $('home').classList.add('show');
-    $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); $('result').className = 'result';
+    $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); $('maker').classList.remove('show'); $('inbox').classList.remove('show'); $('result').className = 'result';
+    $('btn-inbox').style.display = isAdmin() ? '' : 'none';
+    buildCustomCards();
   }
 
   function showGame(mapId, N) {
@@ -1539,6 +1616,430 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     applyLang();
   }
 
+  // ============================================================ stage maker (作問)
+  // 自作マップはこのブラウザの localStorage に保存する:
+  //   { maps: [{ lid, name, w, h, pattern('.@'), stages: {N:{starts,goals}}, solved: {N:{paths,solver,makespan,moves}}, published: {kind,id}|null }] }
+  const MAKER_KEY = 'human_mapf_maker';
+  function makerLoad() { try { const d = JSON.parse(localStorage.getItem(MAKER_KEY) || 'null'); return d && Array.isArray(d.maps) ? d : { maps: [] }; } catch (e) { return { maps: [] }; } }
+  function makerSave(d) { try { localStorage.setItem(MAKER_KEY, JSON.stringify(d)); } catch (e) { } }
+  function makerMap(d, lid) { return d.maps.find(m => m.lid === lid) || null; }
+  const MK = { tab: 'map', lid: null, w: 10, h: 10, pattern: null, name: '', paint: null, stageLid: null, stageN: 5, place: 'start', starts: [], goals: [] };
+
+  function openMaker(tab) { if (tab) MK.tab = tab; $('maker').classList.add('show'); renderMaker(); }
+  function closeMaker() { $('maker').classList.remove('show'); }
+  function isAdmin() { return !!USER && LB.nameKey(USER.name) === LB.nameKey('mech_39'); }
+
+  function agentColor(i) { return `hsl(${(i * 137.508) % 360}, 70%, 45%)`; }
+  function drawMakerGrid(cv, w, h, free, extra) {
+    const cs = Math.max(10, Math.min(32, Math.floor(Math.min(720 / w, 420 / h))));
+    cv.width = w * cs; cv.height = h * cs;
+    const c = cv.getContext('2d');
+    c.fillStyle = '#f4f1ea'; c.fillRect(0, 0, cv.width, cv.height);
+    c.strokeStyle = 'rgba(0,0,0,0.08)';
+    for (let x = 1; x < w; ++x) { c.beginPath(); c.moveTo(x * cs, 0); c.lineTo(x * cs, cv.height); c.stroke(); }
+    for (let y = 1; y < h; ++y) { c.beginPath(); c.moveTo(0, y * cs); c.lineTo(cv.width, y * cs); c.stroke(); }
+    c.fillStyle = '#3b3a37';
+    for (let i = 0; i < w * h; ++i) if (!free[i]) c.fillRect((i % w) * cs + 1, ((i / w) | 0) * cs + 1, cs - 2, cs - 2);
+    if (extra) extra(c, cs);
+  }
+  function drawPlacements(c, cs, w, starts, goals) {
+    const fs = Math.max(8, cs * 0.45);
+    c.font = `700 ${fs}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    goals.forEach((g, i) => {
+      const x = (g % w) * cs, y = ((g / w) | 0) * cs;
+      c.strokeStyle = agentColor(i); c.lineWidth = 2; c.strokeRect(x + cs * 0.15, y + cs * 0.15, cs * 0.7, cs * 0.7);
+      c.fillStyle = agentColor(i); c.fillText(i + 1, x + cs / 2, y + cs / 2 + 1);
+    });
+    starts.forEach((s, i) => {
+      const x = (s % w) * cs + cs / 2, y = ((s / w) | 0) * cs + cs / 2;
+      c.fillStyle = agentColor(i); c.beginPath(); c.arc(x, y, cs * 0.34, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#fff'; c.fillText(i + 1, x, y + 1);
+    });
+  }
+  function cellFromEvent(cv, ev, w, h) {
+    const r = cv.getBoundingClientRect();
+    const x = Math.floor((ev.clientX - r.left) / r.width * w), y = Math.floor((ev.clientY - r.top) / r.height * h);
+    return x < 0 || y < 0 || x >= w || y >= h ? -1 : y * w + x;
+  }
+  function isConnectedFree(w, h, free) {
+    let total = 0; for (let i = 0; i < w * h; ++i) total += free[i] ? 1 : 0;
+    if (total < 2) return false;
+    const G = L.buildGraph({ w, h, free: Uint8Array.from(free) });
+    return L.largestComponent(G).length === total;
+  }
+
+  function renderMaker() {
+    for (const tb of ['map', 'stage', 'solve', 'publish']) $('mtab-' + tb).className = MK.tab === tb ? 'on' : '';
+    const body = $('maker-body');
+    if (MK.tab === 'map') renderMakerMap(body);
+    else if (MK.tab === 'stage') renderMakerStage(body);
+    else if (MK.tab === 'solve') renderMakerSolve(body);
+    else renderMakerPublish(body);
+  }
+
+  // ---- マップ作成
+  function renderMakerMap(body) {
+    const d = makerLoad();
+    const opts = d.maps.map(m => `<option value="${m.lid}" ${MK.lid === m.lid ? 'selected' : ''}>${escapeHtml(m.name)} (${m.w}×${m.h})</option>`).join('');
+    body.innerHTML = `
+      <div class="mrow">
+        <label class="mfield">${t('maker.selectMap')} <select id="mk-sel"><option value="">${t('maker.newMap')}</option>${opts}</select></label>
+        <label class="mfield">${t('maker.width')} <input id="mk-w" type="number" min="4" max="50" value="${MK.w}"></label>
+        <label class="mfield">${t('maker.height')} <input id="mk-h" type="number" min="4" max="50" value="${MK.h}"></label>
+        <label class="mfield">${t('maker.name')} <input id="mk-name" type="text" maxlength="24" value="${escapeHtml(MK.name)}" style="width:11em"></label>
+      </div>
+      <canvas id="maker-canvas"></canvas>
+      <div class="maker-note">${t('maker.drawHint')}</div>
+      <div class="mrow"><button id="mk-save" class="primary">${t('maker.saveMap')}</button>${MK.lid ? `<button id="mk-del">${t('maker.delMap')}</button>` : ''}</div>
+      <div id="mk-msg" class="maker-msg"></div>`;
+    if (!MK.pattern || MK.pattern.length !== MK.w * MK.h) MK.pattern = Array(MK.w * MK.h).fill(1);
+    const cv = $('maker-canvas');
+    const redraw = () => drawMakerGrid(cv, MK.w, MK.h, MK.pattern);
+    redraw();
+    $('mk-sel').onchange = () => {
+      const lid = +$('mk-sel').value || null;
+      if (lid) { const m = makerMap(d, lid); MK.lid = lid; MK.w = m.w; MK.h = m.h; MK.name = m.name; MK.pattern = Array.from(m.pattern, ch => ch === '.' ? 1 : 0); }
+      else { MK.lid = null; MK.name = ''; MK.pattern = null; }
+      renderMakerMap(body);
+    };
+    const resize = () => {
+      MK.w = Math.max(4, Math.min(50, Math.floor(+$('mk-w').value) || 10));
+      MK.h = Math.max(4, Math.min(50, Math.floor(+$('mk-h').value) || 10));
+      MK.pattern = Array(MK.w * MK.h).fill(1);
+      redraw();
+    };
+    $('mk-w').onchange = resize; $('mk-h').onchange = resize;
+    $('mk-name').oninput = () => { MK.name = $('mk-name').value; };
+    const paintAt = ev => {
+      const c = cellFromEvent(cv, ev, MK.w, MK.h); if (c < 0) return;
+      if (MK.paint == null) MK.paint = MK.pattern[c] ? 0 : 1;
+      if (MK.pattern[c] !== MK.paint) { MK.pattern[c] = MK.paint; redraw(); }
+    };
+    cv.onpointerdown = ev => { cv.setPointerCapture(ev.pointerId); MK.paint = null; paintAt(ev); };
+    cv.onpointermove = ev => { if (ev.buttons) paintAt(ev); };
+    cv.onpointerup = () => { MK.paint = null; };
+    $('mk-save').onclick = () => {
+      const msg = $('mk-msg');
+      const name = (MK.name || '').replace(/\s+/g, ' ').trim().slice(0, 24);
+      if (!name) { msg.className = 'maker-msg err'; msg.textContent = t('maker.noName'); return; }
+      if (!isConnectedFree(MK.w, MK.h, MK.pattern)) { msg.className = 'maker-msg err'; msg.textContent = t('maker.notConnected'); return; }
+      const pattern = MK.pattern.map(v => v ? '.' : '@').join('');
+      let note = t('maker.mapSaved'), cls = 'maker-msg good';
+      if (MK.lid) {
+        const m = makerMap(d, MK.lid);
+        m.name = name;
+        if (m.pattern !== pattern || m.w !== MK.w || m.h !== MK.h) {
+          m.w = MK.w; m.h = MK.h; m.pattern = pattern;
+          const dropped = [];
+          for (const n of Object.keys(m.stages || {})) {
+            const st = m.stages[n];
+            if ([...st.starts, ...st.goals].some(c => c >= MK.w * MK.h || pattern[c] !== '.')) { dropped.push(n); delete m.stages[n]; }
+          }
+          m.solved = {}; m.published = null;
+          note = dropped.length ? t('maker.stagesDropped', dropped.join(', ')) : t('maker.mapChanged');
+          cls = 'maker-msg err';
+        }
+      } else {
+        MK.lid = Date.now();
+        d.maps.push({ lid: MK.lid, name, w: MK.w, h: MK.h, pattern, stages: {}, solved: {}, published: null });
+      }
+      MK.name = name;
+      makerSave(d);
+      renderMakerMap(body);
+      const m2 = $('mk-msg'); m2.className = cls; m2.textContent = note;
+    };
+    const del = $('mk-del');
+    if (del) del.onclick = () => {
+      if (!confirm(t('maker.delMap') + '?')) return;
+      d.maps = d.maps.filter(m => m.lid !== MK.lid);
+      makerSave(d);
+      MK.lid = null; MK.pattern = null; MK.name = '';
+      renderMakerMap(body);
+    };
+  }
+
+  // ---- ステージ作成 (スタート / ゴールの配置)
+  function renderMakerStage(body) {
+    const d = makerLoad();
+    if (!d.maps.length) { body.innerHTML = `<div class="lb-msg">${t('maker.noMaps')}</div>`; return; }
+    if (!makerMap(d, MK.stageLid)) { MK.stageLid = d.maps[0].lid; MK.starts = []; MK.goals = []; }
+    const m = makerMap(d, MK.stageLid);
+    const opts = d.maps.map(mm => `<option value="${mm.lid}" ${mm.lid === MK.stageLid ? 'selected' : ''}>${escapeHtml(mm.name)}</option>`).join('');
+    const existing = Object.keys(m.stages || {}).sort((a, b) => +a - +b);
+    body.innerHTML = `
+      <div class="mrow">
+        <label class="mfield">${t('maker.selectMap')} <select id="ms-map">${opts}</select></label>
+        <label class="mfield">${t('maker.agents')} <input id="ms-n" type="number" min="1" max="${m.pattern.split('@').join('').length}" value="${MK.stageN}"></label>
+        <span class="mode-btns"><button id="ms-start">${t('maker.modeStart')}</button><button id="ms-goal">${t('maker.modeGoal')}</button><button id="ms-erase">${t('maker.modeErase')}</button></span>
+        <button id="ms-random">${t('maker.random')}</button>
+      </div>
+      <canvas id="mstage-canvas"></canvas>
+      <div id="ms-count" class="maker-note"></div>
+      <div class="mrow"><button id="ms-save" class="primary">${t('maker.saveStage')}</button></div>
+      <div id="ms-msg" class="maker-msg"></div>
+      <div class="maker-list">${existing.map(n => `<div class="maker-item"><span class="mname">${n} agents</span><span class="msub">${m.solved && m.solved[n] ? t('maker.solved', escapeHtml(m.solved[n].solver)) : t('maker.unsolved')}</span><button data-n="${n}" class="ms-edit">✎</button><button data-n="${n}" class="ms-del">${t('maker.delStage')}</button></div>`).join('')}</div>`;
+    const free = Array.from(m.pattern, ch => ch === '.' ? 1 : 0);
+    const cv = $('mstage-canvas');
+    const redraw = () => {
+      drawMakerGrid(cv, m.w, m.h, free, (c, cs) => drawPlacements(c, cs, m.w, MK.starts, MK.goals));
+      $('ms-count').textContent = t('maker.placed', MK.starts.length, MK.stageN, MK.goals.length, MK.stageN);
+    };
+    const setMode = md => {
+      MK.place = md;
+      $('ms-start').className = md === 'start' ? 'on' : ''; $('ms-goal').className = md === 'goal' ? 'on' : ''; $('ms-erase').className = md === 'erase' ? 'on' : '';
+    };
+    setMode(MK.place); redraw();
+    $('ms-map').onchange = () => { MK.stageLid = +$('ms-map').value; MK.starts = []; MK.goals = []; renderMakerStage(body); };
+    $('ms-n').onchange = () => {
+      MK.stageN = Math.max(1, Math.min(m.pattern.split('@').join('').length, Math.floor(+$('ms-n').value) || 5));   // 上限は空きマス数
+      const st = (m.stages || {})[MK.stageN];
+      if (st) { MK.starts = Array.from(st.starts); MK.goals = Array.from(st.goals); }
+      else { MK.starts = MK.starts.slice(0, MK.stageN); MK.goals = MK.goals.slice(0, MK.stageN); }
+      redraw();
+    };
+    $('ms-start').onclick = () => setMode('start');
+    $('ms-goal').onclick = () => setMode('goal');
+    $('ms-erase').onclick = () => setMode('erase');
+    cv.onpointerdown = ev => {
+      const c = cellFromEvent(cv, ev, m.w, m.h); if (c < 0 || !free[c]) return;
+      if (MK.place === 'erase') { MK.starts = MK.starts.filter(v => v !== c); MK.goals = MK.goals.filter(v => v !== c); }
+      else if (MK.place === 'start') { if (!MK.starts.includes(c) && MK.starts.length < MK.stageN) MK.starts.push(c); }
+      else if (!MK.goals.includes(c) && MK.goals.length < MK.stageN) MK.goals.push(c);
+      redraw();
+    };
+    $('ms-random').onclick = () => {
+      const cells = []; for (let i = 0; i < free.length; ++i) if (free[i]) cells.push(i);
+      if (cells.length < MK.stageN) { const msg = $('ms-msg'); msg.className = 'maker-msg err'; msg.textContent = t('maker.needPlace', MK.stageN); return; }
+      const pick = () => { const a = cells.slice(); for (let i = a.length - 1; i > 0; --i) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, MK.stageN); };
+      MK.starts = pick(); MK.goals = pick();
+      redraw();
+    };
+    $('ms-save').onclick = () => {
+      const msg = $('ms-msg');
+      if (MK.starts.length !== MK.stageN || MK.goals.length !== MK.stageN) { msg.className = 'maker-msg err'; msg.textContent = t('maker.needPlace', MK.stageN); return; }
+      m.stages = m.stages || {};
+      m.stages[MK.stageN] = { starts: Array.from(MK.starts), goals: Array.from(MK.goals) };
+      m.solved = m.solved || {}; delete m.solved[MK.stageN];   // 配置を変えたら解き直し
+      m.published = null;
+      makerSave(d);
+      renderMakerStage(body);
+      const m2 = $('ms-msg'); m2.className = 'maker-msg good'; m2.textContent = t('maker.stageSaved', MK.stageN);
+    };
+    body.querySelectorAll('.ms-edit').forEach(b => b.onclick = () => {
+      MK.stageN = +b.dataset.n;
+      const st = m.stages[b.dataset.n];
+      MK.starts = Array.from(st.starts); MK.goals = Array.from(st.goals);
+      renderMakerStage(body);
+    });
+    body.querySelectorAll('.ms-del').forEach(b => b.onclick = () => {
+      delete m.stages[b.dataset.n];
+      if (m.solved) delete m.solved[b.dataset.n];
+      m.published = null;
+      makerSave(d);
+      renderMakerStage(body);
+    });
+  }
+
+  // ---- 自作問題を回答
+  function renderMakerSolve(body) {
+    const d = makerLoad();
+    const items = d.maps.filter(m => Object.keys(m.stages || {}).length);
+    if (!items.length) { body.innerHTML = `<div class="lb-msg">${t('maker.noStages')}</div>`; return; }
+    body.innerHTML = `<div class="maker-note">${t('maker.solveHint')}</div><div class="maker-list">` + items.map(m => {
+      const chips = Object.keys(m.stages).sort((a, b) => +a - +b).map(n =>
+        `<button class="chip msolve" data-lid="${m.lid}" data-n="${n}">${t('agents.unit', +n)}<span class="sc">${m.solved && m.solved[n] ? t('maker.solved', escapeHtml(m.solved[n].solver)) : t('maker.unsolved')}</span></button>`).join('');
+      return `<div class="maker-item"><span class="mname">${escapeHtml(m.name)}</span><span class="stagechips">${chips}</span></div>`;
+    }).join('') + '</div>';
+    body.querySelectorAll('.msolve').forEach(b => b.onclick = () => {
+      const m = makerMap(makerLoad(), +b.dataset.lid);
+      closeMaker();
+      showCustomGame(m, +b.dataset.n, { own: true });
+    });
+  }
+
+  // ---- 投稿
+  function renderMakerPublish(body) {
+    const d = makerLoad();
+    const items = d.maps.filter(m => Object.keys(m.stages || {}).length);
+    if (!items.length) { body.innerHTML = `<div class="lb-msg">${t('maker.noStages')}</div>`; return; }
+    if (!LB.configured()) { body.innerHTML = `<div class="lb-msg">${t('lb.notConfigured')}</div>`; return; }
+    if (!USER) {
+      body.innerHTML = `<div class="lb-msg">${t('maker.loginToPublish')}</div><div class="mrow"><button id="mp-login" class="primary">${t('auth.login')}</button></div>`;
+      $('mp-login').onclick = () => openAuth('login');
+      return;
+    }
+    const mine = S.ratings ? S.ratings.players.find(p => LB.nameKey(p.name) === LB.nameKey(USER.name)) : null;
+    const myRating = mine ? mine.rating : 0;
+    fetchRatings().then(() => { });   // 未取得なら次に開いたとき反映される
+    body.innerHTML = `<div class="maker-note">${t('maker.pubPublicDesc')}<br>${t('maker.pubWriterDesc')}</div><div class="maker-list">` + items.map(m => {
+      const ns = Object.keys(m.stages).sort((a, b) => +a - +b);
+      const allSolved = ns.every(n => m.solved && m.solved[n]);
+      let action;
+      if (m.published) action = `<span class="msub">${t('maker.publishedAs', m.published.kind)}</span>`;
+      else if (!allSolved) action = `<span class="msub">${t('maker.needAllSolved')}</span>`;
+      else action = `<label class="mfield"><input type="radio" name="kind-${m.lid}" value="public" checked> ${t('maker.pubPublic')}</label>
+        <label class="mfield"><input type="radio" name="kind-${m.lid}" value="writer" ${myRating >= 1800 ? '' : 'disabled'}> ${t('maker.pubWriter')}</label>
+        ${myRating >= 1800 ? '' : `<span class="msub">${t('maker.writerLocked', myRating || '-')}</span>`}
+        <button class="mpublish primary" data-lid="${m.lid}">${t('maker.publish')}</button>`;
+      return `<div class="maker-item"><span class="mname">${escapeHtml(m.name)}</span><span class="msub">${m.w}×${m.h} · [${ns.join(', ')}] agents</span>${action}</div>`;
+    }).join('') + `</div><div id="mp-msg" class="maker-msg"></div>`;
+    body.querySelectorAll('.mpublish').forEach(b => b.onclick = async () => {
+      const lid = +b.dataset.lid, m = makerMap(d, lid);
+      const kind = (body.querySelector(`input[name="kind-${lid}"]:checked`) || {}).value || 'public';
+      const msg = $('mp-msg');
+      b.disabled = true; msg.className = 'maker-msg'; msg.textContent = t('maker.publishing');
+      try {
+        const solutions = {};
+        for (const n of Object.keys(m.stages)) solutions[n] = { paths: m.solved[n].paths, solver: m.solved[n].solver };
+        const res = await LB.publish(USER.name, USER.token, kind, { name: m.name, w: m.w, h: m.h, pattern: m.pattern, stages: m.stages, solutions });
+        m.published = { kind, id: res.id };
+        makerSave(d);
+        S.customList = null; S.customAt = 0;
+        buildCustomCards();
+        renderMakerPublish(body);
+        const m2 = $('mp-msg'); m2.className = 'maker-msg good'; m2.textContent = t('maker.published', kind);
+      } catch (e) {
+        msg.className = 'maker-msg err'; msg.textContent = t('lb.error', String(e.message || e));
+        b.disabled = false;
+      }
+    });
+  }
+
+  // ---- 自作 / 公開ステージを遊ぶ
+  function showCustomGame(cm, N, opts) {
+    closeMaker();
+    $('home').classList.remove('show'); $('game').classList.add('show');
+    $('result').className = 'result';
+    try { loadCustomStage(cm, N, opts || {}); } catch (e) { setStatus(t('status.genFail', e.message), 'bad'); return; }
+    $('stage-title').innerHTML = escapeHtml(t('custom.stageTitle', S.custom.name, N)) + ` <span class="unrated-tag">${t('custom.unrated')}</span>`;
+  }
+  function loadCustomStage(cm, N, opts) {
+    const st = (cm.stages || {})[N] || (cm.stages || {})[String(N)];
+    if (!st) throw new Error('no stage');
+    const free = new Uint8Array(cm.w * cm.h);
+    for (let i = 0; i < cm.w * cm.h; ++i) free[i] = cm.pattern[i] === '.' ? 1 : 0;
+    S.custom = { name: cm.name, lid: cm.lid || null, pubId: opts.pubId || null, own: !!opts.own, author: cm.author || '' };
+    S.mapId = opts.pubId ? 'c' + opts.pubId : 'local_' + (cm.lid || 0);
+    S.N = N; S.seed = 0;
+    S.map = { w: cm.w, h: cm.h, free };
+    S.G = L.buildGraph(S.map);
+    S.starts = Array.from(st.starts); S.goals = Array.from(st.goals);
+    S.dist = S.goals.map(g => L.bfsDist(S.G, g));
+    S.paths = S.starts.map(s => [s]);
+    const wip = loadWip(S.mapId, N, S.starts, S.map);
+    if (wip) S.paths = wip;
+    S.sel = N > 0 ? 0 : -1; S.drag = null;
+    S.undo = []; S.redo = [];
+    S.mode = 'edit'; S.anim = null;
+    S.ref = null; S.refPaths = null; S.refState = '';
+    S.lb = { makespan: Math.max(...S.starts.map((s, i) => S.dist[i][s])), moves: S.starts.reduce((a, s, i) => a + S.dist[i][s], 0) };
+    S.best = readBest(S.mapId, N);
+    S.lastResult = null;
+    updateRefPanel(); updateChampInfo();
+    layout(); recompute(); renderAll();
+    setStatus(wip ? t('wip.restored') : t('status.stage', S.custom.name, N));
+    saveMsg('');
+  }
+
+  // custom ステージの結果表示 (ランク・difficulty なし)
+  function showCustomResult(m) {
+    const box = $('result');
+    const own = S.custom.own;
+    const solverForm = own
+      ? `<div class="mrow" style="justify-content:center"><label class="mfield">${t('maker.solverAsk')} <input id="solver-name" type="text" maxlength="40" value="${t('maker.solverDefault')}" style="width:11em"></label><button id="solver-save" class="primary">${t('maker.solverSave')}</button></div><div id="solver-msg" class="maker-msg"></div>`
+      : '';
+    const lbForm = !own && S.custom.pubId ? lbFormHtml() : '';
+    box.innerHTML = `<div class="rank">CLEAR<span class="unrated-tag">${t('custom.unrated')}</span></div>
+      <div>${t('result.makespan')} <b class="mono">${m.makespan}</b></div>
+      <div>${t('result.moves')} <b class="mono">${m.moves}</b></div>
+      ${solverForm}${lbForm}
+      <div class="row"><button id="res-gif">${t('btn.gif')}</button>${!own && S.custom.pubId ? `<button id="res-ranking">${t('btn.ranking')}</button>` : ''}</div>
+      <button id="result-close">${t('btn.close')}</button>`;
+    box.className = 'result show clear';
+    $('result-close').onclick = () => { box.className = 'result'; };
+    $('res-gif').onclick = () => exportGif();
+    const rb = $('res-ranking'); if (rb) rb.onclick = () => showRanking();
+    if (own) $('solver-save').onclick = () => {
+      const solver = ($('solver-name').value || '').replace(/\s+/g, ' ').trim().slice(0, 40) || t('maker.solverDefault');
+      const d = makerLoad(), mm = makerMap(d, S.custom.lid);
+      if (!mm) return;
+      mm.solved = mm.solved || {};
+      mm.solved[S.N] = { paths: S.paths.map(p => encodePath(L.trimPath(p))), solver, makespan: m.makespan, moves: m.moves };
+      makerSave(d);
+      const msg = $('solver-msg'); msg.className = 'maker-msg good'; msg.textContent = t('maker.solverSaved');
+      Sound.goal();
+    };
+    wireResultForm();
+  }
+
+  // ---- ホームの「みんなのステージ」
+  async function fetchCustomList() {
+    if (!LB.configured()) return [];
+    if (S.customList && Date.now() - S.customAt < 300000) return S.customList;
+    try { S.customList = await LB.customList(); S.customAt = Date.now(); } catch (e) { }
+    return S.customList || [];
+  }
+  async function buildCustomCards() {
+    const wrap = $('custom-cards'); if (!wrap) return;
+    const maps = await fetchCustomList();
+    if (!$('home').classList.contains('show')) return;
+    wrap.innerHTML = '';
+    if (!maps.length) { wrap.innerHTML = `<div class="sub">${t('custom.none')}</div>`; return; }
+    for (const m of maps.slice().reverse()) {
+      const card = document.createElement('div'); card.className = 'stage-card';
+      const pv = document.createElement('canvas');
+      const px = Math.max(2, Math.floor(96 / Math.max(m.w, m.h)));
+      pv.width = m.w * px; pv.height = m.h * px;
+      const c = pv.getContext('2d');
+      c.fillStyle = '#f4f1ea'; c.fillRect(0, 0, pv.width, pv.height);
+      c.fillStyle = '#3b3a37';
+      for (let i = 0; i < m.w * m.h; ++i) if (m.pattern[i] !== '.') c.fillRect((i % m.w) * px, ((i / m.w) | 0) * px, px, px);
+      card.appendChild(pv);
+      const info = document.createElement('div'); info.className = 'info';
+      info.innerHTML = `<div class="name">${escapeHtml(m.name)}<span class="unrated-tag">${t('custom.unrated')}</span></div><div class="byline">${t('custom.by', escapeHtml(m.author))}</div>`;
+      const chips = document.createElement('div'); chips.className = 'chips';
+      for (const n of Object.keys(m.stages).sort((a, b) => +a - +b)) {
+        const ch = document.createElement('button'); ch.className = 'chip';
+        ch.innerHTML = t('agents.unit', +n);
+        ch.onclick = () => { Sound.ensure(); Sound.select(); showCustomGame(m, +n, { pubId: m.id }); };
+        chips.appendChild(ch);
+      }
+      info.appendChild(chips); card.appendChild(info); wrap.appendChild(card);
+    }
+  }
+
+  // ---- 管理者の受信箱 (writer 応募)
+  async function showInbox() {
+    const ov = $('inbox'), body = $('inbox-body');
+    ov.classList.add('show');
+    body.innerHTML = `<div class="lb-msg">${t('lb.loading')}</div>`;
+    try {
+      const maps = await LB.inbox(USER.name, USER.token);
+      if (!maps.length) { body.innerHTML = `<div class="lb-msg">${t('inbox.empty')}</div>`; return; }
+      body.innerHTML = '';
+      for (const m of maps.slice().reverse()) {
+        const div = document.createElement('div'); div.className = 'maker-item';
+        const ns = Object.keys(m.stages).sort((a, b) => +a - +b);
+        const solvers = ns.map(n => `${n}: ${escapeHtml((m.solvers[n] || {}).solver || '?')} (${(m.solvers[n] || {}).makespan}/${(m.solvers[n] || {}).moves})`).join(' · ');
+        div.innerHTML = `<span class="mname">${escapeHtml(m.name)}</span>
+          <span class="msub">${t('inbox.item', escapeHtml(m.author), m.w, m.h)} · [${ns.join(', ')}] agents · ${new Date(m.ts).toLocaleString()}</span>
+          <span class="msub">${solvers}</span>`;
+        const dl = document.createElement('button'); dl.textContent = t('inbox.dl');
+        dl.onclick = () => {
+          const blob = new Blob([JSON.stringify(m, null, 1)], { type: 'application/json' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `writer-${m.id}-${m.name.replace(/[^\w-]/g, '_')}.json`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        };
+        div.appendChild(dl);
+        body.appendChild(div);
+      }
+    } catch (e) { body.innerHTML = `<div class="lb-msg err">${t('lb.error', escapeHtml(String(e.message || e)))}</div>`; }
+  }
+
+
   // ============================================================ UI wiring
   $('btn-home').addEventListener('click', showHome);
   $('btn-judge').addEventListener('click', judge);
@@ -1553,6 +2054,12 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-ranking').addEventListener('click', showRanking);
   $('rating-close').addEventListener('click', () => $('rating').classList.remove('show'));
   $('home-rating').addEventListener('click', () => { Sound.ensure(); showRatings(); });
+  $('btn-maker').addEventListener('click', () => { Sound.ensure(); openMaker(); });
+  $('maker-close').addEventListener('click', closeMaker);
+  for (const tb of ['map', 'stage', 'solve', 'publish']) $('mtab-' + tb).addEventListener('click', () => { MK.tab = tb; renderMaker(); });
+  $('maker').addEventListener('click', ev => { if (ev.target === $('maker')) closeMaker(); });
+  $('btn-inbox').addEventListener('click', () => { Sound.ensure(); showInbox(); });
+  $('inbox-close').addEventListener('click', () => $('inbox').classList.remove('show'));
   $('ranking-close').addEventListener('click', () => $('ranking').classList.remove('show'));
   $('btn-gif').addEventListener('click', exportGif);
   $('btn-tweet').addEventListener('click', tweet);
@@ -1582,5 +2089,5 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('speed').value = S.speed;
   applyLang();
   showHome();
-  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S, openAuth, setUser, user: () => USER, saveRoutes, applyRoutes, loadRoutesFile, _lbFormHtml: () => lbFormHtml(), _refreshResultForm: () => refreshResultForm() };
+  window.MAPF_GAME = { showGame, showHome, toggleLang, exportGif, submitScore, showRanking, tweet, rankOf, state: S, openAuth, setUser, user: () => USER, saveRoutes, applyRoutes, loadRoutesFile, _lbFormHtml: () => lbFormHtml(), _refreshResultForm: () => refreshResultForm(), openMaker, showCustomGame, buildCustomCards, showInbox };
 })();

@@ -209,6 +209,8 @@ function doGet(e) {
       var rlock = LockService.getScriptLock(); rlock.waitLock(20000);
       try { return json_(recomputeRatings_()); } finally { rlock.releaseLock(); }
     }
+    if (p.custom) return json_(customList_());
+    if (p.inbox) return json_(inbox_(p));
     var rows = readAll_();
     if (p.ratings) return json_(ratingsResponse_(rows));
     if (p.stage) {
@@ -238,6 +240,7 @@ function doPost(e) {
     if (action === 'register') return json_(doRegister_(body));
     if (action === 'login') return json_(doLogin_(body));
     if (action === 'submit') return json_(doSubmit_(body));
+    if (action === 'publish') return json_(doPublish_(body));
     return json_({ ok: false, error: 'unknown action' });
   } catch (err) { return json_({ ok: false, error: String(err) }); }
   finally { try { lock.releaseLock(); } catch (err) { } }
@@ -318,6 +321,8 @@ function record_(body, name, legacy) {
 // 解の検証: ステージのマップ・start/goal を再生成し, 経路の合法性と衝突を確認. スコアはここで計算する
 function validate_(body, name) {
   var stage = String(body.stage || '');
+  var cm = /^c(\d+):(\d+)$/.exec(stage);
+  if (cm) return customValidate_(+cm[1], +cm[2], body, name);   // ユーザー投稿マップ (maker.gs)
   var m = /^([a-z_][a-z0-9_]*):(\d+)$/.exec(stage);
   if (!m) return { ok: false, error: 'bad stage' };
   var def = null;

@@ -40,6 +40,9 @@
     <div id="notice" class="notice"></div>
     <h2 class="section-title" data-i18n="home.stages"></h2>
     <div id="stage-cards" class="stage-cards"></div>
+    <h2 class="section-title" data-i18n="home.custom"></h2>
+    <div class="row" style="margin:8px 0"><button id="btn-maker" class="primary" data-i18n="maker.open"></button><button id="btn-inbox" style="display:none" data-i18n="maker.inbox"></button></div>
+    <div id="custom-cards" class="stage-cards"></div>
     <h2 class="section-title" id="tutorial" data-i18n="home.howto"></h2>
     <div id="tutorial-home" class="tutorial"></div>
     <footer class="home-footer">© 2026 Hiroki Nagai · <a href="https://creativecommons.org/licenses/by-nd/4.0/" target="_blank" rel="noopener">CC BY-ND 4.0</a> (no modified redistribution / 改変版の再配布禁止) · <a href="https://github.com/HirokiNagai-39/human-mapf" target="_blank" rel="noopener">GitHub</a></footer>
@@ -122,6 +125,24 @@
   <div class="box">
     <div class="row" style="justify-content:space-between"><h2 id="ranking-title" style="margin:0"></h2><button id="ranking-close" data-i18n="btn.close"></button></div>
     <div id="ranking-body"></div>
+  </div>
+</div>
+<div id="maker" class="overlay">
+  <div class="box maker-box">
+    <div class="row" style="justify-content:space-between"><h2 id="maker-title" style="margin:0" data-i18n="maker.title"></h2><button id="maker-close" data-i18n="btn.close"></button></div>
+    <div class="maker-tabs">
+      <button id="mtab-map" data-i18n="maker.tabMap"></button>
+      <button id="mtab-stage" data-i18n="maker.tabStage"></button>
+      <button id="mtab-solve" data-i18n="maker.tabSolve"></button>
+      <button id="mtab-publish" data-i18n="maker.tabPublish"></button>
+    </div>
+    <div id="maker-body"></div>
+  </div>
+</div>
+<div id="inbox" class="overlay">
+  <div class="box">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0" data-i18n="maker.inbox"></h2><button id="inbox-close" data-i18n="btn.close"></button></div>
+    <div id="inbox-body"></div>
   </div>
 </div>
 <div id="rating" class="overlay">

@@ -85,5 +85,9 @@
     async register(name, password) { return request('POST', {}, { action: 'register', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
     async login(name, password) { return request('POST', {}, { action: 'login', name: sanitizeName(name), password }, AUTH_TIMEOUT_MS); },
     async submit(stage, name, token, paths) { return request('POST', {}, { action: 'submit', stage, name, token, paths, v: 2 }); },
+    // ステージメーカー: 投稿 (kind: 'public' | 'writer') / 公開マップ一覧 / 管理者の受信箱
+    async publish(name, token, kind, map) { return request('POST', {}, { action: 'publish', name, token, kind, map }); },
+    async customList() { const j = await request('GET', { custom: 1 }); return j.maps || []; },
+    async inbox(name, token) { const j = await request('GET', { inbox: 1, name, token }); return j.maps || []; },
   };
 })(typeof self !== 'undefined' ? self : this);
