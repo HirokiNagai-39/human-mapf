@@ -37,7 +37,13 @@ const TL_MS = 60000;
 // 解けそうなステージは控えめに始め, 成績によるフィードバック (計測値 ±600) で動けるようにする. 計測成分はそのまま残す.
 // 2026-08-30 ユーザー決定: Small tree は計測値 2411 / 3004 / 3241 → 1800 / 2000 / 2200 (計測の順序は保つ)
 const OVERRIDES = {
-  'small_tree_1:5': 1800, 'small_tree_2:5': 2000, 'small_tree_3:5': 2200 };
+  'small_tree_1:5': 1800, 'small_tree_2:5': 2000, 'small_tree_3:5': 2200,
+  // Big tree (m22) / Eighth note (2026-08-31): どちらも幅 1 の長い道を多数のペアが逆向きに通るため
+  // 狭路指標 C が較正範囲 (≤3.4) を大きく超え, 計測値が暴走する (note:20 で 1.1 万, big_tree:50 で 46 億).
+  // Small tree と同じ方針で控えめな単調列から始める. temple は計測値が穏当なので上書きしない
+  'big_tree:10': 1400, 'big_tree:20': 1700, 'big_tree:30': 2000, 'big_tree:40': 2300, 'big_tree:50': 2600,
+  'note:5': 600, 'note:10': 900, 'note:15': 1200, 'note:20': 1600, 'note:25': 2000,
+};
 
 function pava(v) {
   const blocks = v.map(x => ({ sum: x, n: 1 }));
