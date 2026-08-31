@@ -167,6 +167,18 @@ function customValidate_(mapId, N, body, name) {
 function customList_() {
   return { ok: true, maps: readCustom_().filter(function (m) { return m.kind === 'public'; }).map(function (m) { return stripCustom_(m, false); }) };
 }
+// GET ?unpublish=<id>&token=<BACKUP_TOKEN> — 投稿マップを非表示にする (行は監査用に残し status を 'deleted' に)
+function unpublish_(p) {
+  var sh = getCustomSheet_(), last = sh.getLastRow();
+  var id = Math.floor(+p.unpublish);
+  for (var row = 2; row <= last; ++row) {
+    if (+sh.getRange(row, 2).getValue() === id && String(sh.getRange(row, 11).getValue()) === 'ok') {
+      sh.getRange(row, 11).setValue('deleted');
+      return { ok: true, id: id };
+    }
+  }
+  return { ok: false, error: 'not found' };
+}
 function inbox_(p) {
   var key = nameKey_(p.name);
   var u = key ? findUser_(key) : null;
