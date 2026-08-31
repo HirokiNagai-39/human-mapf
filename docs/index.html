@@ -3070,7 +3070,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   function closeMaker() { $('maker').classList.remove('show'); }
   function isAdmin() { return !!USER && LB.nameKey(USER.name) === LB.nameKey('mech_39'); }
 
-  function agentColor(i) { return `hsl(${(i * 137.508) % 360}, 70%, 45%)`; }
+  function mkAgentColor(i) { return `hsl(${(i * 137.508) % 360}, 70%, 45%)`; }
   function drawMakerGrid(cv, w, h, free, extra) {
     const cs = Math.max(10, Math.min(32, Math.floor(Math.min(720 / w, 420 / h))));
     cv.width = w * cs; cv.height = h * cs;
@@ -3088,12 +3088,12 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     c.font = `700 ${fs}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
     goals.forEach((g, i) => {
       const x = (g % w) * cs, y = ((g / w) | 0) * cs;
-      c.strokeStyle = agentColor(i); c.lineWidth = 2; c.strokeRect(x + cs * 0.15, y + cs * 0.15, cs * 0.7, cs * 0.7);
-      c.fillStyle = agentColor(i); c.fillText(i + 1, x + cs / 2, y + cs / 2 + 1);
+      c.strokeStyle = mkAgentColor(i); c.lineWidth = 2; c.strokeRect(x + cs * 0.15, y + cs * 0.15, cs * 0.7, cs * 0.7);
+      c.fillStyle = mkAgentColor(i); c.fillText(i + 1, x + cs / 2, y + cs / 2 + 1);
     });
     starts.forEach((s, i) => {
       const x = (s % w) * cs + cs / 2, y = ((s / w) | 0) * cs + cs / 2;
-      c.fillStyle = agentColor(i); c.beginPath(); c.arc(x, y, cs * 0.34, 0, Math.PI * 2); c.fill();
+      c.fillStyle = mkAgentColor(i); c.beginPath(); c.arc(x, y, cs * 0.34, 0, Math.PI * 2); c.fill();
       c.fillStyle = '#fff'; c.fillText(i + 1, x, y + 1);
     });
   }
