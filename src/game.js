@@ -1325,7 +1325,7 @@
 
   async function decorateHomeChamps() {
     const c = await fetchChamps(); if (!c) return;
-    document.querySelectorAll('#stage-cards .chip[data-stage]').forEach(ch => {
+    document.querySelectorAll('#stage-cards .chip[data-stage], #custom-cards .chip[data-stage]').forEach(ch => {
       const b = c[ch.getAttribute('data-stage')];
       if (!b || !b.makespan || !b.moves || ch.querySelector('.crown')) return;
       const tot = b.total, totTip = tot ? t('champ.chipTotal', tot.name, tot.makespan, tot.moves, tot.makespan * tot.moves) : '';
@@ -2000,12 +2000,14 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
       const chips = document.createElement('div'); chips.className = 'chips';
       for (const n of Object.keys(m.stages).sort((a, b) => +a - +b)) {
         const ch = document.createElement('button'); ch.className = 'chip';
+        ch.setAttribute('data-stage', 'c' + m.id + ':' + n);
         ch.innerHTML = t('agents.unit', +n);
         ch.onclick = () => { Sound.ensure(); Sound.select(); showCustomGame(m, +n, { pubId: m.id }); };
         chips.appendChild(ch);
       }
       info.appendChild(chips); card.appendChild(info); wrap.appendChild(card);
     }
+    decorateHomeChamps();   // みんなのステージにも各部門 1 位の王冠を付ける
   }
 
   // ---- 管理者の受信箱 (writer 応募)
