@@ -941,6 +941,11 @@ function doGet(e) {
       var rlock = LockService.getScriptLock(); rlock.waitLock(20000);
       try { return json_(recomputeRatings_()); } finally { rlock.releaseLock(); }
     }
+    if (p.rename) {
+      var rnt = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
+      if (!rnt || !equalConst_(String(p.token || ''), String(rnt))) return json_({ ok: false, error: 'bad token' });
+      return json_(renameCustom_(p));
+    }
     if (p.unpublish) {
       var ut = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
       if (!ut || !equalConst_(String(p.token || ''), String(ut))) return json_({ ok: false, error: 'bad token' });
@@ -1454,6 +1459,21 @@ function unpublish_(p) {
     if (+sh.getRange(row, 2).getValue() === id && String(sh.getRange(row, 11).getValue()) === 'ok') {
       sh.getRange(row, 11).setValue('deleted');
       return { ok: true, id: id };
+    }
+  }
+  return { ok: false, error: 'not found' };
+}
+// GET ?rename=<id>&mapname=<新しい名前>&token=<BACKUP_TOKEN> — 投稿マップの名前を直す (16 文字切り詰めバグの修正用)
+function renameCustom_(p) {
+  var name = String(p.mapname || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, MAKER.MAX_NAME);
+  if (!name) return { ok: false, error: 'bad name' };
+  var sh = getCustomSheet_(), last = sh.getLastRow();
+  var id = Math.floor(+p.rename);
+  for (var row = 2; row <= last; ++row) {
+    if (+sh.getRange(row, 2).getValue() === id && String(sh.getRange(row, 11).getValue()) === 'ok') {
+      var old = String(sh.getRange(row, 4).getValue());
+      sh.getRange(row, 4).setValue(name);
+      return { ok: true, id: id, from: old, to: name };
     }
   }
   return { ok: false, error: 'not found' };

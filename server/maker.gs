@@ -180,6 +180,21 @@ function unpublish_(p) {
   }
   return { ok: false, error: 'not found' };
 }
+// GET ?rename=<id>&mapname=<新しい名前>&token=<BACKUP_TOKEN> — 投稿マップの名前を直す (16 文字切り詰めバグの修正用)
+function renameCustom_(p) {
+  var name = String(p.mapname || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, MAKER.MAX_NAME);
+  if (!name) return { ok: false, error: 'bad name' };
+  var sh = getCustomSheet_(), last = sh.getLastRow();
+  var id = Math.floor(+p.rename);
+  for (var row = 2; row <= last; ++row) {
+    if (+sh.getRange(row, 2).getValue() === id && String(sh.getRange(row, 11).getValue()) === 'ok') {
+      var old = String(sh.getRange(row, 4).getValue());
+      sh.getRange(row, 4).setValue(name);
+      return { ok: true, id: id, from: old, to: name };
+    }
+  }
+  return { ok: false, error: 'not found' };
+}
 function inbox_(p) {
   var key = nameKey_(p.name);
   var u = key ? findUser_(key) : null;

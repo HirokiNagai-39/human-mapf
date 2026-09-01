@@ -209,6 +209,11 @@ function doGet(e) {
       var rlock = LockService.getScriptLock(); rlock.waitLock(20000);
       try { return json_(recomputeRatings_()); } finally { rlock.releaseLock(); }
     }
+    if (p.rename) {
+      var rnt = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
+      if (!rnt || !equalConst_(String(p.token || ''), String(rnt))) return json_({ ok: false, error: 'bad token' });
+      return json_(renameCustom_(p));
+    }
     if (p.unpublish) {
       var ut = PropertiesService.getScriptProperties().getProperty('BACKUP_TOKEN');
       if (!ut || !equalConst_(String(p.token || ''), String(ut))) return json_({ ok: false, error: 'bad token' });
