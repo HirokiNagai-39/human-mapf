@@ -326,6 +326,9 @@ ul#agents li .ok { margin-left: 4px; }
         <div class="row">
           <button id="btn-judge" class="primary" data-i18n="btn.judge"></button>
           <button id="btn-stop" disabled data-i18n="btn.stop"></button>
+          <button id="btn-step-back" data-i18n="btn.stepBack"></button>
+          <button id="btn-step-fwd" data-i18n="btn.stepFwd"></button>
+          <button id="btn-edit-here" disabled data-i18n="btn.editHere"></button>
           <span id="anim-t"></span>
         </div>
         <div class="row" style="margin-top:6px">
@@ -1489,6 +1492,7 @@ window.CONFIG = {
       'judge.hasCol': '衝突があります ({0} 件, 最初は t={1}) — 再生します…',
       'judge.running': '採点中…',
       'judge.colFail': '不正解: t={0} で衝突 (× 印). 経路を修正してください.',
+      'btn.stepBack': '◀ 1手', 'btn.stepFwd': '1手 ▶', 'btn.editHere': '✂ ここから作り直す', 'judge.editHere': 't={0} までで経路を切り詰めました。続きをどうぞ',
       'judge.ok': '正解! makespan {0} / total distance {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
       'result.diamond': '両指標で参考解 ({0}) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
@@ -1662,6 +1666,7 @@ window.CONFIG = {
       'judge.hasCol': '{0} collision(s), first at t={1} — replaying…',
       'judge.running': 'Judging…',
       'judge.colFail': 'Incorrect: collision at t={0} (marked ×). Fix the paths.',
+      'btn.stepBack': '◀ 1 step', 'btn.stepFwd': '1 step ▶', 'btn.editHere': '✂ Edit from here', 'judge.editHere': 'Paths trimmed to t={0} - keep going',
       'judge.ok': 'Correct! makespan {0} / distance {1}', 'judge.refPart': ' (reference {0} / {1})', 'judge.lbPart': ' [lower bound {0} / {1}]', 'judge.newBest': ' — new best!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '({2}% of ref {0}, LB {1})', 'result.newBest': '★ New best',
       'result.diamond': 'Matched or beat the reference ({0}) on both metrics — top rank!', 'result.platinum': 'Within 110% of the reference on both metrics. DIAMOND is close',
@@ -2343,6 +2348,8 @@ window.CONFIG = {
     if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
     if (!$('game').classList.contains('show')) return;
     if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); $('maker').classList.remove('show'); $('inbox').classList.remove('show'); } return; }
+    if (S.mode === 'play' && (ev.key === 'ArrowRight' || ev.key === '.')) { ev.preventDefault(); stepAnim(1); return; }
+    if (S.mode === 'play' && (ev.key === 'ArrowLeft' || ev.key === ',')) { ev.preventDefault(); stepAnim(-1); return; }
     if (S.mode !== 'edit') return;
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); if (ev.shiftKey) doRedo(); else doUndo(); return; }
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); doRedo(); return; }
@@ -2368,28 +2375,55 @@ window.CONFIG = {
 
   // ============================================================ judge / animation
   function judge() {
+    if (S.mode === 'play') {   // コマ送りで一時停止中なら再開
+      const a = S.anim;
+      if (a && a.paused) { a.paused = false; a.last = performance.now(); $('btn-judge').disabled = true; $('btn-edit-here').disabled = true; requestAnimationFrame(animTick); }
+      return;
+    }
+    startRun(false);
+  }
+  // 再生の開始. 未到達の経路があっても「衝突するか、全員が止まるまで」再生する (正解扱いにはしない).
+  // paused=true はコマ送り用: t=0 で停止した状態から始める
+  function startRun(paused) {
     if (S.mode !== 'edit') return;
     Sound.ensure();
     if (S.drag) endDrag(false);
     recompute();
     const notDone = S.paths.map((p, i) => p[p.length - 1] === S.goals[i] ? -1 : i).filter(i => i >= 0);
-    if (notDone.length) {
-      Sound.error();
-      setStatus(t('judge.notDone', notDone.map(i => i + 1).join(', ')), 'bad');
-      select(notDone[0]);
-      return;
-    }
     const fail = S.collisions.count > 0;
     const failT = fail ? Math.min(...S.collisions.list.map(c => c.t)) : null;
     S.mode = 'play';
-    S.anim = { t: 0, last: performance.now(), failT, end: fail ? failT : S.metrics.makespan, arrived: new Set(), paths: S.paths, isRef: false, makespan: S.metrics.makespan };
-    $('btn-judge').disabled = true; $('btn-stop').disabled = false;
-    setStatus(fail ? t('judge.hasCol', S.collisions.count, failT) : t('judge.running'), fail ? 'bad' : '');
-    requestAnimationFrame(animTick);
+    S.anim = { t: 0, last: performance.now(), failT, end: fail ? failT : S.metrics.makespan, arrived: new Set(), paths: S.paths, isRef: false, makespan: S.metrics.makespan,
+      notDone: notDone.length ? notDone : null, paused: !!paused, finished: false };
+    $('btn-judge').disabled = !paused; $('btn-stop').disabled = false; $('btn-edit-here').disabled = !paused;
+    if (fail) setStatus(t('judge.hasCol', S.collisions.count, failT), 'bad');
+    else if (notDone.length) setStatus(t('judge.notDone', notDone.map(i => i + 1).join(', ')), 'bad');
+    else setStatus(t('judge.running'), '');
+    $('anim-t').textContent = `t = ${(0).toFixed(1)} / ${S.anim.makespan}`;
+    if (paused) draw(); else requestAnimationFrame(animTick);
+  }
+  // 1 手ずつのコマ送り. 編集中に ▶ を押すと t=0 で一時停止した再生に入る. 再生中に押すと一時停止して 1 手動く
+  function stepAnim(dir) {
+    if (S.mode === 'edit') {
+      if (dir < 0) return;
+      startRun(true);
+      return;
+    }
+    const a = S.anim; if (!a) return;
+    if (!a.paused) { a.paused = true; $('btn-judge').disabled = false; $('btn-edit-here').disabled = false; }
+    a.t = Math.max(0, Math.min(a.end, Math.round(a.t) + dir));
+    for (let i = 0; i < S.N; ++i) {
+      const arriveT = L.trimPath(a.paths[i]).length - 1;
+      if (a.t >= arriveT && arriveT > 0) a.arrived.add(i); else a.arrived.delete(i);
+    }
+    Sound.tick();
+    $('anim-t').textContent = `t = ${a.t.toFixed(1)} / ${a.makespan}`;
+    draw();
+    if (dir > 0 && a.t >= a.end) finishAnim();
   }
 
   function animTick(now) {
-    const a = S.anim; if (!a || S.mode !== 'play') return;
+    const a = S.anim; if (!a || S.mode !== 'play' || a.paused) return;
     const dt = (now - a.last) / 1000; a.last = now;
     const prevT = a.t;
     a.t = Math.min(a.end, a.t + dt * S.speed);
@@ -2406,10 +2440,18 @@ window.CONFIG = {
 
   function finishAnim() {
     const a = S.anim;
+    if (a.finished) return;
+    a.finished = true;
     if (a.failT != null) {
       Sound.error(); draw();
       setStatus(t('judge.colFail', a.failT), 'bad');
-      setTimeout(() => { if (S.mode === 'play') stopAnim(); }, 1500);
+      setTimeout(() => { if (S.mode === 'play' && !(S.anim && S.anim.paused)) stopAnim(); }, 1500);
+      return;
+    }
+    if (a.notDone) {
+      Sound.error(); draw();
+      setStatus(t('judge.notDone', a.notDone.map(i => i + 1).join(', ')), 'bad');
+      setTimeout(() => { if (S.mode === 'play' && !(S.anim && S.anim.paused)) stopAnim(); }, 1500);
       return;
     }
     const m = S.metrics; const rk = rankOf(m), rank = rk.rank;
@@ -2432,8 +2474,20 @@ window.CONFIG = {
 
   function stopAnim() {
     S.mode = 'edit'; S.anim = null;
-    $('btn-judge').disabled = false; $('btn-stop').disabled = true; $('anim-t').textContent = '';
+    $('btn-judge').disabled = false; $('btn-stop').disabled = true; $('btn-edit-here').disabled = true; $('anim-t').textContent = '';
     renderAll();
+  }
+
+  // コマ送りで止めた時刻から経路を作り直す: 各経路を t 手までに切り詰めて編集モードへ (undo 可)
+  function editFromHere() {
+    const a = S.anim; if (S.mode !== 'play' || !a || !a.paused) return;
+    const tt = Math.round(a.t);
+    snapshot();
+    S.paths = S.paths.map(p => p.slice(0, Math.min(p.length, tt + 1)));
+    stopAnim();
+    recompute(); renderAll();
+    setStatus(t('judge.editHere', tt), '');
+    Sound.select();
   }
 
   function showResult(rank, m, better, rk) {
@@ -3487,6 +3541,9 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-home').addEventListener('click', showHome);
   $('btn-judge').addEventListener('click', judge);
   $('btn-stop').addEventListener('click', stopAnim);
+  $('btn-step-back').addEventListener('click', () => stepAnim(-1));
+  $('btn-step-fwd').addEventListener('click', () => stepAnim(1));
+  $('btn-edit-here').addEventListener('click', editFromHere);
   $('btn-undo').addEventListener('click', doUndo);
   $('btn-redo').addEventListener('click', doRedo);
   $('btn-clear-agent').addEventListener('click', () => { if (S.sel < 0 || S.mode !== 'edit') return; snapshot(); S.paths[S.sel] = [S.starts[S.sel]]; Sound.undo(); recompute(); renderAll(); });
