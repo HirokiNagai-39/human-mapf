@@ -54,7 +54,8 @@ function checkCustomMap_(body) {
   if (!(w >= MAKER.MIN_WH && w <= MAKER.MAX_WH && h >= MAKER.MIN_WH && h <= MAKER.MAX_WH)) return { error: 'bad size' };
   var pattern = String(mp.pattern || '');
   if (pattern.length !== w * h || /[^.@]/.test(pattern)) return { error: 'bad pattern' };
-  var name = cleanName_(mp.name).slice(0, MAKER.MAX_NAME);
+  // マップ名: cleanName_ はプレイヤー名用 (16 文字で切る) なので使わない
+  var name = String(mp.name || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, MAKER.MAX_NAME);
   if (!name) return { error: 'bad map name' };
   var free = [];
   for (var i = 0; i < w * h; ++i) free.push(pattern.charAt(i) === '.' ? 1 : 0);
