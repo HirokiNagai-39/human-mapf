@@ -44,6 +44,10 @@ function ahcRating_(ps) {
 function computeRatings_(rows) {
   var D0 = {}, st;
   for (st in DIFFICULTY) D0[st] = DIFFICULTY[st].d0;
+  // writer 採用マップ: 作者自身の成績は par (人間ベスト) には効くが, レーティング計算からは除外する
+  var AUTH = {};
+  MAPS.MAP_DEFS.forEach(function (d) { if (d.author) AUTH[d.id] = nameKey_(String(d.author)); });
+  var isWriterOwn_ = function (s) { var a = AUTH[s.stage.split(':')[0]]; return a != null && a === nameKey_(s.name); };
   // 自己ベスト (総合 = makespan × distance)
   var best = {};
   rows.forEach(function (r) {
@@ -59,8 +63,10 @@ function computeRatings_(rows) {
     s.y = clamp_(1 - Math.log(s.r) / Math.log(RT.YZERO), 0, 1);
     s.yFb = clamp_(1 - Math.log(s.r) / Math.LN2, 0, 1);
   });
+  // 作者自身の成績を除外 (上の par 計算には含めている)
+  var rsubs = subs.filter(function (s) { return !isWriterOwn_(s); });
   var byStage = {}, byPlayer = {};
-  subs.forEach(function (s) { (byStage[s.stage] = byStage[s.stage] || []).push(s); (byPlayer[s.name] = byPlayer[s.name] || []).push(s); });
+  rsubs.forEach(function (s) { (byStage[s.stage] = byStage[s.stage] || []).push(s); (byPlayer[s.name] = byPlayer[s.name] || []).push(s); });
   var players = Object.keys(byPlayer);
   var D = {}, R = {}, ability = {};
   for (st in D0) D[st] = D0[st];

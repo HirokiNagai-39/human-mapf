@@ -1108,6 +1108,10 @@ ul#agents li .ok { margin-left: 4px; }
   const NOTE =
     '@@@@@@@@@.@@@@@@@@@@@@@@@...@@@@@@@@@@@@@.@..@@@@@@@@@@@@.@@..@@@@@@@@@@@.@@@.@@@@@@@@@@@.@@@..@@@@@@@@@@.@@@@.@@@@@@@@@@.@@@..@@@@@@@@@@.@@@.@@@@@@@@@@@.@@@@@@@@@.......@@@@@@@@.........@@@@@@..........@@@@@@..........@@@@@@@.........@@@@@@@@.......@@@@@@';
 
+  // Rotation (writer: through さん): 5x5 の壁を一周する幅 1 のリング + 右上の突起 1 マス (自由マス 25)
+  const ROTATION =
+    '@@@@@@.@' + '.......@' + '.@@@@@.@' + '.@@@@@.@' + '.@@@@@.@' + '.@@@@@.@' + '.@@@@@.@' + '.......@';
+
   // 障害物は固定 (乱数 seed も固定). start / goal は (map, N) ごとに固定 seed で生成する
   const STAGE_AGENTS = [10, 20, 30, 40, 50];
   const MAP_DEFS = [
@@ -1126,6 +1130,13 @@ ul#agents li .ok { margin-left: 4px; }
     { id: 'big_tree', name: 'Big tree', gen: () => fromPattern(BIG_TREE, 20, 20), agents: STAGE_AGENTS, refSolver: 'LaCAM3' },
     { id: 'temple', name: 'Temple', gen: () => fromPattern(TEMPLE, 15, 25), agents: STAGE_AGENTS, refSolver: 'LaCAM3' },
     { id: 'note', name: 'Eighth note', gen: () => fromPattern(NOTE, 16, 16), agents: [5, 10, 15, 20, 25], refSolver: 'LaCAM3' },
+    // writer 応募 (through さん, 2026-08-31): リング + 突起 1 マス. start/goal は投稿された手動配置で固定
+    { id: 'rotation', name: 'Rotation', author: 'through', gen: () => fromPattern(ROTATION, 8, 8), agents: [5, 10, 20], refSolver: 'LaCAM3',
+      instances: {
+        5:  { starts: [57, 56, 32, 46, 12], goals: [62, 59, 48, 24, 14] },
+        10: { starts: [58, 32, 10, 11, 57, 38, 59, 54, 24, 46], goals: [62, 46, 6, 12, 58, 40, 60, 13, 16, 61] },
+        20: { starts: [38, 13, 9, 6, 54, 14, 32, 61, 8, 22, 58, 56, 57, 16, 48, 12, 30, 40, 62, 11], goals: [8, 22, 11, 48, 54, 6, 40, 46, 60, 24, 12, 9, 10, 62, 59, 58, 30, 16, 13, 32] },
+      } },
   ];
 
   function getMap(id) {
