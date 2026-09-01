@@ -52,6 +52,11 @@ function verify(key, e) {
   const map = M.getMap(id), G = L.buildGraph(map);
   const ins = M.getInstance(id, N, G);
   if (String(ins.starts) !== String(e.starts) || String(ins.goals) !== String(e.goals)) return 'start/goal が現在の生成結果と違う (マップかシードが変わった)';
+  if (e.paths == null) {
+    // writer 採用ステージ: 作者の人力スコアのみ (経路は投稿検証後に破棄済み). 経路検証はできない
+    if (!(e.makespan >= e.lb.makespan && e.moves >= e.lb.moves)) return 'スコアが下限より小さい';
+    return null;
+  }
   if (e.paths.length !== N) return '経路の本数が ' + e.paths.length + ' で N=' + N + ' と違う';
   const paths = [];
   for (let i = 0; i < N; ++i) {

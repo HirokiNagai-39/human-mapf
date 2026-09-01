@@ -19,7 +19,7 @@
  * 再計算は「最終投稿よりシートが古く, かつ前回の再計算から RECOMPUTE_MIN 分以上経った」GET のときに行う (トリガー不要)
  */
 var RATING_SHEET = 'ratings', STAGE_SHEET = 'stagestats';
-var RT = { KAPPA: 200, YZERO: 2.25, OFFSET: 300, TAU: 300, DCLAMP: 600, RELCLAMP: 500, DECAY: 0.9,
+var RT = { KAPPA: 200, YZERO: 2.25, OFFSET: 300, TAU: 300, DCLAMP: 1200, RELCLAMP: 500, DECAY: 0.9,
   S_AHC: 724.4744301, R_AHC: 0.8271973364, ITER: 40, RECOMPUTE_MIN: 10 };
 var LN6 = Math.log(6);
 
