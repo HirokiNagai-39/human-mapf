@@ -695,6 +695,15 @@
     return d.gen();
   }
 
+  // ステージのインスタンス (start/goal). def.instances に固定配置があればそれを使い (writer 採用ステージ),
+  // 無ければ従来どおり stageSeed から生成する
+  function getInstance(id, N, G) {
+    const d = MAP_DEFS.find(x => x.id === id);
+    const fixed = d && d.instances && d.instances[N];
+    if (fixed) return { starts: Int32Array.from(fixed.starts), goals: Int32Array.from(fixed.goals) };
+    return L.generateInstance(G, N, stageSeed(id, N));
+  }
+
   // (map, N) ごとの固定 seed
   function stageSeed(id, N) {
     const d = MAP_DEFS.find(x => x.id === id);
@@ -710,7 +719,7 @@
     return s;
   }
 
-  return { MAP_DEFS, STAGE_AGENTS, getMap, stageSeed, toText, isConnected, tutorial, empty, random, room, maze, warehouse, hourglass, bremen };
+  return { MAP_DEFS, STAGE_AGENTS, getMap, getInstance, stageSeed, toText, isConnected, tutorial, empty, random, room, maze, warehouse, hourglass, bremen };
 });
 
 /* reference.js — 自動生成 (tools/precompute.js). 各ステージの LNS2 参考解. paths は U/D/L/R/W の 1 文字/ステップ */
@@ -1075,7 +1084,7 @@ function validate_(body, name) {
   if (!name) return { ok: false, error: 'bad name' };
   if (!Array.isArray(body.paths) || body.paths.length !== N) return { ok: false, error: 'bad paths' };
   var map = MAPS.getMap(def.id), G = LNS2.buildGraph(map);
-  var ins = LNS2.generateInstance(G, N, MAPS.stageSeed(def.id, N));
+  var ins = MAPS.getInstance(def.id, N, G);
   var paths = [];
   for (var i = 0; i < N; ++i) {
     var s = String(body.paths[i]);

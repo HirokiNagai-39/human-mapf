@@ -477,7 +477,7 @@
     S.mapId = mapId; S.N = N; S.seed = M.stageSeed(mapId, N);
     S.map = M.getMap(mapId);
     S.G = L.buildGraph(S.map);
-    const ins = L.generateInstance(S.G, N, S.seed);
+    const ins = M.getInstance(mapId, N, S.G);
     S.starts = ins.starts; S.goals = ins.goals;
     S.dist = S.goals.map(g => L.bfsDist(S.G, g));
     S.paths = S.starts.map(s => [s]);

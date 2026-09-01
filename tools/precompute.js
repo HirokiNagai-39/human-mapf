@@ -50,7 +50,7 @@ function verify(key, e) {
   if (!def) return 'マップ ' + id + ' が MAP_DEFS にない';
   if (!def.agents.includes(N)) return N + ' agents が MAP_DEFS にない';
   const map = M.getMap(id), G = L.buildGraph(map);
-  const ins = L.generateInstance(G, N, M.stageSeed(id, N));
+  const ins = M.getInstance(id, N, G);
   if (String(ins.starts) !== String(e.starts) || String(ins.goals) !== String(e.goals)) return 'start/goal が現在の生成結果と違う (マップかシードが変わった)';
   if (e.paths.length !== N) return '経路の本数が ' + e.paths.length + ' で N=' + N + ' と違う';
   const paths = [];
@@ -75,7 +75,7 @@ function verify(key, e) {
 function solveStage(id, N) {
   const map = M.getMap(id), G = L.buildGraph(map);
   const seed = M.stageSeed(id, N);
-  const { starts, goals } = L.generateInstance(G, N, seed);
+  const { starts, goals } = M.getInstance(id, N, G);
   let best = null, lb = null, tried = 0, solved = 0;
   for (let k = 0; k < SEEDS; ++k) {
     const S = new L.Solver(G, starts, goals, seed + k * 1000003);

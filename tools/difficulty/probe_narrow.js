@@ -10,7 +10,7 @@ const out = {};
 const ONLY_MAPS = process.env.DIFF_ONLY ? new Set(process.env.DIFF_ONLY.split(',')) : null;
 for (const d of M.MAP_DEFS) if (!ONLY_MAPS || ONLY_MAPS.has(d.id)) for (const N of d.agents) {
   const map = M.getMap(d.id), G = L.buildGraph(map);
-  const ins = L.generateInstance(G, N, M.stageSeed(d.id, N));
+  const ins = M.getInstance(d.id, N, G);
   const deg = c => G.nbrCnt[c] - 1;   // nbr[0] は自分自身
   // 「幅 1 の通路」= 隣接 2 以下で, かつ障害物に接しているマス (マップ外周の角は除く. 小さいマップで外周が誤って該当するのを防ぐ)
   const hasObstacle = c => { const x = c % map.w, y = (c / map.w) | 0;

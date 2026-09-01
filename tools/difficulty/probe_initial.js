@@ -10,7 +10,7 @@ const TL = 60000, SEEDS = [0, 1, 2, 3, 4, 5, 6, 7], PAR = 8;
 
 function instance(id, N) {
   const map = M.getMap(id), G = L.buildGraph(map);
-  const ins = L.generateInstance(G, N, M.stageSeed(id, N));
+  const ins = M.getInstance(id, N, G);
   return { map, G, ...ins };
 }
 

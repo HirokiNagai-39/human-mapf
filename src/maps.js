@@ -195,6 +195,15 @@
     return d.gen();
   }
 
+  // ステージのインスタンス (start/goal). def.instances に固定配置があればそれを使い (writer 採用ステージ),
+  // 無ければ従来どおり stageSeed から生成する
+  function getInstance(id, N, G) {
+    const d = MAP_DEFS.find(x => x.id === id);
+    const fixed = d && d.instances && d.instances[N];
+    if (fixed) return { starts: Int32Array.from(fixed.starts), goals: Int32Array.from(fixed.goals) };
+    return L.generateInstance(G, N, stageSeed(id, N));
+  }
+
   // (map, N) ごとの固定 seed
   function stageSeed(id, N) {
     const d = MAP_DEFS.find(x => x.id === id);
@@ -210,5 +219,5 @@
     return s;
   }
 
-  return { MAP_DEFS, STAGE_AGENTS, getMap, stageSeed, toText, isConnected, tutorial, empty, random, room, maze, warehouse, hourglass, bremen };
+  return { MAP_DEFS, STAGE_AGENTS, getMap, getInstance, stageSeed, toText, isConnected, tutorial, empty, random, room, maze, warehouse, hourglass, bremen };
 });

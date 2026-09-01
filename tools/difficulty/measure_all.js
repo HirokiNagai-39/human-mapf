@@ -16,7 +16,7 @@ for (const d of M.MAP_DEFS) if (!ONLY_MAPS || ONLY_MAPS.has(d.id)) for (const N 
 const jobs = [];
 for (const [id, N] of stages) {
   const map = M.getMap(id), G = L.buildGraph(map);
-  const ins = L.generateInstance(G, N, M.stageSeed(id, N));
+  const ins = M.getInstance(id, N, G);
   const name = `ma_${id}_${N}`;
   writeMap(map, name); writeScen(map, ins.starts, ins.goals, name, name);
   for (const s of SEEDS) jobs.push({ st: `${id}:${N}`, N, name, s, out: `${TMP}/${name}.s${s}.out.txt` });

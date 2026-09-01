@@ -343,7 +343,7 @@ function validate_(body, name) {
   if (!name) return { ok: false, error: 'bad name' };
   if (!Array.isArray(body.paths) || body.paths.length !== N) return { ok: false, error: 'bad paths' };
   var map = MAPS.getMap(def.id), G = LNS2.buildGraph(map);
-  var ins = LNS2.generateInstance(G, N, MAPS.stageSeed(def.id, N));
+  var ins = MAPS.getInstance(def.id, N, G);
   var paths = [];
   for (var i = 0; i < N; ++i) {
     var s = String(body.paths[i]);
