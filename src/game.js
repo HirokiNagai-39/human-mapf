@@ -48,7 +48,7 @@
       'judge.hasCol': '衝突があります ({0} 件, 最初は t={1}) — 再生します…',
       'judge.running': '採点中…',
       'judge.colFail': '不正解: t={0} で衝突 (× 印). 経路を修正してください.',
-      'btn.stepBack': '◀ 1手', 'btn.stepFwd': '1手 ▶', 'btn.editHere': '✂ ここから作り直す', 'judge.editHere': 't={0} までで経路を切り詰めました。続きをどうぞ', 'confirm.editHere': 't={0} より後の経路をすべて破棄して、ここから作り直します。よろしいですか？ (Undo で戻せます)',
+      'btn.editHere': '✂ ここから作り直す', 'judge.editHere': 't={0} までで経路を切り詰めました。続きをどうぞ', 'confirm.editHere': 't={0} より後の経路をすべて破棄して、ここから作り直します。よろしいですか？ (Undo で戻せます)',
       'judge.ok': '正解! makespan {0} / total distance {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
       'result.diamond': '両指標で参考解 ({0}) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
@@ -222,7 +222,7 @@
       'judge.hasCol': '{0} collision(s), first at t={1} — replaying…',
       'judge.running': 'Judging…',
       'judge.colFail': 'Incorrect: collision at t={0} (marked ×). Fix the paths.',
-      'btn.stepBack': '◀ 1 step', 'btn.stepFwd': '1 step ▶', 'btn.editHere': '✂ Edit from here', 'judge.editHere': 'Paths trimmed to t={0} - keep going', 'confirm.editHere': 'Discard everything after t={0} and rebuild from here? (Undo can restore it)',
+      'btn.editHere': '✂ Edit from here', 'judge.editHere': 'Paths trimmed to t={0} - keep going', 'confirm.editHere': 'Discard everything after t={0} and rebuild from here? (Undo can restore it)',
       'judge.ok': 'Correct! makespan {0} / distance {1}', 'judge.refPart': ' (reference {0} / {1})', 'judge.lbPart': ' [lower bound {0} / {1}]', 'judge.newBest': ' — new best!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '({2}% of ref {0}, LB {1})', 'result.newBest': '★ New best',
       'result.diamond': 'Matched or beat the reference ({0}) on both metrics — top rank!', 'result.platinum': 'Within 110% of the reference on both metrics. DIAMOND is close',
@@ -904,8 +904,8 @@
     if (ev.target && (ev.target.tagName === 'INPUT' || ev.target.tagName === 'SELECT' || ev.target.tagName === 'TEXTAREA')) return;
     if (!$('game').classList.contains('show')) return;
     if (ev.key === 'Escape') { if (S.mode === 'play') stopAnim(); else { $('help').classList.remove('show'); $('ranking').classList.remove('show'); $('rating').classList.remove('show'); $('maker').classList.remove('show'); $('inbox').classList.remove('show'); } return; }
-    if (S.mode === 'play' && (ev.key === 'ArrowRight' || ev.key === '.')) { ev.preventDefault(); stepAnim(1); return; }
-    if (S.mode === 'play' && (ev.key === 'ArrowLeft' || ev.key === ',')) { ev.preventDefault(); stepAnim(-1); return; }
+    if (S.mode === 'play' && (ev.key === 'ArrowRight' || ev.key === '.')) { ev.preventDefault(); if (S.anim) seekAnim(Math.round(S.anim.t) + 1, true); return; }
+    if (S.mode === 'play' && (ev.key === 'ArrowLeft' || ev.key === ',')) { ev.preventDefault(); if (S.anim) seekAnim(Math.round(S.anim.t) - 1, false); return; }
     if (S.mode !== 'edit') return;
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'z') { ev.preventDefault(); if (ev.shiftKey) doRedo(); else doUndo(); return; }
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'y') { ev.preventDefault(); doRedo(); return; }
@@ -933,7 +933,10 @@
   function judge() {
     if (S.mode === 'play') {   // コマ送りで一時停止中なら再開
       const a = S.anim;
-      if (a && a.paused) { a.paused = false; a.last = performance.now(); $('btn-judge').disabled = true; $('btn-edit-here').disabled = true; requestAnimationFrame(animTick); }
+      if (a && a.paused) {
+        if (a.t >= a.end) { a.t = 0; a.arrived.clear(); a.finished = false; }   // 終端からはもう一度最初から
+        a.paused = false; a.last = performance.now(); $('btn-judge').disabled = true; $('btn-edit-here').disabled = true; requestAnimationFrame(animTick);
+      }
       return;
     }
     startRun(false);
@@ -957,16 +960,6 @@
     else setStatus(t('judge.running'), '');
     setAnimT(0, S.anim.makespan);
     if (paused) draw(); else requestAnimationFrame(animTick);
-  }
-  // 1 手ずつのコマ送り. 編集中に ▶ を押すと t=0 で一時停止した再生に入る. 再生中に押すと一時停止して 1 手動く
-  function stepAnim(dir) {
-    if (S.mode === 'edit') {
-      if (dir < 0) return;
-      startRun(true);
-      return;
-    }
-    const a = S.anim; if (!a) return;
-    seekAnim(Math.round(a.t) + dir, dir > 0);
   }
   // 指定の手数へジャンプ (一時停止する). 数値入力とコマ送りの共通処理
   function seekAnim(tt, allowFinish) {
@@ -1011,16 +1004,18 @@
     const a = S.anim;
     if (a.finished) return;
     a.finished = true;
+    // 終端で一時停止して待機する (「経路計画に戻る」を押すまで編集へは戻らない)
+    const hold = () => { a.paused = true; $('btn-judge').disabled = false; $('btn-edit-here').disabled = false; setAnimT(a.t, a.makespan); };
     if (a.failT != null) {
       Sound.error(); draw();
       setStatus(t('judge.colFail', a.failT), 'bad');
-      setTimeout(() => { if (S.mode === 'play' && !(S.anim && S.anim.paused)) stopAnim(); }, 1500);
+      hold();
       return;
     }
     if (a.notDone) {
       Sound.error(); draw();
       setStatus(t('judge.notDone', a.notDone.map(i => i + 1).join(', ')), 'bad');
-      setTimeout(() => { if (S.mode === 'play' && !(S.anim && S.anim.paused)) stopAnim(); }, 1500);
+      hold();
       return;
     }
     const m = S.metrics; const rk = rankOf(m), rank = rk.rank;
@@ -1038,7 +1033,8 @@
     setStatus(msg, 'good');
     S.lastResult = { makespan: m.makespan, moves: m.moves, rank, paths: S.paths.map(p => encodePath(L.trimPath(p))), rankMakespan: null, rankMoves: null };
     showResult(rank, m, better, rk);
-    setTimeout(() => { if (S.mode === 'play') stopAnim(); }, 800);
+    const a2 = S.anim;
+    if (a2) { a2.paused = true; $('btn-judge').disabled = false; $('btn-edit-here').disabled = false; setAnimT(a2.t, a2.makespan); }
   }
 
   function stopAnim() {
@@ -2112,10 +2108,8 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-home').addEventListener('click', showHome);
   $('btn-judge').addEventListener('click', judge);
   $('btn-stop').addEventListener('click', stopAnim);
-  $('btn-step-back').addEventListener('click', () => stepAnim(-1));
-  $('btn-step-fwd').addEventListener('click', () => stepAnim(1));
   $('btn-edit-here').addEventListener('click', editFromHere);
-  $('anim-t-in').addEventListener('change', () => { const v = Math.floor(+$('anim-t-in').value); if (!isNaN(v)) seekAnim(v, false); });
+  for (const evName of ['change', 'input']) $('anim-t-in').addEventListener(evName, () => { const v = Math.floor(+$('anim-t-in').value); if (!isNaN(v)) seekAnim(v, true); });
   $('anim-t-in').addEventListener('keydown', ev => { ev.stopPropagation(); if (ev.key === 'Enter') { ev.preventDefault(); $('anim-t-in').blur(); } });
   $('btn-undo').addEventListener('click', doUndo);
   $('btn-redo').addEventListener('click', doRedo);
