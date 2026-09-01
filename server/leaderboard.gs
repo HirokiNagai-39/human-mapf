@@ -135,9 +135,9 @@ function legacyInfo_(namekey) {
 // ---------------------------------------------------------------- ダンプ (バックアップ用)
 var DUMP_MAX = 500;
 function dump_(sheetName, from, limit) {
-  var users = sheetName === USERS_SHEET;
-  var sh = users ? getUsers_() : getSheet_();
-  var cols = users ? USER_COLS : 6;
+  var users = sheetName === USERS_SHEET, custom = sheetName === CUSTOM_SHEET;
+  var sh = users ? getUsers_() : custom ? getCustomSheet_() : getSheet_();
+  var cols = users ? USER_COLS : custom ? CUSTOM_COLS.length : 6;
   var last = sh.getLastRow();
   var total = Math.max(0, last - 1);
   from = Math.max(0, Math.floor(from) || 0);
@@ -146,6 +146,7 @@ function dump_(sheetName, from, limit) {
   var vals = n ? sh.getRange(2 + from, 1, n, cols).getValues() : [];
   var rows = vals.map(function (r) {
     if (users) return { name: String(r[0]), namekey: String(r[1]), salt: String(r[2]), hash: String(r[3]), iter: +r[4], tokenSalt: String(r[5]), serial: +r[6], created: +r[7], lastLogin: +r[8], fail: +r[9], failUntil: +r[10], legacy: !!r[11] };
+    if (custom) return { ts: +r[0], id: +r[1], kind: String(r[2]), name: String(r[3]), author: String(r[4]), w: +r[5], h: +r[6], pattern: String(r[7]), stages: JSON.parse(String(r[8]) || '{}'), solvers: JSON.parse(String(r[9]) || '{}'), status: String(r[10]) };
     return { ts: +r[0], stage: String(r[1]), name: String(r[2]), makespan: +r[3], moves: +r[4], paths: String(r[5]).split(',') };
   });
   var next = from + rows.length;
@@ -184,7 +185,7 @@ function doGet(e) {
       if (!tok) return json_({ ok: false, error: 'dump disabled' });
       if (!equalConst_(String(p.token || ''), String(tok))) return json_({ ok: false, error: 'bad token' });
       var sheet = String(p.sheet || SHEET_NAME);
-      if (sheet !== SHEET_NAME && sheet !== USERS_SHEET) return json_({ ok: false, error: 'bad sheet' });
+      if (sheet !== SHEET_NAME && sheet !== USERS_SHEET && sheet !== CUSTOM_SHEET) return json_({ ok: false, error: 'bad sheet' });
       return json_(dump_(sheet, +p.from || 0, +p.limit || DUMP_MAX));
     }
     if (p.bench) {
