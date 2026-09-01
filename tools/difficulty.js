@@ -46,7 +46,7 @@ const OVERRIDES = {
   // Rotation (writer: through さん, 2026-09-01 採用): リング + 退避 1 マス. LaCAM3 は N=10 が 900 秒 (逆向きのみ),
   // N=20 は解けず, LNS2 も N≥10 で失敗 → 計測パイプラインが使えない. 参考記録は作者の人力解 (経路なし).
   // src/difficulty.js には d0 のみのエントリを手動で追加してある (成分なし. --check は上書き表で整合を見る)
-  'rotation:5': 600, 'rotation:10': 1600, 'rotation:20': 2400,
+  'rotation:5': 1200, 'rotation:10': 2200, 'rotation:20': 2800,   // 2026-09-01 ユーザー決定
 };
 
 function pava(v) {
