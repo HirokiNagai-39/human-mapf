@@ -211,7 +211,8 @@
   function getInstance(id, N, G) {
     const d = MAP_DEFS.find(x => x.id === id);
     const fixed = d && d.instances && d.instances[N];
-    if (fixed) return { starts: Int32Array.from(fixed.starts), goals: Int32Array.from(fixed.goals) };
+    // 通常の配列で返す (L.generateInstance と同じ型に合わせる. 型付き配列だと .map の結果が数値に潰れる)
+    if (fixed) return { starts: fixed.starts.slice(), goals: fixed.goals.slice() };
     return L.generateInstance(G, N, stageSeed(id, N));
   }
 
