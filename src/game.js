@@ -17,7 +17,7 @@
       'home.howto': '遊び方',
       'sound.on': '🔊 効果音 ON', 'sound.off': '🔇 効果音 OFF',
       'btn.home': '← ホーム', 'btn.help': '? 遊び方', 'btn.close': '閉じる',
-      'btn.judge': '▶ 採点 (Enter)', 'btn.stop': '■ 停止 (Esc)',
+      'btn.judge': '▶ 採点 (Enter)', 'btn.stop': '経路計画に戻る (Esc)',
       'label.speed': '再生速度', 'unit.speed': '{0} step/s',
       'card.score': 'スコア', 'card.edit': '編集', 'card.agents': 'エージェント',
       'btn.save': '💾 経路を保存', 'btn.load': '📂 経路を読み込み',
@@ -191,7 +191,7 @@
       'home.howto': 'How to play',
       'sound.on': '🔊 Sound ON', 'sound.off': '🔇 Sound OFF',
       'btn.home': '← Home', 'btn.help': '? How to play', 'btn.close': 'Close',
-      'btn.judge': '▶ Submit (Enter)', 'btn.stop': '■ Stop (Esc)',
+      'btn.judge': '▶ Submit (Enter)', 'btn.stop': 'Back to planning (Esc)',
       'label.speed': 'Playback speed', 'unit.speed': '{0} step/s',
       'card.score': 'Score', 'card.edit': 'Edit', 'card.agents': 'Agents',
       'btn.save': '💾 Save routes', 'btn.load': '📂 Load routes',
@@ -955,7 +955,7 @@
     if (fail) setStatus(t('judge.hasCol', S.collisions.count, failT), 'bad');
     else if (notDone.length) setStatus(t('judge.notDone', notDone.map(i => i + 1).join(', ')), 'bad');
     else setStatus(t('judge.running'), '');
-    $('anim-t').textContent = `t = ${(0).toFixed(1)} / ${S.anim.makespan}`;
+    setAnimT(0, S.anim.makespan);
     if (paused) draw(); else requestAnimationFrame(animTick);
   }
   // 1 手ずつのコマ送り. 編集中に ▶ を押すと t=0 で一時停止した再生に入る. 再生中に押すと一時停止して 1 手動く
@@ -966,16 +966,29 @@
       return;
     }
     const a = S.anim; if (!a) return;
+    seekAnim(Math.round(a.t) + dir, dir > 0);
+  }
+  // 指定の手数へジャンプ (一時停止する). 数値入力とコマ送りの共通処理
+  function seekAnim(tt, allowFinish) {
+    const a = S.anim; if (!a || S.mode !== 'play') return;
     if (!a.paused) { a.paused = true; $('btn-judge').disabled = false; $('btn-edit-here').disabled = false; }
-    a.t = Math.max(0, Math.min(a.end, Math.round(a.t) + dir));
+    a.t = Math.max(0, Math.min(a.end, Math.round(tt)));
     for (let i = 0; i < S.N; ++i) {
       const arriveT = L.trimPath(a.paths[i]).length - 1;
       if (a.t >= arriveT && arriveT > 0) a.arrived.add(i); else a.arrived.delete(i);
     }
     Sound.tick();
-    $('anim-t').textContent = `t = ${a.t.toFixed(1)} / ${a.makespan}`;
+    setAnimT(a.t, a.makespan);
     draw();
-    if (dir > 0 && a.t >= a.end) finishAnim();
+    if (allowFinish && a.t >= a.end) finishAnim();
+  }
+  // 手数表示: 入力欄 (再生中は自動更新, 入力中は上書きしない)
+  function setAnimT(tt, max) {
+    const wrap = $('anim-t'), inp = $('anim-t-in');
+    wrap.style.display = '';
+    inp.disabled = false; inp.max = max;
+    if (document.activeElement !== inp) inp.value = Math.floor(tt);
+    $('anim-t-max').textContent = max;
   }
 
   function animTick(now) {
@@ -988,7 +1001,7 @@
       const arriveT = L.trimPath(a.paths[i]).length - 1;
       if (!a.arrived.has(i) && a.t >= arriveT && arriveT > 0) { a.arrived.add(i); if (a.failT == null) Sound.goal(); }
     }
-    $('anim-t').textContent = `t = ${a.t.toFixed(1)} / ${a.makespan}`;
+    setAnimT(a.t, a.makespan);
     draw();
     if (a.t >= a.end) { finishAnim(); return; }
     requestAnimationFrame(animTick);
@@ -1030,7 +1043,8 @@
 
   function stopAnim() {
     S.mode = 'edit'; S.anim = null;
-    $('btn-judge').disabled = false; $('btn-stop').disabled = true; $('btn-edit-here').disabled = true; $('anim-t').textContent = '';
+    $('btn-judge').disabled = false; $('btn-stop').disabled = true; $('btn-edit-here').disabled = true;
+    $('anim-t').style.display = 'none'; $('anim-t-in').value = ''; $('anim-t-in').disabled = true;
     renderAll();
   }
 
@@ -2100,6 +2114,8 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   $('btn-step-back').addEventListener('click', () => stepAnim(-1));
   $('btn-step-fwd').addEventListener('click', () => stepAnim(1));
   $('btn-edit-here').addEventListener('click', editFromHere);
+  $('anim-t-in').addEventListener('change', () => { const v = Math.floor(+$('anim-t-in').value); if (!isNaN(v)) seekAnim(v, false); });
+  $('anim-t-in').addEventListener('keydown', ev => { ev.stopPropagation(); if (ev.key === 'Enter') { ev.preventDefault(); $('anim-t-in').blur(); } });
   $('btn-undo').addEventListener('click', doUndo);
   $('btn-redo').addEventListener('click', doRedo);
   $('btn-clear-agent').addEventListener('click', () => { if (S.sel < 0 || S.mode !== 'edit') return; snapshot(); S.paths[S.sel] = [S.starts[S.sel]]; Sound.undo(); recompute(); renderAll(); });
