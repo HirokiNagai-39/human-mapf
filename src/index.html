@@ -68,10 +68,12 @@
         <div class="row">
           <button id="btn-judge" class="primary" data-i18n="btn.judge"></button>
           <button id="btn-stop" disabled data-i18n="btn.stop"></button>
+        </div>
+        <div class="row" style="margin-top:6px">
           <button id="btn-step-back" data-i18n="btn.stepBack"></button>
+          <span id="anim-t" class="mono" style="display:none">t = <input id="anim-t-in" type="number" min="0" step="1" style="width:56px;font-size:13px;padding:2px 4px;border:1px solid #999;border-radius:4px" disabled> / <span id="anim-t-max">-</span></span>
           <button id="btn-step-fwd" data-i18n="btn.stepFwd"></button>
           <button id="btn-edit-here" disabled data-i18n="btn.editHere"></button>
-          <span id="anim-t" class="mono" style="display:none">t = <input id="anim-t-in" type="number" min="0" step="1" style="width:56px;font-size:13px;padding:2px 4px;border:1px solid #999;border-radius:4px" disabled> / <span id="anim-t-max">-</span></span>
         </div>
         <div class="row" style="margin-top:6px">
           <label><span data-i18n="label.speed"></span> <input id="speed" type="range" min="1" max="12" step="1"> <span id="speed-val"></span></label>

@@ -48,7 +48,7 @@
       'judge.hasCol': '衝突があります ({0} 件, 最初は t={1}) — 再生します…',
       'judge.running': '採点中…',
       'judge.colFail': '不正解: t={0} で衝突 (× 印). 経路を修正してください.',
-      'btn.stepBack': '◀ 1手', 'btn.stepFwd': '1手 ▶', 'btn.editHere': '✂ ここから作り直す', 'judge.editHere': 't={0} までで経路を切り詰めました。続きをどうぞ',
+      'btn.stepBack': '◀ 1手', 'btn.stepFwd': '1手 ▶', 'btn.editHere': '✂ ここから作り直す', 'judge.editHere': 't={0} までで経路を切り詰めました。続きをどうぞ', 'confirm.editHere': 't={0} より後の経路をすべて破棄して、ここから作り直します。よろしいですか？ (Undo で戻せます)',
       'judge.ok': '正解! makespan {0} / total distance {1}', 'judge.refPart': ' (参考解 {0} / {1})', 'judge.lbPart': ' [下界 {0} / {1}]', 'judge.newBest': ' — ベスト更新!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '(参考 {0} の {2}%, 下界 {1})', 'result.newBest': '★ ベスト更新',
       'result.diamond': '両指標で参考解 ({0}) と同等以上! 最高ランク', 'result.platinum': '両指標で参考解の 110% 以内. あと少しで DIAMOND',
@@ -222,7 +222,7 @@
       'judge.hasCol': '{0} collision(s), first at t={1} — replaying…',
       'judge.running': 'Judging…',
       'judge.colFail': 'Incorrect: collision at t={0} (marked ×). Fix the paths.',
-      'btn.stepBack': '◀ 1 step', 'btn.stepFwd': '1 step ▶', 'btn.editHere': '✂ Edit from here', 'judge.editHere': 'Paths trimmed to t={0} - keep going',
+      'btn.stepBack': '◀ 1 step', 'btn.stepFwd': '1 step ▶', 'btn.editHere': '✂ Edit from here', 'judge.editHere': 'Paths trimmed to t={0} - keep going', 'confirm.editHere': 'Discard everything after t={0} and rebuild from here? (Undo can restore it)',
       'judge.ok': 'Correct! makespan {0} / distance {1}', 'judge.refPart': ' (reference {0} / {1})', 'judge.lbPart': ' [lower bound {0} / {1}]', 'judge.newBest': ' — new best!',
       'result.makespan': 'makespan', 'result.moves': 'total distance', 'result.refLb': '({2}% of ref {0}, LB {1})', 'result.newBest': '★ New best',
       'result.diamond': 'Matched or beat the reference ({0}) on both metrics — top rank!', 'result.platinum': 'Within 110% of the reference on both metrics. DIAMOND is close',
@@ -1052,6 +1052,7 @@
   function editFromHere() {
     const a = S.anim; if (S.mode !== 'play' || !a || !a.paused) return;
     const tt = Math.round(a.t);
+    if (!confirm(t('confirm.editHere', tt))) return;
     snapshot();
     S.paths = S.paths.map(p => p.slice(0, Math.min(p.length, tt + 1)));
     stopAnim();
