@@ -47,6 +47,9 @@ const OVERRIDES = {
   // N=20 は解けず, LNS2 も N≥10 で失敗 → 計測パイプラインが使えない. 参考記録は作者の人力解 (経路なし).
   // src/difficulty.js には d0 のみのエントリを手動で追加してある (成分なし. --check は上書き表で整合を見る)
   'rotation:5': 1200, 'rotation:10': 2200, 'rotation:20': 2800,   // 2026-09-01 ユーザー決定
+  // Sunflower (2026-09-01): 全面幅 1 (リング + 花びらの行き止まり) で狭路指標 C が較正範囲外になるため計測しない.
+  // LNS2 は 25 台以上で失敗, LaCAM3 は 50 台まで解ける. 控えめな単調列から始める (d0 のみのエントリ)
+  'sunflower:10': 1000, 'sunflower:20': 1400, 'sunflower:30': 1800, 'sunflower:40': 2200, 'sunflower:50': 2600,
 };
 
 function pava(v) {
