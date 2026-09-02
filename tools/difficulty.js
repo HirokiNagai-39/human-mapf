@@ -50,6 +50,9 @@ const OVERRIDES = {
   // Sunflower (2026-09-01): 全面幅 1 (リング + 花びらの行き止まり) で狭路指標 C が較正範囲外になるため計測しない.
   // LNS2 は 25 台以上で失敗, LaCAM3 は 50 台まで解ける. 控えめな単調列から始める (d0 のみのエントリ)
   'sunflower:10': 1000, 'sunflower:20': 1400, 'sunflower:30': 1800, 'sunflower:40': 2200, 'sunflower:50': 2600,
+  // Power button (writer: Hori04): 計測値 3335 は高すぎ (ユーザー判断, 2026-09-03). LNS2 全滅 + 下界比 5 倍が
+  // 効いた値だが, 63 マスの小盤面で人間は試行錯誤できるため控えめに始める
+  'power_button:16': 2400,
 };
 
 function pava(v) {
