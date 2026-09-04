@@ -247,3 +247,8 @@ ul#agents li .ok { margin-left: 4px; }
 /* ---- 経路データの保存 / 読み込み ---- */
 .save-msg { font-size: 11px; color: #555; margin-top: 5px; min-height: 1em; word-break: break-all; }
 .save-msg.err { color: #c62828; }
+
+/* レーティングボタン下の仕組みドキュメントへのリンク */
+.topbar-sub { display: flex; justify-content: flex-end; margin-top: 4px; }
+.topbar-sub .doc-link { font-size: 13px; color: #2f6fe0; text-decoration: none; }
+.topbar-sub .doc-link:hover { text-decoration: underline; }
