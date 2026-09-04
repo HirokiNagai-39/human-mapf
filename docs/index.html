@@ -1684,6 +1684,8 @@ window.CONFIG = {
       'maker.random': '🎲 ランダム一括生成', 'maker.saveStage': 'ステージ保存', 'maker.delStage': '削除',
       'maker.placed': 'スタート {0}/{1} · ゴール {2}/{3}',
       'maker.stageSaved': '{0} agents のステージを保存しました。「自作問題を回答」で解いてください',
+      'maker.stageLimit': '1 マップに作成できるステージは 5 つまでです',
+      'maker.tooManyStages': '1マップあたりに作成できるステージは5つまでです．',
       'maker.needPlace': 'スタートとゴールを {0} 個ずつ置いてください (空きマスも {0} 個以上必要です)',
       'maker.noMaps': 'まだマップがありません。「マップ作成」から作ってください',
       'maker.noStages': 'ステージがありません。「マップ作成」→「ステージ作成」の順に作ってください',
@@ -1858,6 +1860,8 @@ window.CONFIG = {
       'maker.mapChanged': 'The map changed, so all recorded solutions were reset',
       'maker.selectMap': 'Map', 'maker.agents': 'agents',
       'maker.modeStart': 'Place starts', 'maker.modeGoal': 'Place goals', 'maker.modeErase': 'Erase',
+      'maker.stageLimit': 'Up to 5 stages per map.',
+      'maker.tooManyStages': 'You can create at most 5 stages per map.',
       'maker.random': '🎲 Randomize all', 'maker.saveStage': 'Save stage', 'maker.delStage': 'Delete',
       'maker.placed': 'starts {0}/{1} · goals {2}/{3}',
       'maker.stageSaved': 'Saved the {0}-agent stage. Solve it under "Solve mine"',
@@ -3395,6 +3399,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
         <span class="mode-btns"><button id="ms-start">${t('maker.modeStart')}</button><button id="ms-goal">${t('maker.modeGoal')}</button><button id="ms-erase">${t('maker.modeErase')}</button></span>
         <button id="ms-random">${t('maker.random')}</button>
       </div>
+      <div class="maker-note">${t('maker.stageLimit')}</div>
       <canvas id="mstage-canvas"></canvas>
       <div id="ms-count" class="maker-note"></div>
       <div class="mrow"><button id="ms-save" class="primary">${t('maker.saveStage')}</button></div>
@@ -3440,6 +3445,8 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
       const msg = $('ms-msg');
       if (MK.starts.length !== MK.stageN || MK.goals.length !== MK.stageN) { msg.className = 'maker-msg err'; msg.textContent = t('maker.needPlace', MK.stageN); return; }
       m.stages = m.stages || {};
+      // 上限 5 ステージ (server/maker.gs の MAKER.MAX_STAGES と合わせる). 既存ステージの上書きは可
+      if (!m.stages[MK.stageN] && Object.keys(m.stages).length >= 5) { msg.className = 'maker-msg err'; msg.textContent = t('maker.tooManyStages'); return; }
       m.stages[MK.stageN] = { starts: Array.from(MK.starts), goals: Array.from(MK.goals) };
       m.solved = m.solved || {}; delete m.solved[MK.stageN];   // 配置を変えたら解き直し
       m.published = null;
