@@ -76,6 +76,7 @@
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
       'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3', 'map.big_tree': 'Big tree', 'map.temple': 'Temple', 'map.note': 'Eighth note', 'map.rotation': 'Rotation', 'map.sunflower': 'Sunflower', 'map.power_button': 'Power button', 'map.clock': 'Clock', 'map.lattice': 'Lattice',
+      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9',
       // アカウント
       'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
       'auth.titleLogin': 'ログイン', 'auth.titleRegister': '新規登録',
@@ -166,6 +167,7 @@
       'desc.rotation': 'writer: through',
       'desc.sunflower': 'ひまわり．',
       'desc.power_button': 'writer: Hori04', 'desc.clock': 'writer: sigtuna', 'desc.lattice': 'writer: ku',
+      'desc.ceo': 'writer: occhan', 'desc.crab': 'writer: miku_hatsune', 'desc.packed2x9': 'writer: Hori04',
       // tutorial
       't1.h': '1. 目的',
       't1.p': '丸 (エージェント) を、同じ番号・同じ色の四角 (ゴール) まで動かす<b>経路</b>を全員分作ります。時刻 t=0 から始まり、各時刻に全員が同時に 1 手ずつ動きます。全員が衝突なくゴールに着けば正解。<b>makespan</b> (全員がゴールに着く時刻) と <b>total distance</b> (総移動距離: 待機を除く移動回数の合計) が小さいほど高評価です。',
@@ -256,6 +258,7 @@
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
       'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3', 'map.big_tree': 'Big tree', 'map.temple': 'Temple', 'map.note': 'Eighth note', 'map.rotation': 'Rotation', 'map.sunflower': 'Sunflower', 'map.power_button': 'Power button', 'map.clock': 'Clock', 'map.lattice': 'Lattice',
+      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9',
       // account
       'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
       'auth.titleLogin': 'Log in', 'auth.titleRegister': 'Sign up',
@@ -346,6 +349,7 @@
       'desc.rotation': 'writer: through',
       'desc.sunflower': 'A sunflower.',
       'desc.power_button': 'writer: Hori04', 'desc.clock': 'writer: sigtuna', 'desc.lattice': 'writer: ku',
+      'desc.ceo': 'writer: occhan', 'desc.crab': 'writer: miku_hatsune', 'desc.packed2x9': 'writer: Hori04',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
       't2.h': '2. One step', 't2.move': 'Move 1 cell up/down/left/right', 't2.wait': 'Wait in place (shown as ● on the path)', 't2.p': 'No diagonal moves. Black cells are obstacles. Turning straight back (A→B→A) is allowed (dragging back onto the previous cell undoes the step, so use the arrow keys, or release and drag again, to enter a backward move).',

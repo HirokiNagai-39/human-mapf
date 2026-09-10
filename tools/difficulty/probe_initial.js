@@ -6,7 +6,7 @@
 const fs = require('fs'), { fork } = require('child_process');
 const L = require('../../src/lns2.js');
 const M = require('../../src/maps.js');
-const TL = 60000, SEEDS = [0, 1, 2, 3, 4, 5, 6, 7], PAR = 8;
+const TL = 60000, SEEDS = [0, 1, 2, 3, 4, 5, 6, 7], PAR = +(process.env.DIFF_PAR || 8);   // 並列数は DIFF_PAR で変えられる
 
 function instance(id, N) {
   const map = M.getMap(id), G = L.buildGraph(map);

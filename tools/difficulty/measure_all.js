@@ -7,7 +7,7 @@ const M = require('../../src/maps.js');
 const { writeMap, writeScen } = require('./lacam.js');
 const BIN = process.env.LACAM3 || '/Users/hirokinagai/Desktop/lacam3/build/main';
 const TMP = process.env.DIFF_TMP || (__dirname + '/lacam_tmp');
-const T = 60, SEEDS = [0, 1, 2], PAR = 8;
+const T = 60, SEEDS = [0, 1, 2], PAR = +(process.env.DIFF_PAR || 8);   // 並列数は DIFF_PAR で変えられる
 
 const stages = [];
 const ONLY_MAPS = process.env.DIFF_ONLY ? new Set(process.env.DIFF_ONLY.split(',')) : null;
