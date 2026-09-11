@@ -252,3 +252,6 @@ ul#agents li .ok { margin-left: 4px; }
 .topbar-sub { display: flex; justify-content: flex-end; margin-top: 4px; }
 .topbar-sub .doc-link { font-size: 13px; color: #2f6fe0; text-decoration: none; }
 .topbar-sub .doc-link:hover { text-decoration: underline; }
+
+/* お知らせ内の強調 (開催期間など) */
+.notice .hot { color: #c0392b; }

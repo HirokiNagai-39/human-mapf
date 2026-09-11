@@ -38,7 +38,7 @@
       'agent.optimal': '最短', 'agent.dist': '移動 {0} 手 / 最短 {1} 手',
       'card.agentsHint': '座標は (x, y)。<b>x は下方向 (行)、y は右方向 (列)</b>。左上が (0, 0)',
       'card.agentsLegend': '右端は<b>移動手数 / 最短手数</b>。盤面で選択中のマスの色は <b class="lg opt">緑=最短で移動中</b> · <b class="lg over">橙=遠回り</b> · <b class="lg">灰=未着手</b>',
-      'stage.title': '{0} — {1} agents', 'status.stage': 'ステージ: {0} / {1} agents', 'status.genFail': 'ステージ生成に失敗: {0}',
+      'stage.title': '{0} — {1}', 'status.stage': 'ステージ: {0} / {1}', 'status.genFail': 'ステージ生成に失敗: {0}',
       'ref.running': '参考解 (LNS2) 計算中… <span class="mono">{0} iter</span>',
       'ref.ok': '参考解 ({2}): makespan <b class="mono">{0}</b> / total distance <b class="mono">{1}</b>',
       'ref.fail': '参考解 (LNS2): 見つかりませんでした',
@@ -57,7 +57,7 @@
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (参考解比, 両指標)',
       'confirm.clearAll': '全エージェントの経路を消去しますか?',
       'card.share': 'ランキング / 共有', 'btn.ranking': '🏆 ランキング', 'btn.gif': '🎞 GIF を保存', 'btn.tweet': '𝕏 にポスト',
-      'lb.title': '🏆 ランキング — {0} / {1} agents', 'lb.makespan': '⏱️ makespan 部門', 'lb.moves': '👣 total distance 部門', 'lb.total': '👑 総合部門',
+      'lb.title': '🏆 ランキング — {0} / {1}', 'lb.makespan': '⏱️ makespan 部門', 'lb.moves': '👣 total distance 部門', 'lb.total': '👑 総合部門',
       'lb.totalNote': 'makespan × total distance の積が小さいほど上位',
       'lb.rank': '順位', 'lb.name': '名前', 'lb.loading': '読み込み中…', 'lb.error': 'ランキングを取得できませんでした ({0})',
       'lb.empty': 'まだ登録がありません。最初の 1 人になろう!', 'lb.players': '{0} 人が登録',
@@ -76,7 +76,7 @@
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
       'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3', 'map.big_tree': 'Big tree', 'map.temple': 'Temple', 'map.note': 'Eighth note', 'map.rotation': 'Rotation', 'map.sunflower': 'Sunflower', 'map.power_button': 'Power button', 'map.clock': 'Clock', 'map.lattice': 'Lattice',
-      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9',
+      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9', 'map.contest001': 'HMC001',
       // アカウント
       'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
       'auth.titleLogin': 'ログイン', 'auth.titleRegister': '新規登録',
@@ -107,10 +107,14 @@
       'auth.sessionExpired': 'ログインし直してください',
       'wip.restored': '解きかけの経路を復元しました (やり直すには「全消去」)',
       // ホームのお知らせ
-      'notice.date': '2026-08-31',
-      'notice.title': 'ステージメーカーを追加しました',
-      'notice.lead': '「作問」からステージを作成し、自分で解けた問題は公開できます。公開された問題は <b>unrated</b>（difficulty なし・レート変動なし・ランクなし。ランキングは付きます）で、「みんなのステージ」に並びます。',
-      'notice.i1': '<b>writer の募集</b>: rating 1800 以上の方は、ステージメーカーで問題の「writer として応募」ができます。採用された場合は運営が difficulty を設定し、<b>rated</b> の問題として出題されます。すでに一般公開したステージは応募できません',
+      'notice.date': '2026-09-11',
+      'notice.title': 'Human MAPF Contest 001 を開催します!',
+      'notice.lead': '<b>ルール</b>: 期間内に通常通りプレイして総合スコアを競います．マップは 1 つ，ステージは Div.1 (高難度) と Div.2 があります．ステージはコンテスト開始後に公開します．<br><b>開催期間</b>: <b class="hot">9/11 12:00 〜 9/13 12:00</b><br><b>賞金</b>: Div.1 総合部門 1 位 / Div.2 総合部門 1 位 に Amazon ギフトカード 1000 円',
+      'notice.i1': 'ステージはコンテスト後も rated で残ります．',
+      'notice.i2': '生成 AI，計算機 (プログラミング) の使用は禁止です．お絵描きツールとしての使用は許容されます．',
+      'notice.i3': '9/11 8:00 時点でレーティングが青色以上の方は Div.2 の賞金受対象にはなりません．水色以下で総合部門 1 位の方が Div.2 の賞金対象となります．また，水色以下の方が Div.1 と Div.2 の両方で優勝した場合，Div.1 の優勝者とし Div.2 の賞金対象を繰り上げます．ここで言う水色以下とは現在アカウント未作成の方も含みます．',
+      'notice.i4': '同率はこれまで通り提出時刻が早い人が上位になります．',
+      'notice.i5': '賞金対象となった方は，何らかの証拠 (自分のアカウント名でログインしている様子など) を添付して X の DM 等でご連絡ください．',
       'notice.loggedIn': '{0} としてログイン中です。',
       'notice.close': '閉じる',
       'notice.reopen': 'お知らせ',
@@ -168,6 +172,7 @@
       'desc.sunflower': 'ひまわり．',
       'desc.power_button': 'writer: Hori04', 'desc.clock': 'writer: sigtuna', 'desc.lattice': 'writer: ku',
       'desc.ceo': 'writer: occhan', 'desc.crab': 'writer: miku_hatsune', 'desc.packed2x9': 'writer: Hori04',
+      'desc.contest001': 'Human MAPF Contest 001',
       // tutorial
       't1.h': '1. 目的',
       't1.p': '丸 (エージェント) を、同じ番号・同じ色の四角 (ゴール) まで動かす<b>経路</b>を全員分作ります。時刻 t=0 から始まり、各時刻に全員が同時に 1 手ずつ動きます。全員が衝突なくゴールに着けば正解。<b>makespan</b> (全員がゴールに着く時刻) と <b>total distance</b> (総移動距離: 待機を除く移動回数の合計) が小さいほど高評価です。',
@@ -220,7 +225,7 @@
       'agent.optimal': 'min', 'agent.dist': '{0} moves / shortest {1}',
       'card.agentsHint': 'Coordinates are (x, y): <b>x goes down (row), y goes right (column)</b>. (0, 0) is the top-left',
       'card.agentsLegend': 'On the right: <b>moves / shortest</b>. The highlighted cell is <b class="lg opt">green = still shortest</b> · <b class="lg over">orange = longer</b> · <b class="lg">grey = not started</b>',
-      'stage.title': '{0} — {1} agents', 'status.stage': 'Stage: {0} / {1} agents', 'status.genFail': 'Failed to generate stage: {0}',
+      'stage.title': '{0} — {1}', 'status.stage': 'Stage: {0} / {1}', 'status.genFail': 'Failed to generate stage: {0}',
       'ref.running': 'Computing reference (LNS2)… <span class="mono">{0} iter</span>',
       'ref.ok': 'Reference ({2}): makespan <b class="mono">{0}</b> / distance <b class="mono">{1}</b>',
       'ref.fail': 'Reference (LNS2): not available',
@@ -239,7 +244,7 @@
       'result.ranks': 'DIAMOND ≤100% · PLATINUM ≤110% · GOLD ≤120% · SILVER ≤130% · BRONZE ≤150% (of the reference, both metrics)',
       'confirm.clearAll': 'Clear the paths of all agents?',
       'card.share': 'Ranking / Share', 'btn.ranking': '🏆 Ranking', 'btn.gif': '🎞 Save GIF', 'btn.tweet': 'Post on 𝕏',
-      'lb.title': '🏆 Ranking — {0} / {1} agents', 'lb.makespan': '⏱️ Makespan', 'lb.moves': '👣 Total distance', 'lb.total': '👑 Overall',
+      'lb.title': '🏆 Ranking — {0} / {1}', 'lb.makespan': '⏱️ Makespan', 'lb.moves': '👣 Total distance', 'lb.total': '👑 Overall',
       'lb.totalNote': 'Ranked by makespan × total distance (lower is better)',
       'lb.rank': '#', 'lb.name': 'Name', 'lb.loading': 'Loading…', 'lb.error': 'Could not load the ranking ({0})',
       'lb.empty': 'No entries yet. Be the first!', 'lb.players': '{0} players',
@@ -258,7 +263,7 @@
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
       'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3', 'map.big_tree': 'Big tree', 'map.temple': 'Temple', 'map.note': 'Eighth note', 'map.rotation': 'Rotation', 'map.sunflower': 'Sunflower', 'map.power_button': 'Power button', 'map.clock': 'Clock', 'map.lattice': 'Lattice',
-      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9',
+      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9', 'map.contest001': 'HMC001',
       // account
       'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
       'auth.titleLogin': 'Log in', 'auth.titleRegister': 'Sign up',
@@ -289,10 +294,14 @@
       'auth.sessionExpired': 'Please log in again',
       'wip.restored': 'Restored your work in progress (use "Clear all" to start over)',
       // home notice
-      'notice.date': '2026-08-31',
-      'notice.title': 'Stage maker is here',
-      'notice.lead': 'Create stages from the new Maker and publish the ones you have solved yourself. Published stages are <b>unrated</b> (no difficulty, no rating changes, no medal ranks - leaderboards still apply) and appear under "Community stages".',
-      'notice.i1': '<b>Writers wanted</b>: players rated 1800+ can instead submit a stage as a writer application. Accepted stages get a difficulty from the operator and become <b>rated</b>. Stages you have already published cannot be applied',
+      'notice.date': '2026-09-11',
+      'notice.title': 'Human MAPF Contest 001!',
+      'notice.lead': '<b>Rules</b>: just play as usual during the contest and compete on the overall score. One map, with a Div.1 (hard) and a Div.2 stage. The stages are revealed when the contest starts.<br><b>Dates</b>: <b class="hot">9/11 12:00 - 9/13 12:00</b><br><b>Prizes</b>: a 1000 JPY Amazon gift card for the overall winner of Div.1 and of Div.2',
+      'notice.i1': 'The stages stay rated after the contest.',
+      'notice.i2': 'Generative AI and computers (programming) are not allowed. Using them as a drawing tool is fine.',
+      'notice.i3': 'Players rated blue or above as of 9/11 8:00 are not eligible for the Div.2 prize; the top Div.2 finisher rated cyan or below receives it. If a cyan-or-below player wins both divisions, they take Div.1 and the Div.2 prize passes to the next player. "Cyan or below" includes players without an account.',
+      'notice.i4': 'Ties are broken by submission time, as always.',
+      'notice.i5': 'Winners: please contact me on X (DM) with some proof, e.g. a screenshot showing you logged in under your account name.',
       'notice.loggedIn': 'Logged in as {0}.',
       'notice.close': 'Close',
       'notice.reopen': 'Notice',
@@ -350,6 +359,7 @@
       'desc.sunflower': 'A sunflower.',
       'desc.power_button': 'writer: Hori04', 'desc.clock': 'writer: sigtuna', 'desc.lattice': 'writer: ku',
       'desc.ceo': 'writer: occhan', 'desc.crab': 'writer: miku_hatsune', 'desc.packed2x9': 'writer: Hori04',
+      'desc.contest001': 'Human MAPF Contest 001',
       't1.h': '1. Goal',
       't1.p': 'Build a <b>path</b> for every agent (circle) to the goal (square) with the same number and color. Time starts at t=0 and all agents move one step simultaneously at every time step. You succeed when everyone reaches their goal without collisions. Lower <b>makespan</b> (the time when everyone has arrived) and lower <b>total distance</b> (number of moves, waits excluded) score higher.',
       't2.h': '2. One step', 't2.move': 'Move 1 cell up/down/left/right', 't2.wait': 'Wait in place (shown as ● on the path)', 't2.p': 'No diagonal moves. Black cells are obstacles. Turning straight back (A→B→A) is allowed (dragging back onto the previous cell undoes the step, so use the arrow keys, or release and drag again, to enter a backward move).',
@@ -486,6 +496,12 @@
   function bestKey(mapId, N) { return `human_mapf_best:${mapId}:${N}`; }
   function readBest(mapId, N) { try { return JSON.parse(localStorage.getItem(bestKey(mapId, N)) || 'null'); } catch (e) { return null; } }
   function mapName(id) { if (S.custom && id === S.mapId) return S.custom.name; return t('map.' + id); }
+  // ステージの表示名. MAP_DEFS に stageNames があればそれを使う (コンテストの Div.1 / Div.2 など)
+  function stageName(mapId, N) {
+    const d = M.MAP_DEFS.find(x => x.id === mapId);
+    const nm = d && d.stageNames && d.stageNames[N];
+    return nm || t('agents.unit', +N);
+  }
 
   // ============================================================ stage
   function loadStage(mapId, N) {
@@ -508,7 +524,7 @@
     startReference();
     updateChampInfo();
     layout(); recompute(); renderAll();
-    setStatus(wip ? t('wip.restored') : t('status.stage', mapName(mapId), N));
+    setStatus(wip ? t('wip.restored') : t('status.stage', mapName(mapId), stageName(mapId, N)));
     saveMsg('');
   }
 
@@ -1142,14 +1158,14 @@
   function playerName() { return USER ? USER.name : ''; }
 
   // ---- ホームのお知らせ (レーティング導入の案内). 閉じたらこのブラウザでは出さない (キーを変えると再表示される)
-  const NOTICE_KEY = 'human_mapf_notice_maker';
+  const NOTICE_KEY = 'human_mapf_notice_contest001';
   function noticeDismissed() { try { return localStorage.getItem(NOTICE_KEY) === '1'; } catch (e) { return false; } }
   function renderNotice() {
     const el = $('notice'); if (!el) return;
     if (!LB.configured() || noticeDismissed()) { el.className = 'notice'; el.innerHTML = ''; return; }
     el.innerHTML = `<h3>${t('notice.title')}<span class="date">${t('notice.date')}</span></h3>
       <p>${t('notice.lead')}</p>
-      <ul><li>${t('notice.i1')}</li></ul>
+      <ul>${['i1', 'i2', 'i3', 'i4', 'i5'].map(k => `<li>${t('notice.' + k)}</li>`).join('')}</ul>
       ${USER ? `<p class="done">${t('notice.loggedIn', escapeHtml(USER.name))}</p>` : ''}
       <div class="row"><button class="notice-rating">${t('rating.btn')}</button><button class="notice-close">${t('notice.close')}</button></div>`;
     const rb = el.querySelector('.notice-rating');
@@ -1307,7 +1323,7 @@
 
   async function showRanking() {
     const ov = $('ranking'), body = $('ranking-body');
-    $('ranking-title').textContent = t('lb.title', mapName(S.mapId), S.N);
+    $('ranking-title').textContent = t('lb.title', mapName(S.mapId), S.custom ? t('agents.unit', S.N) : stageName(S.mapId, S.N));
     ov.classList.add('show');
     if (!LB.configured()) { body.innerHTML = `<div class="lb-msg">${t('lb.notConfigured')}</div>`; return; }
     body.innerHTML = `<div class="lb-msg">${t('lb.loading')}</div>`;
@@ -1404,7 +1420,7 @@
   }
   function stageLabel(stage) {
     const [id, n] = String(stage || '').split(':');
-    return id ? `${mapName(id)} ${t('agents.unit', +n)}` : '';
+    return id ? `${mapName(id)} ${stageName(id, +n)}` : '';
   }
 
   async function decorateHomeChamps() {
@@ -1645,7 +1661,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
         const b = readBest(d.id, n);
         const ch = document.createElement('button'); ch.className = 'chip' + (b ? ' ' + b.rank : '');
         ch.setAttribute('data-stage', `${d.id}:${n}`);
-        ch.innerHTML = diffBadge(`${d.id}:${n}`) + t('agents.unit', n) + (b ? `<span class="rk">${b.rank.toUpperCase()}</span><span class="sc">${b.makespan} / ${b.moves}</span>` : '');
+        ch.innerHTML = diffBadge(`${d.id}:${n}`) + stageName(d.id, n) + (b ? `<span class="rk">${b.rank.toUpperCase()}</span><span class="sc">${b.makespan} / ${b.moves}</span>` : '');
         ch.onclick = () => { Sound.ensure(); Sound.select(); showGame(d.id, n); };
         chips.appendChild(ch);
       }
@@ -1668,7 +1684,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
   function showGame(mapId, N) {
     $('home').classList.remove('show'); $('game').classList.add('show');
     $('result').className = 'result';
-    $('stage-title').innerHTML = escapeHtml(t('stage.title', mapName(mapId), N)) + ' ' + diffBadge(`${mapId}:${N}`, true);
+    $('stage-title').innerHTML = escapeHtml(t('stage.title', mapName(mapId), stageName(mapId, N))) + ' ' + diffBadge(`${mapId}:${N}`, true);
     try { loadStage(mapId, N); } catch (e) { setStatus(t('status.genFail', e.message), 'bad'); }
   }
 
@@ -1689,8 +1705,8 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     if ($('auth').classList.contains('show')) applyAuthLang();
     if ($('result').classList.contains('show')) refreshResultForm();
     if (S.map) {
-      $('stage-title').textContent = t('stage.title', mapName(S.mapId), S.N);
-      if (S.mode === 'edit') setStatus(t('status.stage', mapName(S.mapId), S.N));
+      $('stage-title').textContent = t('stage.title', mapName(S.mapId), stageName(S.mapId, S.N));
+      if (S.mode === 'edit') setStatus(t('status.stage', mapName(S.mapId), stageName(S.mapId, S.N)));
       updatePanel();
     }
   }
@@ -2024,7 +2040,7 @@ ${row('t6.drag', 't6.dragD')}${row('t6.click', 't6.clickD')}${row('t6.rclick', '
     S.lastResult = null;
     updateRefPanel(); updateChampInfo();
     layout(); recompute(); renderAll();
-    setStatus(wip ? t('wip.restored') : t('status.stage', S.custom.name, N));
+    setStatus(wip ? t('wip.restored') : t('status.stage', S.custom.name, t('agents.unit', N)));
     saveMsg('');
   }
 
