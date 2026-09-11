@@ -255,3 +255,6 @@ ul#agents li .ok { margin-left: 4px; }
 
 /* お知らせ内の強調 (開催期間など) */
 .notice .hot { color: #c0392b; }
+
+/* お知らせ内のリンク */
+.notice a { color: #2f6fe0; }

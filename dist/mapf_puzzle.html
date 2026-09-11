@@ -281,6 +281,9 @@ ul#agents li .ok { margin-left: 4px; }
 /* お知らせ内の強調 (開催期間など) */
 .notice .hot { color: #c0392b; }
 
+/* お知らせ内のリンク */
+.notice a { color: #2f6fe0; }
+
 </style>
 </head>
 <body>
@@ -1800,6 +1803,7 @@ window.CONFIG = {
       'notice.i1': 'ステージはコンテスト後も rated で残ります．',
       'notice.i2': '生成 AI，計算機 (プログラミング) の使用は禁止です．お絵描きツールとしての使用は許容されます．',
       'notice.i3': '9/11 8:00 時点でレーティングが青色以上の方は Div.2 の賞金受対象にはなりません．水色以下で総合部門 1 位の方が Div.2 の賞金対象となります．また，水色以下の方が Div.1 と Div.2 の両方で優勝した場合，Div.1 の優勝者とし Div.2 の賞金対象を繰り上げます．ここで言う水色以下とは現在アカウント未作成の方も含みます．',
+      'notice.i3b': '9/11 8:00 時点でレーティング青以上の方のリストは<a href="https://x.com/fuwaorune/status/2098189681389400514?s=20" target="_blank" rel="noopener">こちら</a>です．',
       'notice.i4': '同率はこれまで通り提出時刻が早い人が上位になります．',
       'notice.i5': '賞金対象となった方は，何らかの証拠 (自分のアカウント名でログインしている様子など) を添付して X の DM 等でご連絡ください．',
       'notice.loggedIn': '{0} としてログイン中です。',
@@ -1987,6 +1991,7 @@ window.CONFIG = {
       'notice.i1': 'The stages stay rated after the contest.',
       'notice.i2': 'Generative AI and computers (programming) are not allowed. Using them as a drawing tool is fine.',
       'notice.i3': 'Players rated blue or above as of 9/11 8:00 are not eligible for the Div.2 prize; the top Div.2 finisher rated cyan or below receives it. If a cyan-or-below player wins both divisions, they take Div.1 and the Div.2 prize passes to the next player. "Cyan or below" includes players without an account.',
+      'notice.i3b': 'The list of players rated blue or above as of 9/11 8:00 is <a href="https://x.com/fuwaorune/status/2098189681389400514?s=20" target="_blank" rel="noopener">here</a>.',
       'notice.i4': 'Ties are broken by submission time, as always.',
       'notice.i5': 'Winners: please contact me on X (DM) with some proof, e.g. a screenshot showing you logged in under your account name.',
       'notice.loggedIn': 'Logged in as {0}.',
@@ -2852,7 +2857,7 @@ window.CONFIG = {
     if (!LB.configured() || noticeDismissed()) { el.className = 'notice'; el.innerHTML = ''; return; }
     el.innerHTML = `<h3>${t('notice.title')}<span class="date">${t('notice.date')}</span></h3>
       <p>${t('notice.lead')}</p>
-      <ul>${['i1', 'i2', 'i3', 'i4', 'i5'].map(k => `<li>${t('notice.' + k)}</li>`).join('')}</ul>
+      <ul>${['i1', 'i2', 'i3', 'i3b', 'i4', 'i5'].map(k => `<li>${t('notice.' + k)}</li>`).join('')}</ul>
       ${USER ? `<p class="done">${t('notice.loggedIn', escapeHtml(USER.name))}</p>` : ''}
       <div class="row"><button class="notice-rating">${t('rating.btn')}</button><button class="notice-close">${t('notice.close')}</button></div>`;
     const rb = el.querySelector('.notice-rating');
