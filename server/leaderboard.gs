@@ -5,7 +5,9 @@
  * 連結した dist/leaderboard.gs が生成されるので, それを Apps Script に貼り付ける.
  *
  * シート:
- *   scores … ts, stage, name, makespan, moves, paths   (1 提出 1 行. 既存データはそのまま使う)
+ *   scores … ts, stage, name, makespan, moves, paths…   (1 提出 1 行. 既存データはそのまま使う)
+ *            経路は 1 セル 50,000 文字の上限を超えることがある (ceo:500 で最大 7.6 万字) ので,
+ *            超える分は F 列の右隣に続けて書く. 読むときは 6 列目以降を連結する
  *   users  … name, namekey, salt, hash, iter, tokenSalt, serial, created, lastLogin, fail, failUntil, legacy
  *
  * API (ウェブアプリ URL):
@@ -132,12 +134,29 @@ function legacyInfo_(namekey) {
   return { count: n, name: name };
 }
 
+// ---------------------------------------------------------------- 経路の保存 (セル上限対策)
+// スプレッドシートの 1 セルは 50,000 文字まで. ceo:500 (500 体 x 最大 151 手) の提出は連結すると
+// 最大 7.6 万字になり, 1 セルに入れると保存が例外で落ちる. 上限を超える分は右の列に続けて書く.
+var PATHS_COL = 6;          // 経路の先頭列 (F)
+var CELL_MAX = 45000;       // 1 セルに入れる上限 (50,000 に余裕を持たせる)
+var PATHS_MAX = 400000;     // 1 提出で受け付ける経路の総文字数 (正当な解はこれよりはるかに小さい)
+function splitPaths_(s) {
+  var out = [];
+  for (var i = 0; i < s.length; i += CELL_MAX) out.push(s.substring(i, i + CELL_MAX));
+  return out.length ? out : [''];
+}
+function joinPaths_(cells) {
+  var s = '';
+  for (var i = 0; i < cells.length; ++i) s += String(cells[i] == null ? '' : cells[i]);
+  return s;
+}
+
 // ---------------------------------------------------------------- ダンプ (バックアップ用)
 var DUMP_MAX = 500;
 function dump_(sheetName, from, limit) {
   var users = sheetName === USERS_SHEET, custom = sheetName === CUSTOM_SHEET;
   var sh = users ? getUsers_() : custom ? getCustomSheet_() : getSheet_();
-  var cols = users ? USER_COLS : custom ? CUSTOM_COLS.length : 6;
+  var cols = users ? USER_COLS : custom ? CUSTOM_COLS.length : Math.max(PATHS_COL, sh.getLastColumn());
   var last = sh.getLastRow();
   var total = Math.max(0, last - 1);
   from = Math.max(0, Math.floor(from) || 0);
@@ -147,7 +166,7 @@ function dump_(sheetName, from, limit) {
   var rows = vals.map(function (r) {
     if (users) return { name: String(r[0]), namekey: String(r[1]), salt: String(r[2]), hash: String(r[3]), iter: +r[4], tokenSalt: String(r[5]), serial: +r[6], created: +r[7], lastLogin: +r[8], fail: +r[9], failUntil: +r[10], legacy: !!r[11] };
     if (custom) return { ts: +r[0], id: +r[1], kind: String(r[2]), name: String(r[3]), author: String(r[4]), w: +r[5], h: +r[6], pattern: String(r[7]), stages: JSON.parse(String(r[8]) || '{}'), solvers: JSON.parse(String(r[9]) || '{}'), status: String(r[10]) };
-    return { ts: +r[0], stage: String(r[1]), name: String(r[2]), makespan: +r[3], moves: +r[4], paths: String(r[5]).split(',') };
+    return { ts: +r[0], stage: String(r[1]), name: String(r[2]), makespan: +r[3], moves: +r[4], paths: joinPaths_(r.slice(PATHS_COL - 1)).split(',') };
   });
   var next = from + rows.length;
   return { ok: true, sheet: sheetName, total: total, from: from, count: rows.length, next: next < total ? next : null, rows: rows };
@@ -318,7 +337,10 @@ function record_(body, name, legacy) {
   if (!v.ok) return { ok: false, error: v.error };
   var sh = getSheet_();
   var ts = Date.now();
-  sh.appendRow([ts, v.stage, v.name, v.makespan, v.moves, body.paths.join(',')]);
+  var cells = splitPaths_(body.paths.join(','));
+  var need = PATHS_COL - 1 + cells.length;
+  if (sh.getMaxColumns() < need) sh.insertColumnsAfter(sh.getMaxColumns(), need - sh.getMaxColumns());
+  sh.appendRow([ts, v.stage, v.name, v.makespan, v.moves].concat(cells));
   var rows = readAll_();
   var b = board_(rows, v.stage);
   var rankIn = function (list) {
@@ -342,6 +364,9 @@ function validate_(body, name) {
   if (!def || def.agents.indexOf(N) < 0) return { ok: false, error: 'unknown stage' };
   if (!name) return { ok: false, error: 'bad name' };
   if (!Array.isArray(body.paths) || body.paths.length !== N) return { ok: false, error: 'bad paths' };
+  var totalLen = 0;
+  for (var q = 0; q < N; ++q) totalLen += String(body.paths[q]).length + 1;
+  if (totalLen > PATHS_MAX) return { ok: false, error: 'paths too large' };
   var map = MAPS.getMap(def.id), G = LNS2.buildGraph(map);
   var ins = MAPS.getInstance(def.id, N, G);
   var paths = [];
