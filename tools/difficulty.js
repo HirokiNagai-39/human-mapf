@@ -64,9 +64,9 @@ const OVERRIDES = {
   'contest001:30': 1600, 'contest001:75': 2400,
   // 卍 / Game / Pinwheel (2026-09-21 ユーザー決定). game:100 は狭路指標 C=7.54 で X=cW*C^4 が暴走し
   // 計測値 37315 になるため上位帯に収める. 他は人間にとっての手応えに合わせて控えめに
-  'manji:4': 1600, 'manji:8': 2200, 'manji:12': 2800,
+  'manji:4': 1200, 'manji:8': 1800, 'manji:12': 2800,
   'game:30': 2000, 'game:50': 2800, 'game:100': 3200,
-  'pinwheel:4': 65, 'pinwheel:8': 1600, 'pinwheel:12': 2200, 'pinwheel:20': 2800,
+  'pinwheel:4': 400, 'pinwheel:8': 1200, 'pinwheel:12': 1800, 'pinwheel:20': 2800,
 };
 
 function pava(v) {
