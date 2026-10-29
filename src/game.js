@@ -76,7 +76,7 @@
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
       'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3', 'map.big_tree': 'Big tree', 'map.temple': 'Temple', 'map.note': 'Eighth note', 'map.rotation': 'Rotation', 'map.sunflower': 'Sunflower', 'map.power_button': 'Power button', 'map.clock': 'Clock', 'map.lattice': 'Lattice',
-      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9', 'map.contest001': 'HMC001',
+      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9', 'map.contest001': 'HMC001', 'map.contest002': 'HMC002',
       'map.manji': '卍', 'map.game': 'Game', 'map.pinwheel': 'Pinwheel', 'map.hundred': '100',
       // アカウント
       'auth.login': 'ログイン', 'auth.register': '新規登録', 'auth.logout': 'ログアウト',
@@ -175,6 +175,7 @@
       'desc.power_button': 'writer: Hori04', 'desc.clock': 'writer: sigtuna', 'desc.lattice': 'writer: ku',
       'desc.ceo': 'writer: occhan', 'desc.crab': 'writer: miku_hatsune', 'desc.packed2x9': 'writer: Hori04',
       'desc.contest001': 'Human MAPF Contest 001',
+      'desc.contest002': 'Human MAPF Contest 002',
       'desc.manji': 'writer: miku_hatsune', 'desc.game': 'writer: sigtuna', 'desc.pinwheel': 'writer: kukone',
       'desc.hundred': '登録ユーザー 100 人突破記念．',
       // tutorial
@@ -267,7 +268,7 @@
       'map.warehouse_hard': 'Warehouse-hard', 'map.hourglass': 'Hourglass', 'map.bremen': 'Bremen',
       'map.empty_but_not_empty': 'Empty but not empty',
       'map.small_tree_1': 'Small tree No.1', 'map.small_tree_2': 'Small tree No.2', 'map.small_tree_3': 'Small tree No.3', 'map.big_tree': 'Big tree', 'map.temple': 'Temple', 'map.note': 'Eighth note', 'map.rotation': 'Rotation', 'map.sunflower': 'Sunflower', 'map.power_button': 'Power button', 'map.clock': 'Clock', 'map.lattice': 'Lattice',
-      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9', 'map.contest001': 'HMC001',
+      'map.ceo': 'CEO', 'map.crab': 'Crab', 'map.packed2x9': '2x9', 'map.contest001': 'HMC001', 'map.contest002': 'HMC002',
       'map.manji': '卍', 'map.game': 'Game', 'map.pinwheel': 'Pinwheel', 'map.hundred': '100',
       // account
       'auth.login': 'Log in', 'auth.register': 'Sign up', 'auth.logout': 'Log out',
@@ -366,6 +367,7 @@
       'desc.power_button': 'writer: Hori04', 'desc.clock': 'writer: sigtuna', 'desc.lattice': 'writer: ku',
       'desc.ceo': 'writer: occhan', 'desc.crab': 'writer: miku_hatsune', 'desc.packed2x9': 'writer: Hori04',
       'desc.contest001': 'Human MAPF Contest 001',
+      'desc.contest002': 'Human MAPF Contest 002',
       'desc.manji': 'writer: miku_hatsune', 'desc.game': 'writer: sigtuna', 'desc.pinwheel': 'writer: kukone',
       'desc.hundred': 'Celebrating 100 registered players.',
       't1.h': '1. Goal',
